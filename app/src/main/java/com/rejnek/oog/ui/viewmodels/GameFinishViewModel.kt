@@ -1,23 +1,69 @@
 package com.rejnek.oog.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
-class GameFinishViewModel : ViewModel() {
+class GameFinishViewModel(
+    private val gameRepository: GameRepository
+) : ViewModel() {
     // UI state
     private val _uiState = MutableStateFlow(GameFinishUiState())
     val uiState: StateFlow<GameFinishUiState> = _uiState.asStateFlow()
 
+    init {
+        loadGameCompletionData()
+    }
+
     // Actions/events that can be performed in this screen
     fun onStart() {
-        // Load game completion data, calculate final score, etc.
+        loadGameCompletionData()
+    }
+
+    private fun loadGameCompletionData() {
+        viewModelScope.launch {
+            val context = gameRepository.currentGame.value
+//            if (context != null) {
+//                val completedElements = gameRepository.getCompletedElements()
+//                val visibleElements = gameRepository.getVisibleElements()
+//                val totalElements = gameRepository.currentGame.value?.elements?.size ?: 0
+//
+//                val completionPercentage = if (totalElements > 0) {
+//                    (completedElements.size * 100) / totalElements
+//                } else 0
+//
+//                val gameName = gameRepository.currentGame.value?.startElement?.name ?: "Game"
+//
+//                _uiState.value = _uiState.value.copy(
+//                    isLoading = false,
+//                    completionMessage = "Congratulations! You have completed '$gameName'.",
+//                    score = completionPercentage,
+//                    timeTaken = "Time not tracked", // Could be enhanced with actual time tracking
+//                    achievements = listOf(
+//                        "Completed ${completedElements.size} tasks",
+//                        "Visited ${visibleElements.size} locations",
+//                        "Achievement: Game Finisher"
+//                    ),
+//                    completedElements = completedElements.toList(),
+//                    visitedLocations = visibleElements.toList()
+//                )
+//            } else {
+//                _uiState.value = _uiState.value.copy(
+//                    isLoading = false,
+//                    completionMessage = "Game completed, but no data available.",
+//                    score = 0
+//                )
+//            }
+        }
     }
 
     fun onBackToHomeClicked() {
-        // Handle return to home logic here
-        // For now this is just a shell since the navigation is handled in the Router
+        // Clean up game data when returning to home
+        gameRepository.cleanup()
     }
 }
 
@@ -27,5 +73,7 @@ data class GameFinishUiState(
     val completionMessage: String = "Congratulations! You have completed the game.",
     val score: Int = 0,
     val timeTaken: String = "",
-    val achievements: List<String> = emptyList()
+    val achievements: List<String> = emptyList(),
+    val completedElements: List<String> = emptyList(),
+    val visitedLocations: List<String> = emptyList()
 )

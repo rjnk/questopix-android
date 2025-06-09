@@ -11,6 +11,7 @@ composeBom = "2025.06.00"
 kotlinSerialization = "1.8.0"
 navigationCompose = "2.9.0"
 koin = "4.0.3"
+rhino = "1.7.14"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +35,8 @@ androidx-navigation-compose = { group = "androidx.navigation", name = "navigatio
 koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+# JavaScript engine
+rhino = { group = "org.mozilla", name = "rhino", version.ref = "rhino" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
