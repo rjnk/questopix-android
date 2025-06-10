@@ -13,7 +13,8 @@ const start = {
     },
     description: "Tohle je jednoduchá demonstrační hra pro účely vyzkoušení načítání z javascriptu.",
     onContinue: function() {
-        nextElement("nav1");
+        consolePrint("CONSOLE PRINT: game is starting!");
+        showElement("nav1");
     }
 }
 
@@ -28,7 +29,8 @@ const nav1 = {
     },
     description: "Jdi po cestě až se dostaneš k malému mostku.",
     onContinue: function() {
-        nextElement("task1");
+        consolePrint("CONSOLE PRINT: nav1!");
+        showElement("task1");
     }
 }
 
@@ -38,7 +40,7 @@ const task1 = {
     type: "task",
     description: "Projdi se pod mostem, pak můžeš pokračovat",
     onContinue: function() {
-        nextElement("nav2");
+        showElement("finish");
     }
 }
 
@@ -53,7 +55,7 @@ const nav2 = {
     },
     description: "Následuj značky až k rybníku.",
     onContinue: function() {
-        nextElement("task2");
+        showElement("task2");
     }
 }
 
@@ -63,7 +65,7 @@ const task2 = {
     type: "task",
     description: "Pozoruj přírodu kolem rybníka a pak pokračuj. TUUUUU!",
     onContinue: function() {
-        nextElement("finish");
+        showElement("finish");
     }
 }
 

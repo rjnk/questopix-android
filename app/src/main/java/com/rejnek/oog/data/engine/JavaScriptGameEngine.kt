@@ -25,10 +25,10 @@ class JavaScriptGameEngine(
             jsContext?.optimizationLevel = -1 // Disable optimization for Android compatibility
             
             scope = jsContext?.initStandardObjects()
-
-            // Add game API functions to JavaScript context
-//            addGameApiFunctions(gameRepository.currentGame.value)
             
+            // Define console functions for JavaScript
+            defineConsoleFunctions()
+
             // Execute the game script
             jsContext?.evaluateString(scope, gameScript, "game.js", 1, null)
             
@@ -38,70 +38,43 @@ class JavaScriptGameEngine(
         }
     }
 
-//    private fun addGameApiFunctions(gameContext: Game?) {
-//        scope?.let { scope ->
-//            // Create a game API object that can be accessed from JavaScript
-//            val gameAPI = object : ScriptableObject() {
-//                override fun getClassName(): String = "GameAPI"
-//            }
-//
-//            // Make gameAPI available globally
-//            ScriptableObject.defineProperty(scope, "gameAPI", gameAPI, ScriptableObject.DONTENUM)
-//
-//            // Create nextElement function to change the current game element
-//            val nextElementFunction = object : BaseFunction() {
-//                override fun call(
-//                    cx: Context?,
-//                    scope: Scriptable?,
-//                    thisObj: Scriptable?,
-//                    args: Array<out Any>?
-//                ): Any {
-//                    if (args != null && args.isNotEmpty()) {
-//                        val elementName = args[0].toString()
-//                        Log.d("JavaScriptGameEngine", "nextElement called with: $elementName")
-//                        currentGameRef?.let { game ->
-//                            // Find the requested element
-//                            val nextElement = game.elements.find { it.id == elementName }
-//                            if (nextElement != null) {
-//                                // Update the current game reference with a new Game object that has the updated currentElement
-//                                currentGameRef = game.copy(currentElement = nextElement)
-//                                Log.d("JavaScriptGameEngine", "Current element changed to: ${nextElement.name}")
-//                            } else {
-//                                Log.e("JavaScriptGameEngine", "Element not found: $elementName")
-//                            }
-//                        }
-//                    }
-//                    return Undefined.instance
-//                }
-//
-//                override fun getFunctionName(): String = "nextElement"
-//            }
-//
-//            // Define the nextElement function in the global scope
-//            ScriptableObject.defineProperty(scope, "nextElement", nextElementFunction, ScriptableObject.DONTENUM)
-//        }
-//    }
-//
-//    fun executeOnContinue(element: GameElement, gameContext: Game): Result<Unit> {
-//        Log.d("JavaScriptGameEngine", "Executing onContinue for element: ${element.name}")
-//        return element.onContinueScript?.let { script ->
-//            executeScript(script, gameContext)
-//        } ?: Result.success(Unit)
-//    }
+    private fun defineConsoleFunctions() {
+        scope?.let { scope ->
+            // Define consolePrint function
+            val consolePrint = object : BaseFunction() {
+                override fun call(
+                    cx: Context,
+                    scope: Scriptable,
+                    thisObj: Scriptable,
+                    args: Array<Any>
+                ): Any {
+                    val message = if (args.isNotEmpty()) args[0].toString() else ""
+                    Log.d("GameScript", message)
+                    return Undefined.instance
+                }
+            }
+            val showElement = object : BaseFunction() {
+                override fun call(
+                    cx: Context,
+                    scope: Scriptable,
+                    thisObj: Scriptable,
+                    args: Array<Any>
+                ): Any {
+                    val nextElementName = if (args.isNotEmpty()) args[0].toString() else ""
 
-//    private fun executeScript(script: String, gameContext: Game): Result<Unit> {
-//        return try {
-//            jsContext?.evaluateString(scope, script, "inline", 1, null)
-//            Log.d("JavaScriptGameEngine", "Executed script: $script")
-//            // Update the current game reference after executing the script
-//            currentGameRef = gameContext.copy(
-//                currentElement = gameContext.currentElement // Assuming the script might change the current element
-//            )
-//            Result.success(Unit)
-//        } catch (e: Exception) {
-//            Result.failure(e)
-//        }
-//    }
+                    Log.d("GameScript", "Showing element: $nextElementName")
+
+                    gameRepository.setCurrentElement(nextElementName)
+                    return Undefined.instance
+                }
+            }
+
+            ScriptableObject.putProperty(scope, "consolePrint", consolePrint)
+            ScriptableObject.putProperty(scope, "showElement", showElement)
+
+            // We could add more console functions here in the future
+        }
+    }
 
     fun getElementFromScope(elementName: String): GameElement? {
         return try {
@@ -165,5 +138,21 @@ class JavaScriptGameEngine(
         jsContext?.let { Context.exit() }
         jsContext = null
         scope = null
+    }
+
+    fun executeOnContinue(element: GameElement?): Result<Unit> {
+        if (element == null) return Result.failure(Exception("Element is null"))
+
+        return try {
+            element.onContinueScript?.let { scriptToExecute ->
+                Log.d("JavaScriptGameEngine", "Executing script: $scriptToExecute")
+                jsContext?.evaluateString(scope, scriptToExecute, "onContinue", 1, null)
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Log.e("JavaScriptGameEngine", "Error executing onContinue", e)
+            Result.failure(e)
+        }
     }
 }
