@@ -65,14 +65,12 @@ class GameRepository {
             // Extract game elements from JavaScript objects
             val elements = mutableListOf<GameElement>()
 
-            // Try to extract common element names (start, nav1, task1, etc.)
-            val elementNames = listOf("start", "nav1", "nav2", "task1", "task2", "task3", "finish")
+            // Get all available elements from the JavaScript scope
+            val availableElements = jsEngine.getAllElementsFromScope()
 
-            for (elementName in elementNames) {
-                jsEngine.getElementFromScope(elementName)?.let { element ->
-                    elements.add(element)
-                }
-            }
+            elements.addAll(availableElements)
+            Log.d("GameRepository", "Found ${availableElements.size} game elements")
+
 
             if (elements.isEmpty()) {
                 return Result.failure(Exception("No game elements found in JavaScript"))

@@ -40,7 +40,7 @@ const task1 = {
     type: "task",
     description: "Projdi se pod mostem, pak můžeš pokračovat",
     onContinue: function() {
-        showElement("finish");
+        showElement("nav2");
     }
 }
 
@@ -55,7 +55,7 @@ const nav2 = {
     },
     description: "Následuj značky až k rybníku.",
     onContinue: function() {
-        showElement("task2");
+        showElement("finish");
     }
 }
 

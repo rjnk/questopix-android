@@ -23,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.data.model.GameElementType
 import com.rejnek.oog.ui.viewmodels.GameNavigationTextViewModel
+import com.rejnek.oog.ui.viewmodels.GameNavigationTextViewModel.NavigationEvent
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -32,11 +33,13 @@ fun GameNavigationTextScreen(
     onFinishTask: () -> Unit,
     viewModel: GameNavigationTextViewModel = koinViewModel()
 ) {
-    val elementType by viewModel.currentElementType.collectAsState()
 
-    LaunchedEffect(elementType) {
-        if(elementType == GameElementType.FINISH){
-            onFinishTask()
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collect { event ->
+            when (event) {
+                is NavigationEvent.Finish -> onFinishTask()
+                // Add other navigation events as needed
+            }
         }
     }
 

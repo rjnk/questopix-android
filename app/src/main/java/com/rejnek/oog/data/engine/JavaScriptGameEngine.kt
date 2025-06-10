@@ -155,4 +155,49 @@ class JavaScriptGameEngine(
             Result.failure(e)
         }
     }
+
+    /**
+     * Gets all game elements available in the JavaScript scope.
+     * This method examines all properties in the scope, filters out
+     * those that appear to be game elements, and converts them to GameElement objects.
+     */
+    fun getAllElementsFromScope(): List<GameElement> {
+        val elements = mutableListOf<GameElement>()
+
+        try {
+            scope?.let { scope ->
+                // Get all property names from the scope
+                val propertyIds = ScriptableObject.getPropertyIds(scope)
+
+                for (id in propertyIds) {
+                    val propertyName = id.toString()
+
+                    // Skip built-in JavaScript objects and functions
+                    if (propertyName.startsWith("_") ||
+                        listOf("consolePrint", "showElement", "console").contains(propertyName)) {
+                        continue
+                    }
+
+                    val obj = ScriptableObject.getProperty(scope, propertyName)
+
+                    // Check if property is a JavaScript object that looks like a game element
+                    if (obj is Scriptable &&
+                        (ScriptableObject.hasProperty(obj, "type"))) {
+
+                        Log.d("JavaScriptGameEngine", "Found potential game element: $propertyName")
+
+                        convertJSObjectToGameElement(obj, propertyName).let { element ->
+                            elements.add(element)
+                        }
+                    }
+                }
+
+                Log.d("JavaScriptGameEngine", "Found ${elements.size} game elements in JavaScript scope")
+            }
+        } catch (e: Exception) {
+            Log.e("JavaScriptGameEngine", "Error extracting game elements from scope", e)
+        }
+
+        return elements
+    }
 }
