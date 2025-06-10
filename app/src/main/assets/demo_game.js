@@ -1,6 +1,10 @@
 // Demo JavaScript Game for OOG
 // This file shows how to create a game using JavaScript
 
+const variables = {
+    score: Math.floor(Math.random() * 100)
+}
+
 // startovní úkol
 const start = {
     name: "Hra v divočině",
@@ -29,8 +33,14 @@ const nav1 = {
     },
     description: "Jdi po cestě až se dostaneš k malému mostku.",
     onContinue: function() {
-        consolePrint("CONSOLE PRINT: nav1!");
-        showElement("task1");
+        consolePrint("CONSOLE PRINT: nav1! + " + variables.score);
+
+        if(variables.score > 50) {
+            showElement("finish");
+        }
+        else{
+            showElement("task1");
+        }
     }
 }
 
