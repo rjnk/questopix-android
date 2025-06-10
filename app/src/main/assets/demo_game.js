@@ -61,7 +61,7 @@ const nav2 = {
 const task2 = {
     name: "Rybníkový úkol",
     type: "task",
-    description: "Pozoruj přírodu kolem rybníka a pak pokračuj",
+    description: "Pozoruj přírodu kolem rybníka a pak pokračuj. TUUUUU!",
     onContinue: function() {
         nextElement("finish");
     }
@@ -70,5 +70,6 @@ const task2 = {
 // ukončení hry
 const finish = {
     name: "Konec hry",
-    description: "Gratulujeme! Dokončili jste hru v divočině!"
+    type: "finish",
+    description: "Gratulujeme! Dokončili jste hru v divočině!",
 }

@@ -3,66 +3,41 @@ package com.rejnek.oog.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rejnek.oog.data.repository.GameRepository
-import com.rejnek.oog.data.model.GameElementType
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import android.util.Log
+import com.rejnek.oog.data.model.GameElementType
 
 class GameNavigationTextViewModel(
     private val gameRepository: GameRepository
 ) : ViewModel() {
-    // UI state
-    private val _uiState = MutableStateFlow(GameNavigationTextUiState())
-    val uiState: StateFlow<GameNavigationTextUiState> = _uiState.asStateFlow()
+    private val _name = MutableStateFlow("Loading...")
+    val name = _name.asStateFlow()
+
+    private val _description = MutableStateFlow("Loading...")
+    val description = _description.asStateFlow()
+
+    private val _currentElementType = MutableStateFlow<GameElementType>(GameElementType.UNKNOWN)
+    val currentElementType = _currentElementType.asStateFlow()
 
     init {
-        loadNavigationData()
-    }
-
-    // Actions/events that can be performed in this screen
-    fun onStart() {
-        loadNavigationData()
-    }
-
-    private fun loadNavigationData() {
         viewModelScope.launch {
-            val context = gameRepository.currentGame.value
-            if (context != null) {
-                val currentNav = context.currentElement
-
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    navigationTitle = currentNav.name,
-                    navigationText = currentNav.description,
-                    nextLocationName = currentNav.name,
-                    coordinates = currentNav.coordinates
-                )
-                } else {
-                    _uiState.value = _uiState.value.copy(
-                        isLoading = false,
-                        navigationTitle = "Error",
-                        navigationText = "Error loading.",
-                        nextLocationName = ""
-                    )
+            gameRepository.currentGame.collectLatest { updatedGame ->
+                updatedGame?.let { game ->
+                    Log.d("GameViewModel", "Game updated: ${game.currentElement.name}, index: ${game.currentElementIndex}")
+                    _name.value = game.currentElement.name
+                    _description.value = game.currentElement.description
+                    _currentElementType.value = game.currentElement.elementType
                 }
             }
+        }
     }
 
     fun onContinueClicked() {
         viewModelScope.launch {
-            gameRepository.executeOnContinue(
-                gameRepository.currentGame.value?.currentElement ?: return@launch
-            )
+            gameRepository.executeOnContinue(null)
         }
     }
 }
-
-// Data class representing the UI state of the GameNavigationText screen
-data class GameNavigationTextUiState(
-    val isLoading: Boolean = false,
-    val navigationTitle: String = "Navigation Instructions",
-    val navigationText: String = "Here you can see navigation text instructions that will guide you to the next location.",
-    val nextLocationName: String = "",
-    val coordinates: com.rejnek.oog.data.model.Coordinates? = null
-)

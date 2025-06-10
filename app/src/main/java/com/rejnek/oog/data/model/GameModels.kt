@@ -14,21 +14,26 @@ data class GameElement(
     val id: String,
     val name: String,
     val elementType: GameElementType,
-    var visible: Boolean = false,
     val coordinates: Coordinates,
     val description: String,
     val onContinueScript: String? = null,
+
+    var visible: Boolean = false,
 )
 
 enum class GameElementType {
+    UNKNOWN,
     START,
     NAVIGATION,
-    TASK
+    TASK,
+    FINISH
 }
 
 @Serializable
 data class Game(
     val elements: List<GameElement>,
     val gameType: String? = null,
-    val currentElement: GameElement
+
+    val currentElement: GameElement,
+    val currentElementIndex: Int
 )

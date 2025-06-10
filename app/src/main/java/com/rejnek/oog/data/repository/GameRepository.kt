@@ -10,7 +10,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import android.util.Log
 
 class GameRepository {
-    private val jsEngine = JavaScriptGameEngine()
+    private val jsEngine = JavaScriptGameEngine(
+        this
+    )
     
     private val _currentGame = MutableStateFlow<Game?>(null)
     val currentGame: StateFlow<Game?> = _currentGame.asStateFlow()
@@ -22,17 +24,17 @@ class GameRepository {
         return try {
 
             // Initialize JavaScript engine with the game script
-            val initResult = jsEngine.initialize(gameScript, currentGame.value)
+            val initResult = jsEngine.initialize(gameScript)
             if (initResult.isFailure) {
                 return Result.failure(initResult.exceptionOrNull()!!)
             }
             
             // Extract game elements from JavaScript objects
             val elements = mutableListOf<GameElement>()
-            
+
             // Try to extract common element names (start, nav1, task1, etc.)
-            val elementNames = listOf("start", "nav1", "nav2", "task1", "task2", "task3")
-            
+            val elementNames = listOf("start", "nav1", "nav2", "task1", "task2", "task3", "finish")
+
             for (elementName in elementNames) {
                 jsEngine.getElementFromScope(elementName)?.let { element ->
                     elements.add(element)
@@ -42,15 +44,13 @@ class GameRepository {
             if (elements.isEmpty()) {
                 return Result.failure(Exception("No game elements found in JavaScript"))
             }
-            
-            // Find start element
-            val startElement = elements.find { it.elementType == GameElementType.START }
-                ?: return Result.failure(Exception("No start element found"))
-            
+
             val game = Game(
                 elements = elements,
-                currentElement = startElement,
-                gameType = "linear"
+                gameType = "linear",
+
+                currentElement = elements.firstOrNull { it.elementType == GameElementType.START } ?: elements.first(),
+                currentElementIndex = 0,
                 )
             
             _currentGame.value = game
@@ -64,31 +64,30 @@ class GameRepository {
     /**
      * Execute onContinue script for a game element
      */
-    suspend fun executeOnContinue(element: GameElement): Result<Unit> {
-        val context = _currentGame.value ?: return Result.failure(Exception("No game context"))
-        val result = jsEngine.executeOnContinue(element, context)
+    suspend fun executeOnContinue(element: GameElement?): Result<Unit> {
+        val game = _currentGame.value ?: return Result.failure(Exception("No game context"))
+        // val result = jsEngine.executeOnContinue(element, game)
 
-        // After executing the onContinue script, check if the game state was updated by the JavaScript code
-        jsEngine.getCurrentGameRef()?.let { updatedGame ->
-            if (updatedGame.currentElement != context.currentElement) {
-                Log.d("GameRepository", "Game current element changed from ${context.currentElement.name} to ${updatedGame.currentElement.name}")
-                _currentGame.value = updatedGame
-            }
+        Log.d("GameRepository", "Execute on continue mock")
+
+        _currentGame.value?.let { game ->
+            val nextIndex = game.currentElementIndex + 1
+            val nextElement = game.elements.getOrNull(nextIndex) ?: game.currentElement
+            _currentGame.value = game.copy(
+                currentElementIndex = nextIndex,
+                currentElement = nextElement
+            )
         }
 
-        return result
+//        // After executing the onContinue script, check if the game state was updated by the JavaScript code
+//        jsEngine.getCurrentGameRef()?.let { updatedGame ->
+//            if (updatedGame.currentElement != game.currentElement) {
+//                _currentGame.value = updatedGame
+//            }
+//        }
+
+        return Result.success(Unit)
     }
-    
-//    /**
-//     * Set current game element (when player reaches a location)
-//     */
-//    suspend fun setCurrentElement(element: GameElement) {
-//        val context = _gameContext.value?.copy(currentElement = element)
-//        _gameContext.value = context
-//
-//        // Execute onEnter script if present
-//        executeOnEnter(element)
-//    }
     
     /**
      * Clean up JavaScript engine
