@@ -14,11 +14,11 @@ import org.koin.dsl.module
 val appModule = module {
     // Repositories
     single { JsGameEngine(androidContext()) }
-    single { GameRepository(androidContext(), get<JsGameEngine>()) }
+    single { GameRepository(get()) }
 
     // ViewModels
-    viewModel { HomeViewModel(get<GameRepository>()) }
-    viewModel { GameStartViewModel(get<GameRepository>()) }
-    viewModel { GameNavigationTextViewModel(get<GameRepository>()) }
-    viewModel { GameFinishViewModel(get<GameRepository>()) }
+    viewModel { HomeViewModel(get()) }
+    viewModel { GameStartViewModel(get()) }
+    viewModel { GameNavigationTextViewModel(get()) }
+    viewModel { GameFinishViewModel(get()) }
 }

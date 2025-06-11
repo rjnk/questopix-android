@@ -14,9 +14,7 @@ data class GameElement(
     val id: String,
     val name: String,
     val elementType: GameElementType,
-    val coordinates: Coordinates,
     val description: String,
-    val onContinueScript: String? = null,
 
     var visible: Boolean = false,
 )

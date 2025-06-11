@@ -28,7 +28,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.ui.components.OOGLogo
-import com.rejnek.oog.ui.viewmodels.HomeUiState
 import com.rejnek.oog.ui.viewmodels.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -37,17 +36,14 @@ fun HomeScreen(
     onLoadGameClick: () -> Unit,
     viewModel: HomeViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
-    
+
     Scaffold(
         topBar = {  },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         HomeScreenContent(
-            uiState = uiState,
             onLoadAssetGameClick = {
-                viewModel.onLoadAssetGameClicked(context)
+                viewModel.onLoadAssetGameClicked()
                 onLoadGameClick()
             },
             modifier = Modifier.padding(innerPadding)
@@ -57,7 +53,6 @@ fun HomeScreen(
 
 @Composable
 fun HomeScreenContent(
-    uiState: HomeUiState,
     onLoadAssetGameClick: () -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -75,18 +70,12 @@ fun HomeScreenContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(16.dp)
         ) {
-            if (uiState.isLoading) {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Loading JavaScript game...")
-            } else {
-                Button(
-                    onClick = onLoadAssetGameClick,
-                    content = {
-                        Text("Load Demo Game (Asset File)")
-                    },
-                )
-            }
+            Button(
+                onClick = onLoadAssetGameClick,
+                content = {
+                    Text("Load Demo Game (Asset File)")
+                },
+            )
         }
     }
 }

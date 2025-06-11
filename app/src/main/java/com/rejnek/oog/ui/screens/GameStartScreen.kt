@@ -29,11 +29,9 @@ fun GameStartScreen(
     onContinueClick: () -> Unit,
     viewModel: GameStartViewModel = koinViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    val heading by viewModel.heading.collectAsState()
+    val description by viewModel.description.collectAsState()
 
-    LaunchedEffect(Unit) {
-        viewModel.onStart()
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -46,39 +44,26 @@ fun GameStartScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            if (uiState.isLoading) {
-                CircularProgressIndicator()
-                Spacer(modifier = Modifier.height(16.dp))
-                Text("Loading game...")
-            } else {
-                Text(
-                    text = uiState.gameTitle.ifEmpty { "Game Start Screen" },
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 24.dp)
-                )
+            Text(
+                text = heading,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 24.dp)
+            )
 
-                Text(
-                    text = uiState.introductionText,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 32.dp)
-                )
+            Text(
+                text = description,
+                style = MaterialTheme.typography.bodyLarge,
+                modifier = Modifier.padding(bottom = 32.dp)
+            )
 
-                uiState.coordinates?.let { coords ->
-                    Text(
-                        text = "Location: ${coords.lat}, ${coords.lng} (radius: ${coords.radius}m)",
-                        modifier = Modifier.padding(bottom = 16.dp)
-                    )
+            Button(
+                onClick = {
+                    viewModel.onContinueClicked()
+                    // onContinueClick()
                 }
-
-                Button(
-                    onClick = {
-                        viewModel.onContinueClicked()
-                        onContinueClick()
-                    }
-                ) {
-                    Text("Continue")
-                }
+            ) {
+                Text("Continue")
             }
         }
     }

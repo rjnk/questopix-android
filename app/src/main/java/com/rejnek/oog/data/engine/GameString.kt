@@ -13,8 +13,8 @@ val demoGame = """
         },
         description: "Tohle je jednoduchá demonstrační hra pro účely vyzkoušení načítání z javascriptu.",
         onContinue: function() {
-            consolePrint("CONSOLE PRINT: game is starting!");
-            showElement("nav1");
+            debugPrint("CONSOLE PRINT: game is starting!");
+            // showElement("nav1");
         }
     }
 

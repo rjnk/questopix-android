@@ -76,14 +76,6 @@ class JsGameEngine(private val context: Context) {
     }
 
     /**
-     * Simple calculation example for testing
-     */
-    suspend fun calculateExample(n: Int): Result<String> {
-        val code = "function sum(a, b) { return (a * b).toString(); }; sum($n, 6)"
-        return evaluateJs(code)
-    }
-
-    /**
      * Release resources when they're no longer needed
      */
     fun cleanup() {
