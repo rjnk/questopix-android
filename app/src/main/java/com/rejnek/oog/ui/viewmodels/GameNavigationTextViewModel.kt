@@ -31,12 +31,12 @@ class GameNavigationTextViewModel(
         refresh()
 
         viewModelScope.launch {
-            gameRepository.currentGame.collectLatest { updatedGame ->
-                updatedGame?.let { game ->
-                    Log.d("GameViewModel", "Game updated: ${game.currentElement.name}, index: ${game.currentElementIndex}")
-                    _currentElementType.value = game.currentElement.elementType
-                }
-            }
+//            gameRepository.currentGame.collectLatest { updatedGame ->
+//                updatedGame?.let { game ->
+//                    Log.d("GameViewModel", "Game updated: ${game.currentElement.name}, index: ${game.currentElementIndex}")
+//                    _currentElementType.value = game.currentElement.elementType
+//                }
+//            }
         }
     }
 

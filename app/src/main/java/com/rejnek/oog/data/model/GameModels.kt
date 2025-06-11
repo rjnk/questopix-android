@@ -34,6 +34,6 @@ data class Game(
     val elements: List<GameElement>,
     val gameType: String? = null,
 
-    val currentElement: GameElement,
+    val currentElement: GameElement?,
     val currentElementIndex: Int
 )

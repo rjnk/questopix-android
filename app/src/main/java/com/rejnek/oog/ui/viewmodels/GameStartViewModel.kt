@@ -49,9 +49,9 @@ class GameStartViewModel(
 
     fun onContinueClicked() {
         viewModelScope.launch {
-            gameRepository.currentGame.value?.let { game ->
-                gameRepository.executeOnContinue(null)
-            }
+//            gameRepository.currentGame.value?.let { game ->
+//                gameRepository.executeOnContinue(null)
+//            }
         }
     }
 }

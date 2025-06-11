@@ -12,6 +12,7 @@ kotlinSerialization = "1.8.0"
 navigationCompose = "2.9.0"
 koin = "4.0.3"
 rhino = "1.7.14"
+androidxJavascriptEngine = "1.0.0-rc01"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -37,6 +38,7 @@ koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = 
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 # JavaScript engine
 rhino = { group = "org.mozilla", name = "rhino", version.ref = "rhino" }
+androidx-javascriptengine = { group = "androidx.javascriptengine", name = "javascriptengine", version.ref = "androidxJavascriptEngine" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

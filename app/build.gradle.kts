@@ -60,7 +60,7 @@ dependencies {
     implementation(libs.koin.androidx.compose)
 
     // JavaScript engine
-    implementation(libs.rhino)
+    implementation(libs.androidx.javascriptengine)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
