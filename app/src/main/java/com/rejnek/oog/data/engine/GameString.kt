@@ -14,7 +14,7 @@ val demoGame = """
         description: "Tohle je jednoduchá demonstrační hra pro účely vyzkoušení načítání z javascriptu.",
         onContinue: function() {
             debugPrint("CONSOLE PRINT: game is starting!");
-            // showElement("nav1");
+            showElement("nav1");
         }
     }
 
@@ -29,7 +29,7 @@ val demoGame = """
         },
         description: "Jdi po cestě až se dostaneš k malému mostku.",
         onContinue: function() {
-            if(100 > 50) {
+            if(20 > 50) {
                 showElement("finish");
             }
             else{

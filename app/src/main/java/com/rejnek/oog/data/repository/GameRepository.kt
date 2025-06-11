@@ -1,6 +1,7 @@
 package com.rejnek.oog.data.repository
 
 import android.content.Context
+import com.rejnek.oog.data.engine.GameEngineCallback
 import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.model.Game
 import com.rejnek.oog.data.model.GameElement
@@ -16,7 +17,7 @@ import kotlin.Result
 
 class GameRepository(
     private val jsEngine: JsGameEngine
-) {
+) : GameEngineCallback {
     private val _currentGame = MutableStateFlow<Game?>(null)
     val currentGame: StateFlow<Game?> = _currentGame.asStateFlow()
 
@@ -31,10 +32,14 @@ class GameRepository(
      */
     suspend fun initializeGameElement() = withContext(Dispatchers.IO) {
         try {
-            // Initialize the game in JavaScript environment
-            jsEngine.evaluateJs(demoGame)
+            // First initialize the JS engine
+            jsEngine.initialize()
 
-            // set the start element
+            // Then execute the game code using executeJs which properly maintains state
+            // This defines all game elements in the persistent JS context
+            jsEngine.executeJs(demoGame)
+
+            // Set the start element
             setCurrentElement("start")
 
         } catch (e: Exception) {
@@ -64,7 +69,8 @@ class GameRepository(
      * Execute onContinue script for a game element
      */
     suspend fun executeOnContinue(element: GameElement?) {
-        jsEngine.evaluateJs("${currentElement.value?.id}.onContinue()")
+        val elementId = currentElement.value?.id ?: return
+        jsEngine.executeJs("$elementId.onContinue()")
     }
     
     /**
@@ -73,5 +79,16 @@ class GameRepository(
     fun cleanup() {
         jsEngine.cleanup()
         _currentGame.value = null
+    }
+
+    /**
+     * Implementation of GameEngineCallback interface
+     */
+    override suspend fun showElement(elementId: String) {
+        setCurrentElement(elementId)
+    }
+
+    override fun debugLog(message: String) {
+        Log.d("GameRepository", "JS Debug: $message")
     }
 }

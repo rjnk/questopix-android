@@ -45,7 +45,7 @@ fun GameStartScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = heading,
+                text = "S: $heading",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(bottom = 24.dp)
@@ -60,7 +60,7 @@ fun GameStartScreen(
             Button(
                 onClick = {
                     viewModel.onContinueClicked()
-                    // onContinueClick()
+                    onContinueClick()
                 }
             ) {
                 Text("Continue")

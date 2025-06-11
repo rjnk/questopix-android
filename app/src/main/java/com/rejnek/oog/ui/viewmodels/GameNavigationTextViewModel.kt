@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import android.util.Log
 import com.rejnek.oog.data.model.GameElementType
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
@@ -41,17 +42,23 @@ class GameNavigationTextViewModel(
     }
 
     fun refresh(){
-        _name.value = gameRepository.currentGame.value?.currentElement?.name ?: "Loading..."
-        _description.value = gameRepository.currentGame.value?.currentElement?.description ?: "Loading..."
+        _name.value = gameRepository.currentElement.value?.name ?: "Loading..."
+        _description.value = gameRepository.currentElement.value?.description ?: "Loading..."
     }
 
     fun onContinueClicked() {
         viewModelScope.launch {
+            Log.d("GameNavigationTextViewModel", "onContinueClicked called")
+
             // run the onContinue script for the current game element
             gameRepository.executeOnContinue(null)
 
+            Log.d("GameNavigationTextViewModel", gameRepository.currentElement.value?.name ?: "No current element")
+
+            delay(10L) // TODO find a better way for RC
+
             // Check if the current element is a finish element
-            if(gameRepository.currentGame.value?.currentElement?.elementType == GameElementType.FINISH){
+            if(gameRepository.currentElement.value?.elementType == GameElementType.FINISH){
                 _navigationEvents.emit(NavigationEvent.Finish)
             }
             // Update the UI
