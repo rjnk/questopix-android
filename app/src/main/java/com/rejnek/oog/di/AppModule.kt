@@ -1,6 +1,7 @@
 package com.rejnek.oog.di
 
 import android.content.Context
+import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.repository.GameRepository
 import com.rejnek.oog.ui.viewmodels.*
 import org.koin.android.ext.koin.androidContext
@@ -12,7 +13,8 @@ import org.koin.dsl.module
  */
 val appModule = module {
     // Repositories
-    single { GameRepository(androidContext()) }
+    single { JsGameEngine(androidContext()) }
+    single { GameRepository(androidContext(), get<JsGameEngine>()) }
 
     // ViewModels
     viewModel { HomeViewModel(get<GameRepository>()) }
