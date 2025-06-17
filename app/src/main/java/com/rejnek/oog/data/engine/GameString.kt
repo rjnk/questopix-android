@@ -30,16 +30,13 @@ val demoGame = """
             button("Rovnou do cíle", function() {
                 Android.showTask("finish");
             });
-        },
-        onContinue: function() {
-            Android.showTask("openQuestion1");
         }
     }
     
     // open question
     const openQuestion1 = {
         name: "Otázka o stromech",
-        type: "task2",
+        type: "task",
         description: "Odpověz na otázku o stromech",
         onStart: async function() {
             Android.debugPrint("Open question shown");

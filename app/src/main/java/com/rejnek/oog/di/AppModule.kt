@@ -1,11 +1,9 @@
 package com.rejnek.oog.di
 
-import android.content.Context
 import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.repository.GameRepository
 import com.rejnek.oog.ui.viewmodels.*
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
@@ -36,9 +34,8 @@ val appModule = module {
     // ViewModels
     viewModel { HomeViewModel(get()) }
     viewModel { GameStartViewModel(get()) }
-    viewModel { GameNavigationTextViewModel(get()) }
+    viewModel { GameTaskViewModel(get()) }
     viewModel { GameFinishViewModel(get()) }
-    viewModel { GameTaskViewModel() }
 }
 
 /**

@@ -25,14 +25,4 @@ enum class GameElementType {
     NAVIGATION,
     TASK,
     FINISH,
-    TASK2
 }
-
-@Serializable
-data class Game(
-    val elements: List<GameElement>,
-    val gameType: String? = null,
-
-    val currentElement: GameElement?,
-    val currentElementIndex: Int
-)
