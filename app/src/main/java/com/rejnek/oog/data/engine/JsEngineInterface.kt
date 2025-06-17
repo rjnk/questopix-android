@@ -12,18 +12,15 @@ interface JsEngineInterface {
     suspend fun initialize(): Result<Boolean>
 
     /**
-     * Execute JavaScript code without expecting a return value
-     * @param code The JavaScript code to execute
-     * @return Result indicating success or failure of execution
-     */
-    suspend fun executeJs(code: String): Result<Unit>
-
-    /**
      * Evaluate JavaScript code and return the result
      * @param code The JavaScript code to evaluate
-     * @return Result containing the evaluation result as a string
+     * @param expectResult If true, wraps code to extract result; if false, returns empty string
+     * @return Result containing the evaluation result as a string (empty if no result expected)
      */
-    suspend fun evaluateJs(code: String): Result<String>
+    suspend fun evaluateJs(code: String): Result<Unit>
+
+
+    suspend fun getJsValue(code: String): Result<String>
 
     /**
      * Release resources when they're no longer needed

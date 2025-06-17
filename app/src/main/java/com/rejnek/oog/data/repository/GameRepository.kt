@@ -1,6 +1,5 @@
 package com.rejnek.oog.data.repository
 
-import com.rejnek.oog.data.repository.GameRepositoryInterface
 import com.rejnek.oog.data.engine.JsEngineInterface
 import com.rejnek.oog.data.model.GameElement
 import com.rejnek.oog.data.model.GameElementType
@@ -45,7 +44,7 @@ class GameRepository(
 
             // Then execute the game code using executeJs which properly maintains state
             // This defines all game elements in the persistent JS context
-            jsEngine.executeJs(demoGame)
+            jsEngine.evaluateJs(demoGame)
 
             // Set the start element
             setCurrentElement("start")
@@ -56,11 +55,11 @@ class GameRepository(
     }
 
     suspend fun setCurrentElement(elementId: String) {
-        val name = jsEngine.evaluateJs("$elementId.name").getOrNull() ?: "Error"
-        val elementType = jsEngine.evaluateJs("$elementId.type").getOrNull()?.let {
+        val name = jsEngine.getJsValue("$elementId.name").getOrNull() ?: "Error"
+        val elementType = jsEngine.getJsValue("$elementId.type").getOrNull()?.let {
             GameElementType.valueOf(it.toString().uppercase())
         } ?: GameElementType.UNKNOWN
-        val description = jsEngine.evaluateJs("$elementId.description").getOrNull() ?: "No description"
+        val description = jsEngine.getJsValue("$elementId.description").getOrNull() ?: "No description"
 
         _currentElement.value = GameElement(
             id = elementId,
@@ -86,12 +85,12 @@ class GameRepository(
      */
     suspend fun executeOnContinue(element: GameElement?) {
         val elementId = currentElement.value.id
-        jsEngine.executeJs("$elementId.onContinue()")
+        jsEngine.evaluateJs("$elementId.onContinue()")
     }
 
     suspend fun executeOnStart() {
         val elementId = currentElement.value.id
-        jsEngine.executeJs("$elementId.onStart()")
+        jsEngine.evaluateJs("$elementId.onStart()")
     }
     
     /**

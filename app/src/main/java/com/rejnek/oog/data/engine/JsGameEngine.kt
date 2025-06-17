@@ -151,80 +151,60 @@ class JsGameEngine(
     /**
      * Evaluate JavaScript code using WebView.
      * Code is executed in the persistent context of the WebView.
+     * @param code The JavaScript code to evaluate
+     * @param expectResult If true, wraps code to extract result; if false, returns empty string
+     * @return Result containing the evaluation result as a string (empty if no result expected)
      */
-    override suspend fun evaluateJs(code: String): Result<String> = withContext(Dispatchers.Main) {
-        try {
-            if (!isInitialized) {
-                val initResult = initialize()
-                if (initResult.isFailure) {
-                    return@withContext Result.failure(initResult.exceptionOrNull() ?: Exception("Failed to initialize JS engine"))
-                }
-            }
+    private suspend fun evaluateJs(code: String, expectResult: Boolean): Result<String> = withContext(Dispatchers.Main) {
+        val webViewInstance = webView ?: throw IllegalStateException("WebView is not initialized")
 
-            val webViewInstance = webView ?: throw IllegalStateException("WebView is not initialized")
-
-            Log.d("JsGameEngine", "Evaluating JavaScript code...")
-
-            // Add wrapping to return the result
-            val wrappedCode = "try { sendResult($code); } catch(e) { Android.debugPrint('JS Evaluation error: ' + e.message); 'ERROR: ' + e.message; }"
-
-            // Use suspension to wait for JavaScript result
-            val result = suspendCancellableCoroutine<String> { continuation ->
-                webViewInstance.evaluateJavascript(wrappedCode) { resultValue ->
-                    if (resultValue == "null" || resultValue == null) {
-                        continuation.resume("null")
-                    } else {
-                        continuation.resume(resultValue)
-                    }
-                }
-            }
-
-            Log.d("JsGameEngine", "JavaScript evaluation result: $result")
-            Result.success(cleanJsResult(result))
-
-        } catch (e: Exception) {
-            Log.e("JsGameEngine", "Error evaluating JavaScript", e)
-            Result.failure(e)
+        // Add wrapping to return the result if needed
+        val actualCode = if (expectResult) {
+            "sendResult($code);"
+        } else {
+            code
         }
+
+        // Use suspension to wait for JavaScript execution
+        val result = suspendCancellableCoroutine<String> { continuation ->
+            webViewInstance.evaluateJavascript(actualCode) { resultValue ->
+                continuation.resume(when {
+                    resultValue == "null" || resultValue == null -> "null"
+                    else -> resultValue
+                })
+            }
+        }
+
+        Log.d("JsGameEngine", "JavaScript executed. Evaluation result: $result")
+
+        Result.success(cleanJsResult(result))
     }
 
     /**
-     * Execute JavaScript code directly without wrapping it in sendResult
-     * Useful for defining variables and functions
+     * Evaluate JavaScript code without expecting a result.
+     * This is useful for executing commands that do not return a value.
+     * @param code The JavaScript code to evaluate
+     * @return Result indicating success or failure of the evaluation
      */
-    override suspend fun executeJs(code: String): Result<Unit> = withContext(Dispatchers.Main) {
-        try {
-            if (!isInitialized) {
-                val initResult = initialize()
-                if (initResult.isFailure) {
-                    return@withContext Result.failure(initResult.exceptionOrNull() ?: Exception("Failed to initialize JS engine"))
-                }
-            }
+    override suspend fun evaluateJs(code: String): Result<Unit> {
+        evaluateJs(code, expectResult = false)
+        return Result.success(Unit)
+    }
 
-            val webViewInstance = webView ?: throw IllegalStateException("WebView is not initialized")
-
-            Log.d("JsGameEngine", "Executing JavaScript code...")
-
-            // Execute code without expecting a result
-            suspendCancellableCoroutine<Unit> { continuation ->
-                webViewInstance.evaluateJavascript(code) {
-                    continuation.resume(Unit)
-                }
-            }
-
-            Log.d("JsGameEngine", "JavaScript executed")
-            Result.success(Unit)
-        } catch (e: Exception) {
-            Log.e("JsGameEngine", "Error executing JavaScript", e)
-            Result.failure(e)
-        }
+    /**
+     * Evaluate JavaScript code and expect a result.
+     * This is useful for getting values from the JavaScript context.
+     * @param code The JavaScript code to evaluate
+     * @return Result containing the evaluation result as a string
+     */
+    override suspend fun getJsValue(code: String): Result<String> {
+        return evaluateJs(code, expectResult = true)
     }
 
     /**
      * Clean the JavaScript result by removing quotes from strings
      */
     private fun cleanJsResult(result: String): String {
-        // If result is a quoted string, remove the quotes
         return if (result.startsWith("\"") && result.endsWith("\"") && result.length >= 2) {
             result.substring(1, result.length - 1)
         } else {
