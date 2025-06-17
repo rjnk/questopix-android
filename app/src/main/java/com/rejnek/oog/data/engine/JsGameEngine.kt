@@ -104,48 +104,30 @@ class JsGameEngine(
      */
     @SuppressLint("SetJavaScriptEnabled")
     override suspend fun initialize(): Result<Boolean> = withContext(Dispatchers.Main) {
-        try {
-            if (isInitialized) {
-                return@withContext Result.success(true)
-            }
-
-            Log.d("JsGameEngine", "Initializing WebView JavaScript engine...")
-
-            // Create WebView instance on the main thread
-            webView = WebView(context).apply {
-                settings.javaScriptEnabled = true
-                settings.domStorageEnabled = true
-
-                // Add JavaScript interface to enable JavaScript->Kotlin calls
-                addJavascriptInterface(jsInterface, "Android")
-
-                // Set WebViewClient to know when the page is loaded
-                webViewClient = object : WebViewClient() {
-                    override fun onPageFinished(view: WebView?, url: String?) {
-                        super.onPageFinished(view, url)
-                        Log.d("JsGameEngine", "WebView page finished loading")
-                    }
-                }
-
-                // Load HTML template to initialize the WebView with our persistent context
-                loadDataWithBaseURL(null, htmlTemplate, "text/html", "UTF-8", null)
-            }
-
-            // Wait a bit to ensure WebView is properly initialized
-            suspendCancellableCoroutine<Unit> { continuation ->
-                Handler(Looper.getMainLooper()).postDelayed({
-                    continuation.resume(Unit)
-                }, 500)
-            }
-
-            isInitialized = true
-            Log.d("JsGameEngine", "WebView JavaScript engine initialized successfully")
-            Result.success(true)
-        } catch (e: Exception) {
-            Log.e("JsGameEngine", "Error initializing WebView JavaScript engine", e)
-            isInitialized = false
-            Result.failure(e)
+        if (isInitialized) {
+            return@withContext Result.success(true)
         }
+
+        // Create WebView instance on the main thread
+        webView = WebView(context).apply {
+            settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
+
+            // Add JavaScript interface to enable JavaScript->Kotlin calls
+            addJavascriptInterface(jsInterface, "Android")
+
+            // Set WebViewClient to know when the page is loaded
+            webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                }
+            }
+
+            loadDataWithBaseURL(null, htmlTemplate, "text/html", "UTF-8", null)
+        }
+
+        isInitialized = true
+        Result.success(true)
     }
 
     /**

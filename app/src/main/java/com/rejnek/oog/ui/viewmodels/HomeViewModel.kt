@@ -19,9 +19,6 @@ class HomeViewModel(
                     jsInitialized = true
                     Log.d(TAG, "JS engine initialized successfully")
                 }
-                .onFailure {
-                    Log.e(TAG, "Failed to initialize JS: ${it.message}")
-                }
         }
     }
 
