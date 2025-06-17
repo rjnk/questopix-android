@@ -8,6 +8,10 @@ import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.rejnek.oog.data.engine.gameItems.GenericGameItem
+import com.rejnek.oog.data.engine.gameItems.InGameButton
+import com.rejnek.oog.data.engine.gameItems.Question
+import com.rejnek.oog.data.repository.GameRepository
 import com.rejnek.oog.data.repository.GameRepositoryInterface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +39,11 @@ class JsGameEngine(
         field.set(this, newCallback)
     }
 
+    private val gameItems = arrayListOf<GenericGameItem>(
+        Question(),
+        InGameButton()
+    )
+
     // HTML template for WebView to provide persistent JS context
     private val htmlTemplate = """
         <!DOCTYPE html>
@@ -53,11 +62,6 @@ class JsGameEngine(
                     return true;
                 };
                 
-                // Global debug function that links to Kotlin
-                function debugPrint(message) {
-                    Android.debugPrint(message);
-                }
-                
                 // Initialize callback resolvers storage
                 window._callbackResolvers = {};
                 
@@ -73,23 +77,7 @@ class JsGameEngine(
                     });
                 }
                 
-                // Global button function to create UI buttons
-                function button(text, callback) {
-                    // Register a button callback
-                    const callbackId = Android.registerCallback("button", text);
-                    
-                    // Store the user's callback to be executed when the button is clicked
-                    window._callbackResolvers[callbackId] = () => {
-                        callback();
-                        return ""; // Buttons don't return a value
-                    };
-                }
-                
-                // Global question function as async - will return a promise automatically
-                async function question(questionText) {
-                    // Use our generic callback system to handle the question
-                    return await createCallback("question", questionText);
-                }
+                ${gameItems.joinToString("\n\n") { action -> action.js }}
             </script>
         </head>
         <body>
@@ -127,6 +115,12 @@ class JsGameEngine(
         }
 
         isInitialized = true
+
+        // TODO how to now if repository is already initialized?
+        for( i in gameItems) {
+            i.init(gameRepository, jsInterface)
+        }
+
         Result.success(true)
     }
 
@@ -137,30 +131,26 @@ class JsGameEngine(
      * @param expectResult If true, wraps code to extract result; if false, returns empty string
      * @return Result containing the evaluation result as a string (empty if no result expected)
      */
-    private suspend fun evaluateJs(code: String, expectResult: Boolean): Result<String> = withContext(Dispatchers.Main) {
-        val webViewInstance = webView ?: throw IllegalStateException("WebView is not initialized")
+    private suspend fun evaluateJs(code: String, expectResult: Boolean): Result<String> =
+        withContext(Dispatchers.Main) {
+            val webViewInstance = webView ?: throw IllegalStateException("WebView is not initialized")
 
-        // Add wrapping to return the result if needed
-        val actualCode = if (expectResult) {
-            "sendResult($code);"
-        } else {
-            code
-        }
+            val actualCode = if (expectResult) "sendResult($code);" else code
 
-        // Use suspension to wait for JavaScript execution
-        val result = suspendCancellableCoroutine<String> { continuation ->
-            webViewInstance.evaluateJavascript(actualCode) { resultValue ->
-                continuation.resume(when {
-                    resultValue == "null" || resultValue == null -> "null"
-                    else -> resultValue
-                })
+            val result = suspendCancellableCoroutine<String> { continuation ->
+                webViewInstance.evaluateJavascript(actualCode) { resultValue ->
+                    continuation.resume(
+                        when {
+                            resultValue == "null" || resultValue == null -> "null"
+                            else -> resultValue
+                        }
+                    )
+                }
             }
+
+            Log.d("JsGameEngine", "JavaScript executed. Evaluation result: $result")
+            Result.success(cleanJsResult(result))
         }
-
-        Log.d("JsGameEngine", "JavaScript executed. Evaluation result: $result")
-
-        Result.success(cleanJsResult(result))
-    }
 
     /**
      * Evaluate JavaScript code without expecting a result.
@@ -196,7 +186,6 @@ class JsGameEngine(
 
     // JavaScript interface class that serves as a bridge between JS and Kotlin
     inner class GameJsInterface {
-        private var pendingQuestion: String? = null
         private val javaScriptCallbacks = mutableMapOf<String, (String) -> Unit>()
         private var callbackIdCounter = 0
 
@@ -216,8 +205,8 @@ class JsGameEngine(
 
         /**
          * Generic method to register a callback from JavaScript
-         * @param callbackType The type of callback (e.g., "button", "question")
-         * @param data Additional data needed for the callback (e.g., button text, question text)
+         * @param callbackType The type of callback
+         * @param data Additional data needed for the callback
          * @return A callback ID that JavaScript can use to resolve the callback
          */
         @JavascriptInterface
@@ -226,19 +215,8 @@ class JsGameEngine(
             Log.d("JsGameEngine", "Registering $callbackType callback: $callbackId with data: $data")
 
             CoroutineScope(Dispatchers.Main).launch {
-                when (callbackType) {
-                    "button" -> {
-                        gameRepository?.addButton(data) {
-                            resolveCallback(callbackId, "")
-                        }
-                    }
-                    "question" -> {
-                        pendingQuestion = data
-                        gameRepository?.showQuestion(data) { answer ->
-                            resolveCallback(callbackId, answer)
-                        }
-                    }
-                }
+                val gameItem = gameItems.find { it.id == callbackType }
+                gameItem?.run(data, callbackId) ?: Log.e("JsGameEngine", "No game item found with ID: $callbackType")
             }
 
             return callbackId
@@ -250,15 +228,14 @@ class JsGameEngine(
          */
         @JavascriptInterface
         fun awaitCallback(callbackId: String) {
-            Log.d("JsGameEngine", "JavaScript is waiting for callback: $callbackId")
-            // No action needed here - JavaScript will create a Promise that resolves when resolveCallback is called
+
         }
 
         /**
          * Resolves a callback by its ID with the provided result
          * This is called by Kotlin when the callback action is completed
          */
-        private fun resolveCallback(callbackId: String, result: String) {
+        internal fun resolveCallback(callbackId: String, result: String) {
             Log.d("JsGameEngine", "Resolving callback: $callbackId with result: $result")
 
             // Resolve the promise in JavaScript with the result
