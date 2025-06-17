@@ -44,11 +44,12 @@ class GameNavigationTextViewModel(
     val navigationEvents = _navigationEvents.asSharedFlow()
 
     init {
-        refresh()
-
         // Observe buttons from repository - in its own coroutine
         viewModelScope.launch {
             gameRepository.buttons.collect { buttons ->
+                if(gameRepository.currentElement.value?.elementType == GameElementType.FINISH) {
+                    return@collect
+                }
                 _buttons.value = buttons
             }
         }
@@ -56,53 +57,35 @@ class GameNavigationTextViewModel(
         // Observe questions from repository
         viewModelScope.launch {
             gameRepository.questionState.collect { question ->
-                _questionState.value = question
-                if (question == null) {
-                    // Reset answer text when question is cleared
-                    _answerText.value = ""
+                if(gameRepository.currentElement.value?.elementType == GameElementType.FINISH) {
+                    return@collect
                 }
+                _questionState.value = question
             }
         }
 
         // Observe current element changes in a separate coroutine
         viewModelScope.launch {
             gameRepository.currentElement.collect { elem ->
-                if (elem != null) {
+                if (elem != null && elem.elementType != GameElementType.FINISH) {
                     _name.value = elem.name
                     _description.value = elem.description
                     _currentElementType.value = elem.elementType
                     Log.d("GameNavigationTextViewModel", "Element updated from flow: ${elem.name}")
                 }
+                else if(elem != null && elem.elementType == GameElementType.FINISH) {
+                    // If we reach a finish element, emit a navigation event
+                    Log.d("GameNavigationTextViewModel", "Finish element reached: ${elem?.name}")
+                    _navigationEvents.emit(NavigationEvent.Finish)
+                    return@collect
+                }
             }
         }
     }
 
-    fun refresh(){
-        _name.value = gameRepository.currentElement.value?.name ?: "Loading..."
-        _description.value = gameRepository.currentElement.value?.description ?: "Loading..."
-
-        Log.d("GameNavigationTextViewModel", "UI refreshed")
-    }
-
     fun onContinueClicked() {
         viewModelScope.launch {
-            Log.d("GameNavigationTextViewModel", "onContinueClicked called")
-
-            // run the onContinue script for the current game element
             gameRepository.executeOnContinue(null)
-
-            Log.d("GameNavigationTextViewModel", gameRepository.currentElement.value?.name ?: "No current element")
-
-            delay(10L) // TODO find a better way for RC
-
-            // Check if the current element is a finish element
-            if(gameRepository.currentElement.value?.elementType == GameElementType.FINISH){
-                _navigationEvents.emit(NavigationEvent.Finish)
-            }
-            // Update the UI
-            else{
-                refresh()
-            }
         }
     }
 
@@ -112,7 +95,6 @@ class GameNavigationTextViewModel(
     fun onJsButtonClicked(buttonId: Int) {
         viewModelScope.launch {
             gameRepository.executeButtonAction(buttonId)
-            refresh()
         }
     }
 

@@ -8,7 +8,7 @@ interface GameEngineCallback {
     /**
      * Called when the game engine needs to show a specific element
      */
-    suspend fun showElement(elementId: String)
+    suspend fun showTask(elementId: String)
 
     /**
      * Called when the game engine needs to add a button to the UI

@@ -26,38 +26,7 @@ class GameFinishViewModel(
 
     private fun loadGameCompletionData() {
         viewModelScope.launch {
-            val context = gameRepository.currentGame.value
-//            if (context != null) {
-//                val completedElements = gameRepository.getCompletedElements()
-//                val visibleElements = gameRepository.getVisibleElements()
-//                val totalElements = gameRepository.currentGame.value?.elements?.size ?: 0
-//
-//                val completionPercentage = if (totalElements > 0) {
-//                    (completedElements.size * 100) / totalElements
-//                } else 0
-//
-//                val gameName = gameRepository.currentGame.value?.startElement?.name ?: "Game"
-//
-//                _uiState.value = _uiState.value.copy(
-//                    isLoading = false,
-//                    completionMessage = "Congratulations! You have completed '$gameName'.",
-//                    score = completionPercentage,
-//                    timeTaken = "Time not tracked", // Could be enhanced with actual time tracking
-//                    achievements = listOf(
-//                        "Completed ${completedElements.size} tasks",
-//                        "Visited ${visibleElements.size} locations",
-//                        "Achievement: Game Finisher"
-//                    ),
-//                    completedElements = completedElements.toList(),
-//                    visitedLocations = visibleElements.toList()
-//                )
-//            } else {
-//                _uiState.value = _uiState.value.copy(
-//                    isLoading = false,
-//                    completionMessage = "Game completed, but no data available.",
-//                    score = 0
-//                )
-//            }
+
         }
     }
 

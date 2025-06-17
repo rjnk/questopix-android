@@ -18,9 +18,6 @@ import kotlin.Result
 class GameRepository(
     private val jsEngine: JsGameEngine
 ) : GameEngineCallback {
-    private val _currentGame = MutableStateFlow<Game?>(null)
-    val currentGame: StateFlow<Game?> = _currentGame.asStateFlow()
-
     private val _currentElement = MutableStateFlow<GameElement?>(null)
     val currentElement: StateFlow<GameElement?> = _currentElement.asStateFlow()
 
@@ -102,9 +99,6 @@ class GameRepository(
         if (buttonId >= 0 && buttonId < buttons.size) {
             // Execute the callback for this button
             buttons[buttonId].onClick.invoke()
-
-            // Remove this button from the list
-            _buttons.value = buttons.filterIndexed { index, _ -> index != buttonId }
         }
     }
 
@@ -112,11 +106,7 @@ class GameRepository(
      * Submit answer to a question
      */
     suspend fun submitAnswer(answer: String) {
-        _questionState.value?.let { state ->
-            val provideAnswer = state.provideAnswer
-            _questionState.value = null
-            provideAnswer(answer)
-        }
+        _questionState.value?.provideAnswer(answer)
     }
 
     /**
@@ -124,13 +114,12 @@ class GameRepository(
      */
     fun cleanup() {
         jsEngine.cleanup()
-        _currentGame.value = null
     }
 
     /**
      * Implementation of GameEngineCallback interface
      */
-    override suspend fun showElement(elementId: String) {
+    override suspend fun showTask(elementId: String) {
         setCurrentElement(elementId)
     }
 

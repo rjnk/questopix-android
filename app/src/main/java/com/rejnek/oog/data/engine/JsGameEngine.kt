@@ -10,12 +10,10 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
 class JsGameEngine(
     private val callback: GameEngineCallback? = null,
@@ -52,50 +50,37 @@ class JsGameEngine(
                     Android.debugPrint(message);
                 }
                 
-                // Global function to show an element
-                function showElement(elementId) {
-                    Android.showElement(elementId);
+                // Initialize callback resolvers storage
+                window._callbackResolvers = {};
+                
+                // Generic function to create a callback and wait for its result
+                async function createCallback(type, data) {
+                    // Register the callback with Android
+                    const callbackId = Android.registerCallback(type, data);
+                    
+                    // Return a promise that will be resolved when the callback is triggered
+                    return new Promise((resolve) => {
+                        // Store the resolver function that will be called when the callback is triggered
+                        window._callbackResolvers[callbackId] = resolve;
+                    });
                 }
                 
                 // Global button function to create UI buttons
                 function button(text, callback) {
-                    // Generate a unique button ID
-                    const buttonId = "_button_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+                    // Register a button callback
+                    const callbackId = Android.registerCallback("button", text);
                     
-                    // Store callbacks in a map if it doesn't exist yet
-                    if (!window._buttonCallbacks) {
-                        window._buttonCallbacks = {};
-                    }
-                    
-                    // Store this callback with its unique ID
-                    window._buttonCallbacks[buttonId] = callback;
-                    
-                    // Tell Android about the button
-                    Android.addButton(text, buttonId);
-                    
-                    return buttonId; // Return ID in case needed for later reference
-                }
-                
-                // Function to execute a specific button's callback
-                function executeButtonCallback(buttonId) {
-                    if (window._buttonCallbacks && window._buttonCallbacks[buttonId]) {
-                        const callback = window._buttonCallbacks[buttonId];
-                        // Execute the callback
+                    // Store the user's callback to be executed when the button is clicked
+                    window._callbackResolvers[callbackId] = () => {
                         callback();
-                        // Clean up after execution
-                        delete window._buttonCallbacks[buttonId];
-                    }
+                        return ""; // Buttons don't return a value
+                    };
                 }
                 
                 // Global question function as async - will return a promise automatically
                 async function question(questionText) {
-                    // Simply return a promise that will be resolved by Android
-                    return new Promise((resolve) => {
-                        // Store the resolver globally so Android can access it
-                        window._questionResolver = resolve;
-                        // Notify Android about the question
-                        Android.notifyQuestion(questionText);
-                    });
+                    // Use our generic callback system to handle the question
+                    return await createCallback("question", questionText);
                 }
             </script>
         </head>
@@ -242,6 +227,8 @@ class JsGameEngine(
     // JavaScript interface class that serves as a bridge between JS and Kotlin
     inner class GameJsInterface {
         private var pendingQuestion: String? = null
+        private val javaScriptCallbacks = mutableMapOf<String, (String) -> Unit>()
+        private var callbackIdCounter = 0
 
         @JavascriptInterface
         fun debugPrint(message: String) {
@@ -249,60 +236,68 @@ class JsGameEngine(
         }
 
         @JavascriptInterface
-        fun showElement(elementId: String) {
+        fun showTask(elementId: String) {
             Log.d("JsGameEngine", "JS wants to show element: $elementId")
 
             CoroutineScope(Dispatchers.Main).launch {
-                callback?.showElement(elementId)
-            }
-        }
-
-        @JavascriptInterface
-        fun addButton(text: String, buttonId: String) {
-            Log.d("JsGameEngine", "JS wants to add button: $text with ID: $buttonId")
-
-            CoroutineScope(Dispatchers.Main).launch {
-                callback?.addButton(text) {
-                    // When the button is clicked, execute the stored callback in JavaScript
-                    CoroutineScope(Dispatchers.Main).launch {
-                        webView?.evaluateJavascript("executeButtonCallback('$buttonId')", null)
-                    }
-                }
-            }
-        }
-
-        @JavascriptInterface
-        fun notifyQuestion(question: String) {
-            Log.d("JsGameEngine", "JS is asking question: $question")
-            pendingQuestion = question
-
-            // Use our new callback to show the question UI and get user input
-            CoroutineScope(Dispatchers.Main).launch {
-                callback?.showQuestion(question) { answer ->
-                    // When we get the answer from UI, provide it back to JavaScript
-                    provideQuestionAnswer(answer)
-                }
+                callback?.showTask(elementId)
             }
         }
 
         /**
-         * Call this method when you have the answer from the user
+         * Generic method to register a callback from JavaScript
+         * @param callbackType The type of callback (e.g., "button", "question")
+         * @param data Additional data needed for the callback (e.g., button text, question text)
+         * @return A callback ID that JavaScript can use to resolve the callback
          */
-        fun provideQuestionAnswer(answer: String) {
-            if (pendingQuestion == null) {
-                Log.w("JsGameEngine", "Trying to answer a question that wasn't asked")
-                return
+        @JavascriptInterface
+        fun registerCallback(callbackType: String, data: String): String {
+            val callbackId = "callback_${callbackType}_${callbackIdCounter++}_${System.currentTimeMillis()}"
+            Log.d("JsGameEngine", "Registering $callbackType callback: $callbackId with data: $data")
+
+            CoroutineScope(Dispatchers.Main).launch {
+                when (callbackType) {
+                    "button" -> {
+                        callback?.addButton(data) {
+                            resolveCallback(callbackId, "")
+                        }
+                    }
+                    "question" -> {
+                        pendingQuestion = data
+                        callback?.showQuestion(data) { answer ->
+                            resolveCallback(callbackId, answer)
+                        }
+                    }
+                }
             }
 
-            Log.d("JsGameEngine", "Providing answer: $answer for question: $pendingQuestion")
-            pendingQuestion = null
+            return callbackId
+        }
 
-            // Resolve the promise in JavaScript with the answer
+        /**
+         * Called from JavaScript to wait for a callback to be resolved
+         * @param callbackId The ID of the callback to wait for
+         */
+        @JavascriptInterface
+        fun awaitCallback(callbackId: String) {
+            Log.d("JsGameEngine", "JavaScript is waiting for callback: $callbackId")
+            // No action needed here - JavaScript will create a Promise that resolves when resolveCallback is called
+        }
+
+        /**
+         * Resolves a callback by its ID with the provided result
+         * This is called by Kotlin when the callback action is completed
+         */
+        private fun resolveCallback(callbackId: String, result: String) {
+            Log.d("JsGameEngine", "Resolving callback: $callbackId with result: $result")
+
+            // Resolve the promise in JavaScript with the result
             CoroutineScope(Dispatchers.Main).launch {
+                val escapedResult = result.replace("'", "\\'")
                 webView?.evaluateJavascript("""
-                    if (window._questionResolver) {
-                        window._questionResolver("$answer");
-                        window._questionResolver = null;
+                    if (window._callbackResolvers && window._callbackResolvers['$callbackId']) {
+                        window._callbackResolvers['$callbackId']('$escapedResult');
+                        delete window._callbackResolvers['$callbackId'];
                     }
                 """.trimIndent(), null)
             }

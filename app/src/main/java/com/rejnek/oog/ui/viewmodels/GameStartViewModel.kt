@@ -27,8 +27,10 @@ class GameStartViewModel(
             gameRepository.currentElement.collectLatest { updatedElem ->
                 updatedElem?.let { elem ->
                     Log.d("GameViewModel", "Element updated: ${elem.name}, type: ${elem.elementType}")
-                    _heading.value = elem.name
-                    _description.value = elem.description
+                    if(elem.elementType == GameElementType.START) {
+                        _heading.value = elem.name
+                        _description.value = elem.description
+                    }
                 }
             }
         }
