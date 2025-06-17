@@ -24,6 +24,14 @@ class GameRepository(
     private val _currentElement = MutableStateFlow<GameElement?>(null)
     val currentElement: StateFlow<GameElement?> = _currentElement.asStateFlow()
 
+    // Changed from a single button state to a list of buttons
+    private val _buttons = MutableStateFlow<List<ButtonState>>(emptyList())
+    val buttons: StateFlow<List<ButtonState>> = _buttons.asStateFlow()
+
+    // Add state for questions
+    private val _questionState = MutableStateFlow<QuestionState?>(null)
+    val questionState: StateFlow<QuestionState?> = _questionState.asStateFlow()
+
     private val _name = MutableStateFlow("Loading...")
     val name = _name.asStateFlow()
 
@@ -62,6 +70,12 @@ class GameRepository(
             visible = true
         )
 
+        // Clear buttons when changing elements
+        _buttons.value = emptyList()
+
+        // Clear any active question
+        _questionState.value = null
+
         Log.d("GameRepository", "Current element set: ${_currentElement.value}")
 
         executeOnStart()
@@ -81,6 +95,31 @@ class GameRepository(
     }
     
     /**
+     * Execute a specific button's action
+     */
+    suspend fun executeButtonAction(buttonId: Int) {
+        val buttons = _buttons.value
+        if (buttonId >= 0 && buttonId < buttons.size) {
+            // Execute the callback for this button
+            buttons[buttonId].onClick.invoke()
+
+            // Remove this button from the list
+            _buttons.value = buttons.filterIndexed { index, _ -> index != buttonId }
+        }
+    }
+
+    /**
+     * Submit answer to a question
+     */
+    suspend fun submitAnswer(answer: String) {
+        _questionState.value?.let { state ->
+            val provideAnswer = state.provideAnswer
+            _questionState.value = null
+            provideAnswer(answer)
+        }
+    }
+
+    /**
      * Clean up JavaScript engine
      */
     fun cleanup() {
@@ -94,4 +133,31 @@ class GameRepository(
     override suspend fun showElement(elementId: String) {
         setCurrentElement(elementId)
     }
+
+    override suspend fun addButton(text: String, onClick: () -> Unit) {
+        Log.d("GameRepository", "Adding button: $text")
+        // Add the new button to the list
+        _buttons.value = _buttons.value + ButtonState(text, onClick)
+    }
+
+    override suspend fun showQuestion(questionText: String, provideAnswer: (String) -> Unit) {
+        Log.d("GameRepository", "Showing question: $questionText")
+        _questionState.value = QuestionState(questionText, provideAnswer)
+    }
+
+    /**
+     * Class representing state of a button created from JavaScript
+     */
+    data class ButtonState(
+        val text: String,
+        val onClick: () -> Unit
+    )
+
+    /**
+     * Class representing a question that needs to be answered
+     */
+    data class QuestionState(
+        val questionText: String,
+        val provideAnswer: (String) -> Unit
+    )
 }

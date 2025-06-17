@@ -57,6 +57,36 @@ class JsGameEngine(
                     Android.showElement(elementId);
                 }
                 
+                // Global button function to create UI buttons
+                function button(text, callback) {
+                    // Generate a unique button ID
+                    const buttonId = "_button_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+                    
+                    // Store callbacks in a map if it doesn't exist yet
+                    if (!window._buttonCallbacks) {
+                        window._buttonCallbacks = {};
+                    }
+                    
+                    // Store this callback with its unique ID
+                    window._buttonCallbacks[buttonId] = callback;
+                    
+                    // Tell Android about the button
+                    Android.addButton(text, buttonId);
+                    
+                    return buttonId; // Return ID in case needed for later reference
+                }
+                
+                // Function to execute a specific button's callback
+                function executeButtonCallback(buttonId) {
+                    if (window._buttonCallbacks && window._buttonCallbacks[buttonId]) {
+                        const callback = window._buttonCallbacks[buttonId];
+                        // Execute the callback
+                        callback();
+                        // Clean up after execution
+                        delete window._buttonCallbacks[buttonId];
+                    }
+                }
+                
                 // Global question function as async - will return a promise automatically
                 async function question(questionText) {
                     // Simply return a promise that will be resolved by Android
@@ -228,18 +258,30 @@ class JsGameEngine(
         }
 
         @JavascriptInterface
+        fun addButton(text: String, buttonId: String) {
+            Log.d("JsGameEngine", "JS wants to add button: $text with ID: $buttonId")
+
+            CoroutineScope(Dispatchers.Main).launch {
+                callback?.addButton(text) {
+                    // When the button is clicked, execute the stored callback in JavaScript
+                    CoroutineScope(Dispatchers.Main).launch {
+                        webView?.evaluateJavascript("executeButtonCallback('$buttonId')", null)
+                    }
+                }
+            }
+        }
+
+        @JavascriptInterface
         fun notifyQuestion(question: String) {
             Log.d("JsGameEngine", "JS is asking question: $question")
             pendingQuestion = question
 
-            // Here you would trigger your UI to show the question to the user
-            // For testing purposes, we'll simulate a delayed answer
+            // Use our new callback to show the question UI and get user input
             CoroutineScope(Dispatchers.Main).launch {
-                // Simulate delay for user thinking and answering
-                delay(6000L)
-
-                // Provide the answer (this would come from your UI in a real app)
-                provideQuestionAnswer("buk")
+                callback?.showQuestion(question) { answer ->
+                    // When we get the answer from UI, provide it back to JavaScript
+                    provideQuestionAnswer(answer)
+                }
             }
         }
 

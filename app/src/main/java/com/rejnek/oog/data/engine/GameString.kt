@@ -71,7 +71,7 @@ val demoGame = """
             button(
                 "Pokračovat", 
                 function() {
-                    showElement("nav1");
+                    showElement("task2");
                 });
         }
     }
@@ -96,6 +96,10 @@ val demoGame = """
         name: "Rybníkový úkol",
         type: "task",
         description: "Pozoruj přírodu kolem rybníka a pak pokračuj. TUUUUU!",
+        onStart: function() {
+            // Initialize task state if needed
+            debugPrint("Starting task2");
+        },
         onContinue: function() {
             showElement("finish");
         }
