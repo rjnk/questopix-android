@@ -10,6 +10,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
@@ -54,6 +55,17 @@ class JsGameEngine(
                 // Global function to show an element
                 function showElement(elementId) {
                     Android.showElement(elementId);
+                }
+                
+                // Global question function as async - will return a promise automatically
+                async function question(questionText) {
+                    // Simply return a promise that will be resolved by Android
+                    return new Promise((resolve) => {
+                        // Store the resolver globally so Android can access it
+                        window._questionResolver = resolve;
+                        // Notify Android about the question
+                        Android.notifyQuestion(questionText);
+                    });
                 }
             </script>
         </head>
@@ -199,10 +211,11 @@ class JsGameEngine(
 
     // JavaScript interface class that serves as a bridge between JS and Kotlin
     inner class GameJsInterface {
+        private var pendingQuestion: String? = null
+
         @JavascriptInterface
         fun debugPrint(message: String) {
             Log.d("JsGameEngine", "JS Debug: $message")
-            callback?.debugLog(message)
         }
 
         @JavascriptInterface
@@ -214,7 +227,44 @@ class JsGameEngine(
             }
         }
 
-        // Add other methods that JavaScript should be able to call
+        @JavascriptInterface
+        fun notifyQuestion(question: String) {
+            Log.d("JsGameEngine", "JS is asking question: $question")
+            pendingQuestion = question
+
+            // Here you would trigger your UI to show the question to the user
+            // For testing purposes, we'll simulate a delayed answer
+            CoroutineScope(Dispatchers.Main).launch {
+                // Simulate delay for user thinking and answering
+                delay(6000L)
+
+                // Provide the answer (this would come from your UI in a real app)
+                provideQuestionAnswer("buk")
+            }
+        }
+
+        /**
+         * Call this method when you have the answer from the user
+         */
+        fun provideQuestionAnswer(answer: String) {
+            if (pendingQuestion == null) {
+                Log.w("JsGameEngine", "Trying to answer a question that wasn't asked")
+                return
+            }
+
+            Log.d("JsGameEngine", "Providing answer: $answer for question: $pendingQuestion")
+            pendingQuestion = null
+
+            // Resolve the promise in JavaScript with the answer
+            CoroutineScope(Dispatchers.Main).launch {
+                webView?.evaluateJavascript("""
+                    if (window._questionResolver) {
+                        window._questionResolver("$answer");
+                        window._questionResolver = null;
+                    }
+                """.trimIndent(), null)
+            }
+        }
     }
 
     /**

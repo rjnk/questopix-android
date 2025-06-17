@@ -9,9 +9,4 @@ interface GameEngineCallback {
      * Called when the game engine needs to show a specific element
      */
     suspend fun showElement(elementId: String)
-
-    /**
-     * Debug logging from the JavaScript environment
-     */
-    fun debugLog(message: String)
 }

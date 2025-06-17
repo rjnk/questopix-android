@@ -63,6 +63,8 @@ class GameRepository(
         )
 
         Log.d("GameRepository", "Current element set: ${_currentElement.value}")
+
+        executeOnStart()
     }
 
     /**
@@ -71,6 +73,11 @@ class GameRepository(
     suspend fun executeOnContinue(element: GameElement?) {
         val elementId = currentElement.value?.id ?: return
         jsEngine.executeJs("$elementId.onContinue()")
+    }
+
+    suspend fun executeOnStart() {
+        val elementId = currentElement.value?.id ?: return
+        jsEngine.executeJs("$elementId.onStart()")
     }
     
     /**
@@ -86,9 +93,5 @@ class GameRepository(
      */
     override suspend fun showElement(elementId: String) {
         setCurrentElement(elementId)
-    }
-
-    override fun debugLog(message: String) {
-        Log.d("GameRepository", "JS Debug: $message")
     }
 }

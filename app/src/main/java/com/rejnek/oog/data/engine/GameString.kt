@@ -14,7 +14,7 @@ val demoGame = """
         description: "Tohle je jednoduchá demonstrační hra pro účely vyzkoušení načítání z javascriptu.",
         onContinue: function() {
             debugPrint("CONSOLE PRINT: game is starting!");
-            showElement("nav1");
+            showElement("openQuestion1");
         }
     }
 
@@ -45,6 +45,34 @@ val demoGame = """
         description: "Projdi se pod mostem, pak můžeš pokračovat",
         onContinue: function() {
             showElement("nav2");
+        }
+    }
+    
+    // open question
+    const openQuestion1 = {
+        name: "Otázka o stromech",
+        type: "task2",
+        description: "Odpověz na otázku o stromech",
+        onStart: async function() {
+            debugPrint("Open question shown");
+            
+            // Use await with the question function
+            const answer = await question("Odpověz na otázku: Jaký je tvůj oblíbený strom?");
+            
+            if (answer === "buk") {
+                debugPrint("Správně!");
+            }
+            else {
+                debugPrint("Špatně.");
+            }
+            
+            debugPrint("Pokračuji po odpovědi");
+            
+            button(
+                "Pokračovat", 
+                function() {
+                    showElement("nav1");
+                });
         }
     }
 

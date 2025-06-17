@@ -24,7 +24,8 @@ enum class GameElementType {
     START,
     NAVIGATION,
     TASK,
-    FINISH
+    FINISH,
+    TASK2
 }
 
 @Serializable
