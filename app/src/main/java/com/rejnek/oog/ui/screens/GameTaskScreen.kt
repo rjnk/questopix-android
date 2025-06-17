@@ -25,6 +25,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.data.engine.gameItems.Question
 import com.rejnek.oog.ui.viewmodels.GameTaskViewModel
 import com.rejnek.oog.ui.viewmodels.GameTaskViewModel.NavigationEvent
 import org.koin.androidx.compose.koinViewModel
@@ -88,38 +89,12 @@ fun GameNavigationTextScreen(
 
             // Display question input if there's an active question
             questionState?.let { question ->
-                Text(
+                Question().Show(
                     text = question.questionText,
-                    style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(bottom = 16.dp)
-                )
-
-                OutlinedTextField(
-                    value = answerText,
+                    answerText = answerText,
                     onValueChange = { viewModel.onAnswerTextChanged(it) },
-                    label = { Text("Your answer") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester),
-                    keyboardOptions = KeyboardOptions(
-                        imeAction = ImeAction.Done
-                    ),
-                    keyboardActions = KeyboardActions(
-                        onDone = { viewModel.submitAnswer() }
-                    ),
-                    singleLine = true
+                    onSubmit = { viewModel.submitAnswer() }
                 )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Button(
-                    onClick = { viewModel.submitAnswer() },
-                    modifier = Modifier.align(Alignment.End)
-                ) {
-                    Text("Submit")
-                }
-
-                Spacer(modifier = Modifier.height(16.dp))
             }
 
             // Display JavaScript buttons if available and no active question
