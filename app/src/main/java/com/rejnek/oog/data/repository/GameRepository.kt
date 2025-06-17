@@ -1,8 +1,7 @@
 package com.rejnek.oog.data.repository
 
-import android.content.Context
-import com.rejnek.oog.data.engine.GameEngineCallback
-import com.rejnek.oog.data.engine.JsGameEngine
+import com.rejnek.oog.data.repository.GameRepositoryInterface
+import com.rejnek.oog.data.engine.JsEngineInterface
 import com.rejnek.oog.data.model.GameElement
 import com.rejnek.oog.data.model.GameElementType
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -12,13 +11,20 @@ import android.util.Log
 import com.rejnek.oog.data.engine.demoGame
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import kotlin.Result
 
 class GameRepository(
-    private val jsEngine: JsGameEngine
-) : GameEngineCallback {
-    private val _currentElement = MutableStateFlow<GameElement?>(null)
-    val currentElement: StateFlow<GameElement?> = _currentElement.asStateFlow()
+    val jsEngine: JsEngineInterface
+) : GameRepositoryInterface {
+    private val _currentElement = MutableStateFlow(
+        GameElement(
+            id = "initial",
+            name = "Loading...",
+            elementType = GameElementType.UNKNOWN,
+            description = "Please wait while game is loading...",
+            visible = true
+        )
+    )
+    val currentElement: StateFlow<GameElement> = _currentElement.asStateFlow()
 
     // Changed from a single button state to a list of buttons
     private val _buttons = MutableStateFlow<List<ButtonState>>(emptyList())
@@ -36,8 +42,6 @@ class GameRepository(
      */
     suspend fun initializeGameElement() = withContext(Dispatchers.IO) {
         try {
-            // First initialize the JS engine
-            jsEngine.initialize()
 
             // Then execute the game code using executeJs which properly maintains state
             // This defines all game elements in the persistent JS context
@@ -81,12 +85,12 @@ class GameRepository(
      * Execute onContinue script for a game element
      */
     suspend fun executeOnContinue(element: GameElement?) {
-        val elementId = currentElement.value?.id ?: return
+        val elementId = currentElement.value.id
         jsEngine.executeJs("$elementId.onContinue()")
     }
 
     suspend fun executeOnStart() {
-        val elementId = currentElement.value?.id ?: return
+        val elementId = currentElement.value.id
         jsEngine.executeJs("$elementId.onStart()")
     }
     

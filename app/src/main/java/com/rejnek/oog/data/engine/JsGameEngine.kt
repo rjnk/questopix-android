@@ -8,6 +8,7 @@ import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.rejnek.oog.data.repository.GameRepositoryInterface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,9 +17,9 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 
 class JsGameEngine(
-    private val callback: GameEngineCallback? = null,
+    private val gameRepository: GameRepositoryInterface? = null,
     private val context: Context
-) {
+) : JsEngineInterface {
 
     // WebView instance for JavaScript execution
     private var webView: WebView? = null
@@ -26,6 +27,13 @@ class JsGameEngine(
 
     // Interface for JavaScript to call Kotlin functions
     private val jsInterface = GameJsInterface()
+
+    // Setter for the callback to avoid circular dependencies
+    fun setCallback(newCallback: GameRepositoryInterface) {
+        val field = JsGameEngine::class.java.getDeclaredField("gameRepository")
+        field.isAccessible = true
+        field.set(this, newCallback)
+    }
 
     // HTML template for WebView to provide persistent JS context
     private val htmlTemplate = """
@@ -95,7 +103,7 @@ class JsGameEngine(
      * This should be called before any JavaScript evaluation.
      */
     @SuppressLint("SetJavaScriptEnabled")
-    suspend fun initialize(): Result<Boolean> = withContext(Dispatchers.Main) {
+    override suspend fun initialize(): Result<Boolean> = withContext(Dispatchers.Main) {
         try {
             if (isInitialized) {
                 return@withContext Result.success(true)
@@ -144,7 +152,7 @@ class JsGameEngine(
      * Evaluate JavaScript code using WebView.
      * Code is executed in the persistent context of the WebView.
      */
-    suspend fun evaluateJs(code: String): Result<String> = withContext(Dispatchers.Main) {
+    override suspend fun evaluateJs(code: String): Result<String> = withContext(Dispatchers.Main) {
         try {
             if (!isInitialized) {
                 val initResult = initialize()
@@ -184,7 +192,7 @@ class JsGameEngine(
      * Execute JavaScript code directly without wrapping it in sendResult
      * Useful for defining variables and functions
      */
-    suspend fun executeJs(code: String): Result<Unit> = withContext(Dispatchers.Main) {
+    override suspend fun executeJs(code: String): Result<Unit> = withContext(Dispatchers.Main) {
         try {
             if (!isInitialized) {
                 val initResult = initialize()
@@ -240,7 +248,7 @@ class JsGameEngine(
             Log.d("JsGameEngine", "JS wants to show element: $elementId")
 
             CoroutineScope(Dispatchers.Main).launch {
-                callback?.showTask(elementId)
+                gameRepository?.showTask(elementId)
             }
         }
 
@@ -258,13 +266,13 @@ class JsGameEngine(
             CoroutineScope(Dispatchers.Main).launch {
                 when (callbackType) {
                     "button" -> {
-                        callback?.addButton(data) {
+                        gameRepository?.addButton(data) {
                             resolveCallback(callbackId, "")
                         }
                     }
                     "question" -> {
                         pendingQuestion = data
-                        callback?.showQuestion(data) { answer ->
+                        gameRepository?.showQuestion(data) { answer ->
                             resolveCallback(callbackId, answer)
                         }
                     }
@@ -307,7 +315,7 @@ class JsGameEngine(
     /**
      * Release resources when they're no longer needed
      */
-    fun cleanup() {
+    override fun cleanup() {
         try {
             Log.d("JsGameEngine", "Cleaning up WebView JavaScript engine resources")
             webView?.destroy()

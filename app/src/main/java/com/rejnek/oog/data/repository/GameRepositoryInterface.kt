@@ -1,10 +1,10 @@
-package com.rejnek.oog.data.engine
+package com.rejnek.oog.data.repository
 
 /**
  * Callback interface for the game engine to communicate with the game logic
  * This breaks the circular dependency between JsGameEngine and GameRepository
  */
-interface GameEngineCallback {
+interface GameRepositoryInterface {
     /**
      * Called when the game engine needs to show a specific element
      */

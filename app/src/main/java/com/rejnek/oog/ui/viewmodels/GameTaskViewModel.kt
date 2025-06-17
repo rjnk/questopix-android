@@ -22,9 +22,6 @@ class GameTaskViewModel(
     private val _description = MutableStateFlow("Loading...")
     val description = _description.asStateFlow()
 
-    private val _currentElementType = MutableStateFlow<GameElementType>(GameElementType.UNKNOWN)
-    val currentElementType = _currentElementType.asStateFlow()
-
     // Changed from a single button state to a list of buttons
     private val _buttons = MutableStateFlow<List<ButtonState>>(emptyList())
     val buttons = _buttons.asStateFlow()
@@ -44,7 +41,7 @@ class GameTaskViewModel(
         // Observe buttons from repository - in its own coroutine
         viewModelScope.launch {
             gameRepository.buttons.collect { buttons ->
-                if(gameRepository.currentElement.value?.elementType == GameElementType.FINISH) {
+                if(gameRepository.currentElement.value.elementType == GameElementType.FINISH) {
                     return@collect
                 }
                 _buttons.value = buttons
@@ -54,7 +51,7 @@ class GameTaskViewModel(
         // Observe questions from repository
         viewModelScope.launch {
             gameRepository.questionState.collect { question ->
-                if(gameRepository.currentElement.value?.elementType == GameElementType.FINISH) {
+                if(gameRepository.currentElement.value.elementType == GameElementType.FINISH) {
                     return@collect
                 }
                 _questionState.value = question
@@ -64,17 +61,13 @@ class GameTaskViewModel(
         // Observe current element changes in a separate coroutine
         viewModelScope.launch {
             gameRepository.currentElement.collect { elem ->
-                if (elem != null && elem.elementType != GameElementType.FINISH) {
-                    _name.value = elem.name
-                    _description.value = elem.description
-                    _currentElementType.value = elem.elementType
-                    Log.d("GameNavigationTextViewModel", "Element updated from flow: ${elem.name}")
-                }
-                else if(elem != null && elem.elementType == GameElementType.FINISH) {
-                    // If we reach a finish element, emit a navigation event
-                    Log.d("GameNavigationTextViewModel", "Finish element reached: ${elem?.name}")
+                if(elem.elementType == GameElementType.FINISH) {
                     _navigationEvents.emit(NavigationEvent.Finish)
                     return@collect
+                }
+                else{
+                    _name.value = elem.name
+                    _description.value = elem.description
                 }
             }
         }

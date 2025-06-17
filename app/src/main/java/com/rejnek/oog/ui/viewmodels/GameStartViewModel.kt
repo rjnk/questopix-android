@@ -25,7 +25,7 @@ class GameStartViewModel(
     init {
         viewModelScope.launch {
             gameRepository.currentElement.collectLatest { updatedElem ->
-                updatedElem?.let { elem ->
+                updatedElem.let { elem ->
                     Log.d("GameViewModel", "Element updated: ${elem.name}, type: ${elem.elementType}")
                     if(elem.elementType == GameElementType.START) {
                         _heading.value = elem.name
