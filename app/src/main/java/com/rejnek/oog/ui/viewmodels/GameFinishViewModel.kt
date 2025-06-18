@@ -25,7 +25,7 @@ class GameFinishViewModel(
         viewModelScope.launch {
             gameRepository.currentElement.collect { elem ->
                 _name.value = elem.name
-                _description.value = elem.description
+                _description.value = elem.name
             }
         }
     }

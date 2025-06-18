@@ -15,7 +15,6 @@ val appModule = module {
 
     // ViewModels
     viewModel { HomeViewModel(get()) }
-    viewModel { GameStartViewModel(get()) }
     viewModel { GameTaskViewModel(get()) }
     viewModel { GameFinishViewModel(get()) }
 }

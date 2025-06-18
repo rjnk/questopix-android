@@ -14,15 +14,13 @@ data class GameElement(
     val id: String,
     val name: String,
     val elementType: GameElementType,
-    val description: String,
-
     var visible: Boolean = false,
 )
 
 enum class GameElementType {
+    ERROR,
     UNKNOWN,
     START,
-    NAVIGATION,
     TASK,
     FINISH,
 }

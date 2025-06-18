@@ -29,7 +29,7 @@ class HomeViewModel(
                 return@launch
             }
 
-            gameRepository.initializeGameElement()
+            gameRepository.initializeGame()
         }
     }
 }

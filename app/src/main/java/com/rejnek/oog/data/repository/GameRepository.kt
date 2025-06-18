@@ -14,7 +14,6 @@ import com.rejnek.oog.data.engine.gameItems.ButtonFactory
 import com.rejnek.oog.data.engine.gameItems.DebugPrint
 import com.rejnek.oog.data.engine.gameItems.GenericGameItem
 import com.rejnek.oog.data.engine.gameItems.HeadingFactory
-import com.rejnek.oog.data.engine.gameItems.Question
 import com.rejnek.oog.data.engine.gameItems.QuestionFactory
 import com.rejnek.oog.data.engine.gameItems.ShowTask
 import com.rejnek.oog.data.engine.gameItems.TextFactory
@@ -24,8 +23,6 @@ import kotlinx.coroutines.withContext
 class GameRepository(
     context: Context
 ) {
-    val jsEngine = JsGameEngine(context)
-
     val gameItems = arrayListOf<GenericGameItem>(
         DebugPrint(),
         QuestionFactory(),
@@ -35,64 +32,41 @@ class GameRepository(
         HeadingFactory()
     )
 
+    val jsEngine = JsGameEngine(context)
+
     private val _currentElement = MutableStateFlow(
         GameElement(
             id = "initial",
             name = "Loading...",
-            elementType = GameElementType.UNKNOWN,
-            description = "Please wait while game is loading...",
+            elementType = GameElementType.ERROR,
             visible = true
         )
     )
     val currentElement: StateFlow<GameElement> = _currentElement.asStateFlow()
 
-    private val _name = MutableStateFlow("Loading...")
-    val name = _name.asStateFlow()
-
-    // UI elements storage - list of composable functions
     private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
     val uiElements: StateFlow<List<@Composable () -> Unit>> = _uiElements.asStateFlow()
 
-    /**
-     * Initialize a game element in JavaScript and evaluate its properties
-     */
-    suspend fun initializeGameElement() = withContext(Dispatchers.IO) {
-        try {
 
-            // Then execute the game code using executeJs which properly maintains state
-            // This defines all game elements in the persistent JS context
-            jsEngine.evaluateJs(demoGame)
-
-            // Set the start element
-            setCurrentElement("start")
-
-        } catch (e: Exception) {
-            Log.e("GameRepository", "JavaScript evaluation error: ${e.javaClass.simpleName}", e)
-        }
+    suspend fun initializeGame() = withContext(Dispatchers.IO) {
+        jsEngine.evaluateJs(demoGame) // Load the demo js code
+        setCurrentElement("start")
     }
 
     suspend fun setCurrentElement(elementId: String) {
-        var clear = true
-
-        val name = jsEngine.getJsValue("$elementId.name").getOrNull() ?: "Error"
-        val elementType = jsEngine.getJsValue("$elementId.type").getOrNull()?.let {
+        val name = getJsValue("$elementId.name") ?: "Err"
+        val elementType = getJsValue("$elementId.type")?.let {
             GameElementType.valueOf(it.toString().uppercase())
         } ?: GameElementType.UNKNOWN
-        val description = jsEngine.getJsValue("$elementId.description").getOrNull() ?: "No description"
-
-        if( elementType == GameElementType.FINISH || elementType == GameElementType.START ) {
-            clear = false
-        }
 
         _currentElement.value = GameElement(
             id = elementId,
             name = name,
             elementType = elementType,
-            description = description,
             visible = true
         )
 
-        if( clear ) {
+        if( elementType != GameElementType.FINISH && elementType != GameElementType.START ) {
             _uiElements.value = emptyList()
 
             for (item in gameItems) {
@@ -100,11 +74,19 @@ class GameRepository(
             }
         }
 
-        Log.d("GameRepository", "Current element set: ${_currentElement.value}")
+        Log.d("GameRepository", "Current element set to ${_currentElement.value}")
 
         executeOnStart()
     }
 
+    private suspend fun getJsValue(id: String): String? {
+        return jsEngine.getJsValue(id).getOrNull()
+    }
+
+    /**
+     * Execute the onStart method of the current game element in JavaScript
+     * This is called when the element is set or when the game starts
+     */
     suspend fun executeOnStart() {
         val elementId = currentElement.value.id
         jsEngine.evaluateJs("$elementId.onStart()")
@@ -114,13 +96,9 @@ class GameRepository(
      * Add a UI element (Composable function) to be displayed in the GameTaskScreen
      */
     fun addUIElement(element: @Composable () -> Unit) {
-        Log.d("GameRepository", "Adding UI element to screen")
         _uiElements.value = _uiElements.value + element
     }
 
-    /**
-     * Clean up JavaScript engine
-     */
     fun cleanup() {
         jsEngine.cleanup()
     }
