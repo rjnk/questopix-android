@@ -1,19 +1,22 @@
 package com.rejnek.oog.data.repository
 
-import com.rejnek.oog.data.engine.JsEngineInterface
+import android.content.Context
 import com.rejnek.oog.data.model.GameElement
 import com.rejnek.oog.data.model.GameElementType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import android.util.Log
+import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.engine.demoGame
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class GameRepository(
-    val jsEngine: JsEngineInterface
-) : GameRepositoryInterface {
+    context: Context
+) {
+    val jsEngine = JsGameEngine(context)
+
     private val _currentElement = MutableStateFlow(
         GameElement(
             id = "initial",
@@ -121,17 +124,17 @@ class GameRepository(
     /**
      * Implementation of GameEngineCallback interface
      */
-    override suspend fun showTask(elementId: String) {
+    suspend fun showTask(elementId: String) {
         setCurrentElement(elementId)
     }
 
-    override suspend fun addButton(text: String, onClick: () -> Unit) {
+    suspend fun addButton(text: String, onClick: () -> Unit) {
         Log.d("GameRepository", "Adding button: $text")
         // Add the new button to the list
         _buttons.value = _buttons.value + ButtonState(text, onClick)
     }
 
-    override suspend fun showQuestion(questionText: String, provideAnswer: (String) -> Unit) {
+    suspend fun showQuestion(questionText: String, provideAnswer: (String) -> Unit) {
         Log.d("GameRepository", "Showing question: $questionText")
         _questionState.value = QuestionState(questionText, provideAnswer)
     }

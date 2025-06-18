@@ -2,8 +2,6 @@ package com.rejnek.oog.data.engine
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.os.Handler
-import android.os.Looper
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
@@ -12,7 +10,6 @@ import com.rejnek.oog.data.engine.gameItems.GenericGameItem
 import com.rejnek.oog.data.engine.gameItems.InGameButton
 import com.rejnek.oog.data.engine.gameItems.Question
 import com.rejnek.oog.data.repository.GameRepository
-import com.rejnek.oog.data.repository.GameRepositoryInterface
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -21,9 +18,10 @@ import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
 
 class JsGameEngine(
-    private val gameRepository: GameRepositoryInterface? = null,
     private val context: Context
-) : JsEngineInterface {
+) {
+
+    private var repository: GameRepository? = null
 
     // WebView instance for JavaScript execution
     private var webView: WebView? = null
@@ -31,13 +29,6 @@ class JsGameEngine(
 
     // Interface for JavaScript to call Kotlin functions
     private val jsInterface = GameJsInterface()
-
-    // Setter for the callback to avoid circular dependencies
-    fun setCallback(newCallback: GameRepositoryInterface) {
-        val field = JsGameEngine::class.java.getDeclaredField("gameRepository")
-        field.isAccessible = true
-        field.set(this, newCallback)
-    }
 
     private val gameItems = arrayListOf<GenericGameItem>(
         Question(),
@@ -91,7 +82,9 @@ class JsGameEngine(
      * This should be called before any JavaScript evaluation.
      */
     @SuppressLint("SetJavaScriptEnabled")
-    override suspend fun initialize(): Result<Boolean> = withContext(Dispatchers.Main) {
+    suspend fun initialize(
+        gameRepository: GameRepository
+    ): Result<Boolean> = withContext(Dispatchers.Main) {
         if (isInitialized) {
             return@withContext Result.success(true)
         }
@@ -115,10 +108,11 @@ class JsGameEngine(
         }
 
         isInitialized = true
+        repository = gameRepository
 
         // TODO how to now if repository is already initialized?
         for( i in gameItems) {
-            i.init(gameRepository, jsInterface)
+            i.init(repository, jsInterface)
         }
 
         Result.success(true)
@@ -158,7 +152,7 @@ class JsGameEngine(
      * @param code The JavaScript code to evaluate
      * @return Result indicating success or failure of the evaluation
      */
-    override suspend fun evaluateJs(code: String): Result<Unit> {
+    suspend fun evaluateJs(code: String): Result<Unit> {
         evaluateJs(code, expectResult = false)
         return Result.success(Unit)
     }
@@ -169,7 +163,7 @@ class JsGameEngine(
      * @param code The JavaScript code to evaluate
      * @return Result containing the evaluation result as a string
      */
-    override suspend fun getJsValue(code: String): Result<String> {
+    suspend fun getJsValue(code: String): Result<String> {
         return evaluateJs(code, expectResult = true)
     }
 
@@ -199,7 +193,7 @@ class JsGameEngine(
             Log.d("JsGameEngine", "JS wants to show element: $elementId")
 
             CoroutineScope(Dispatchers.Main).launch {
-                gameRepository?.showTask(elementId)
+                repository?.showTask(elementId)
             }
         }
 
@@ -254,7 +248,7 @@ class JsGameEngine(
     /**
      * Release resources when they're no longer needed
      */
-    override fun cleanup() {
+    fun cleanup() {
         try {
             Log.d("JsGameEngine", "Cleaning up WebView JavaScript engine resources")
             webView?.destroy()

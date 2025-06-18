@@ -14,7 +14,7 @@ class HomeViewModel(
 
     init {
         viewModelScope.launch {
-            gameRepository.jsEngine.initialize()
+            gameRepository.jsEngine.initialize(gameRepository)
                 .onSuccess {
                     jsInitialized = true
                     Log.d(TAG, "JS engine initialized successfully")
