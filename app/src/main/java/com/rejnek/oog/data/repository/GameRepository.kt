@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import android.util.Log
+import androidx.compose.runtime.Composable
 import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.engine.demoGame
 import com.rejnek.oog.data.engine.gameItems.DebugPrint
@@ -44,11 +45,12 @@ class GameRepository(
     private val _buttons = MutableStateFlow<List<ButtonState>>(emptyList())
     val buttons: StateFlow<List<ButtonState>> = _buttons.asStateFlow()
 
-    // Add state for questions
-
-
     private val _name = MutableStateFlow("Loading...")
     val name = _name.asStateFlow()
+
+    // UI elements storage - list of composable functions
+    private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
+    val uiElements: StateFlow<List<@Composable () -> Unit>> = _uiElements.asStateFlow()
 
     /**
      * Initialize a game element in JavaScript and evaluate its properties
@@ -86,6 +88,9 @@ class GameRepository(
         // Clear buttons when changing elements
         _buttons.value = emptyList()
 
+        // Clear UI elements when changing elements
+        _uiElements.value = emptyList()
+
         // Clear any active question
         // TODO this problematic as this is too fast and the screen flickers
         for (item in gameItems) {
@@ -119,6 +124,14 @@ class GameRepository(
             // Execute the callback for this button
             buttons[buttonId].onClick.invoke()
         }
+    }
+
+    /**
+     * Add a UI element (Composable function) to be displayed in the GameTaskScreen
+     */
+    fun addUIElement(element: @Composable () -> Unit) {
+        Log.d("GameRepository", "Adding UI element to screen")
+        _uiElements.value = _uiElements.value + element
     }
 
     /**

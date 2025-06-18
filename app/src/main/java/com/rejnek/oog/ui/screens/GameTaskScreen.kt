@@ -50,6 +50,7 @@ fun GameNavigationTextScreen(
 
     // Collect the UI state
     val buttons by viewModel.buttons.collectAsState()
+    val uiElements by viewModel.uiElements.collectAsState()
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -73,8 +74,11 @@ fun GameNavigationTextScreen(
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 
-            viewModel.question?.Show()
-
+            // Render dynamically added UI elements
+            uiElements.forEach { element ->
+                element()
+                Spacer(modifier = Modifier.height(8.dp))
+            }
 
             // Display JavaScript buttons if available and no active question
             if (buttons.isNotEmpty()) {
@@ -86,16 +90,6 @@ fun GameNavigationTextScreen(
                     }
 
                     Spacer(modifier = Modifier.height(8.dp))
-                }
-            }
-            // Show default continue button when no custom buttons or questions are available
-            else if (viewModel.question?.isVisible?.collectAsState()?.value == false && buttons.isEmpty()) {
-                Button(
-                    onClick = {
-                        viewModel.onContinueClicked()
-                    }
-                ) {
-                    Text("Continue to Task")
                 }
             }
         }

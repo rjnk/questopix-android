@@ -28,6 +28,9 @@ class GameTaskViewModel(
     private val _navigationEvents = MutableSharedFlow<NavigationEvent>()
     val navigationEvents = _navigationEvents.asSharedFlow()
 
+    // Expose UI elements from the repository
+    val uiElements = gameRepository.uiElements
+
     val question: Question? = gameRepository.gameItems.find { it is Question } as? Question
 
     init {

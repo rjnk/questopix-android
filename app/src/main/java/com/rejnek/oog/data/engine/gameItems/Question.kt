@@ -34,12 +34,13 @@ class Question() : GenericGameItem() {
             Log.d("Question", "Answer provided: $answer")
             game?.resolveCallback(callbackId, answer)
         }
-
-        _visible.value = true
+        
+        // Add this question's UI to the game screen
+        gameRepository?.addUIElement { Show() }
     }
 
     override fun clear() {
-        _visible.value = false
+        // Nothing for now
     }
 
     val _questionText = MutableStateFlow("Err")
@@ -50,9 +51,6 @@ class Question() : GenericGameItem() {
 
     private val _answerText = MutableStateFlow("")
     val answerText = _answerText.asStateFlow()
-
-    private val _visible = MutableStateFlow(false)
-    val isVisible: StateFlow<Boolean> = _visible.asStateFlow()
 
 
     @Composable
@@ -68,10 +66,6 @@ class Question() : GenericGameItem() {
             if (answerText.isNotBlank()) {
                 provideAnswer.value(answerText)
             }
-        }
-
-        if( !isVisible.collectAsState().value) {
-            return
         }
 
         Text(

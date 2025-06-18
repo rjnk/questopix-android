@@ -225,15 +225,6 @@ class JsGameEngine(
         }
 
         /**
-         * Called from JavaScript to wait for a callback to be resolved
-         * @param callbackId The ID of the callback to wait for
-         */
-        @JavascriptInterface
-        fun awaitCallback(callbackId: String) {
-
-        }
-
-        /**
          * Resolves a callback by its ID with the provided result
          * This is called by Kotlin when the callback action is completed
          */
