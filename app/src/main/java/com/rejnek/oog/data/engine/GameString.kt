@@ -14,7 +14,7 @@ val demoGame = """
         description: "Tohle je jednoduchá demonstrační hra pro účely vyzkoušení načítání z javascriptu.",
         onContinue: function() {
             debugPrint("CONSOLE PRINT: game is starting!");
-            Android.showTask("task1");
+            showTask("task1");
         }
     }
 
@@ -25,10 +25,10 @@ val demoGame = """
         description: "Projdi se pod mostem, pak můžeš pokračovat",
         onStart: function() {
             button("Pokračovat", function() {
-                Android.showTask("openQuestion1");
+                showTask("openQuestion1");
             });
             button("Rovnou do cíle", function() {
-                Android.showTask("finish");
+                showTask("finish");
             });
         }
     }
@@ -46,11 +46,11 @@ val demoGame = """
             
             if (answer === "buk") {
                 debugPrint("Správně!");
-                Android.showTask("finish");
+                showTask("finish");
             }
             else {
                 debugPrint("Špatně.");
-                Android.showTask("task1");
+                showTask("task1");
             }
             
             return;

@@ -2,16 +2,16 @@ package com.rejnek.oog.data.engine.gameItems
 
 import android.util.Log
 
-class DebugPrint : GenericGameItem() {
-    override val id = "debugPrint"
+class ShowTask : GenericGameItem() {
+    override val id = "showTask"
     override val js: String = """
-        function debugPrint(message) {
-            directAction("$id", message);
+        function showTask(elementId) {
+            directAction("$id", elementId);
         }
     """.trimIndent()
 
     override suspend fun run(data: String, callbackId: String) {
-        Log.d("DebugPrint", "JS Debug: $data")
+        gameRepository?.showTask(data)
     }
 
     override fun clear() {

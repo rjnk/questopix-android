@@ -13,6 +13,7 @@ import com.rejnek.oog.data.engine.gameItems.DebugPrint
 import com.rejnek.oog.data.engine.gameItems.GenericGameItem
 import com.rejnek.oog.data.engine.gameItems.InGameButton
 import com.rejnek.oog.data.engine.gameItems.Question
+import com.rejnek.oog.data.engine.gameItems.ShowTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -24,7 +25,8 @@ class GameRepository(
     val gameItems = arrayListOf<GenericGameItem>(
         DebugPrint(),
         Question(),
-        InGameButton()
+        InGameButton(),
+        ShowTask()
     )
 
     private val _currentElement = MutableStateFlow(
