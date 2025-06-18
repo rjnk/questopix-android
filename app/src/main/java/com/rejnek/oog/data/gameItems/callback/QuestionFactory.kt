@@ -1,4 +1,4 @@
-package com.rejnek.oog.data.gameItems
+package com.rejnek.oog.data.gameItems.callback
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,13 +13,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.data.gameItems.GenericGameFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class QuestionFactory() : GenericGameFactory() {
     override val id: String = "question"
     override val js: String = """
-        async function question(questionText) {
+        async function $id(questionText) {
         return await createCallback("$id", questionText);
         }
     """.trimIndent()

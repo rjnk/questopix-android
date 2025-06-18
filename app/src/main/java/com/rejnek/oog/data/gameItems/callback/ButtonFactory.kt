@@ -1,4 +1,4 @@
-package com.rejnek.oog.data.gameItems
+package com.rejnek.oog.data.gameItems.callback
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -6,6 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.rejnek.oog.data.gameItems.GenericGameFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 

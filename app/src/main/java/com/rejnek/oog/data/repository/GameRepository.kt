@@ -10,13 +10,13 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.engine.demoGame
-import com.rejnek.oog.data.gameItems.ButtonFactory
-import com.rejnek.oog.data.gameItems.DebugPrint
+import com.rejnek.oog.data.gameItems.callback.ButtonFactory
+import com.rejnek.oog.data.gameItems.direct.DebugPrint
 import com.rejnek.oog.data.gameItems.GenericGameFactory
-import com.rejnek.oog.data.gameItems.HeadingFactory
-import com.rejnek.oog.data.gameItems.QuestionFactory
-import com.rejnek.oog.data.gameItems.ShowTask
-import com.rejnek.oog.data.gameItems.TextFactory
+import com.rejnek.oog.data.gameItems.direct.HeadingFactory
+import com.rejnek.oog.data.gameItems.callback.QuestionFactory
+import com.rejnek.oog.data.gameItems.direct.ShowTask
+import com.rejnek.oog.data.gameItems.direct.TextFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
