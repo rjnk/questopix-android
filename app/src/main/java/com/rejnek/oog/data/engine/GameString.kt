@@ -22,13 +22,12 @@ val demoGame = """
     const task1 = {
         name: "Mostní úkol",
         type: "task",
-        description: "Projdi se pod mostem, pak můžeš pokračovat",
         onStart: function() {
-            text("Ahooooj");
+            text("Projdi se pod mostem, pak můžeš pokračovat");
             button("Pokračovat", function() {
                 showTask("openQuestion1");
             });
-            text("Nazdaaaar");
+            text("...nebo zkratka");
             button("Rovnou do cíle", function() {
                 showTask("finish");
             });

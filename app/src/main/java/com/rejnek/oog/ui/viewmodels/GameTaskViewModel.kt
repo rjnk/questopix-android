@@ -16,9 +16,6 @@ class GameTaskViewModel(
     private val _name = MutableStateFlow("Loading...")
     val name = _name.asStateFlow()
 
-    private val _description = MutableStateFlow("Loading...")
-    val description = _description.asStateFlow()
-
     private val _navigationEvents = MutableSharedFlow<NavigationEvent>()
     val navigationEvents = _navigationEvents.asSharedFlow()
 
@@ -33,10 +30,6 @@ class GameTaskViewModel(
                 if(elem.elementType == GameElementType.FINISH) {
                     _navigationEvents.emit(NavigationEvent.Finish)
                     return@collect
-                }
-                else{
-                    _name.value = elem.name
-                    _description.value = elem.description
                 }
             }
         }

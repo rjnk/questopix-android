@@ -70,11 +70,17 @@ class GameRepository(
     }
 
     suspend fun setCurrentElement(elementId: String) {
+        var clear = true
+
         val name = jsEngine.getJsValue("$elementId.name").getOrNull() ?: "Error"
         val elementType = jsEngine.getJsValue("$elementId.type").getOrNull()?.let {
             GameElementType.valueOf(it.toString().uppercase())
         } ?: GameElementType.UNKNOWN
         val description = jsEngine.getJsValue("$elementId.description").getOrNull() ?: "No description"
+
+        if( elementType == GameElementType.FINISH || elementType == GameElementType.START ) {
+            clear = false
+        }
 
         _currentElement.value = GameElement(
             id = elementId,
@@ -84,13 +90,12 @@ class GameRepository(
             visible = true
         )
 
-        // Clear UI elements when changing elements
-        _uiElements.value = emptyList()
+        if( clear ) {
+            _uiElements.value = emptyList()
 
-        // Clear any active question
-        // TODO this problematic as this is too fast and the screen flickers
-        for (item in gameItems) {
-            item.clear()
+            for (item in gameItems) {
+                item.clear()
+            }
         }
 
         Log.d("GameRepository", "Current element set: ${_currentElement.value}")

@@ -43,7 +43,6 @@ fun GameNavigationTextScreen(
         viewModel.navigationEvents.collect { event ->
             when (event) {
                 is NavigationEvent.Finish -> onFinishTask()
-                // Add other navigation events as needed
             }
         }
     }
@@ -66,11 +65,6 @@ fun GameNavigationTextScreen(
                 text = viewModel.name.collectAsState().value,
                 style = MaterialTheme.typography.headlineLarge,
                 modifier = Modifier.padding(bottom = 24.dp)
-            )
-
-            Text(
-                text = viewModel.description.collectAsState().value,
-                modifier = Modifier.padding(bottom = 32.dp)
             )
 
             // Render dynamically added UI elements
