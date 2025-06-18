@@ -1,5 +1,6 @@
 package com.rejnek.oog.data.engine.gameItems
 
+import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -26,25 +27,32 @@ class Question() : GenericGameItem() {
     """.trimIndent()
 
     override suspend fun run(data: String, callbackId: String) {
-        visible = true
+        Log.d("Question", "Running with data: $data and callbackId: $callbackId")
 
-        _questionState.value = QuestionState(data) { answer ->
+        _questionText.value = data
+        _provideAnswer.value = { answer ->
+            Log.d("Question", "Answer provided: $answer")
             game?.resolveCallback(callbackId, answer)
         }
+
+        _visible.value = true
     }
 
     override fun clear() {
-        visible = false
-        _questionState.value = null
+        _visible.value = false
     }
 
-    val _questionState = MutableStateFlow<QuestionState?>(null)
-    val questionState: StateFlow<QuestionState?> = _questionState.asStateFlow()
+    val _questionText = MutableStateFlow("Err")
+    val questionText = _questionText.asStateFlow()
+
+    val _provideAnswer = MutableStateFlow<(String) -> Unit>({})
+    val provideAnswer = _provideAnswer.asStateFlow()
 
     private val _answerText = MutableStateFlow("")
     val answerText = _answerText.asStateFlow()
 
-    var visible = false
+    private val _visible = MutableStateFlow(false)
+    val isVisible: StateFlow<Boolean> = _visible.asStateFlow()
 
 
     @Composable
@@ -55,11 +63,15 @@ class Question() : GenericGameItem() {
         val onValueChange: (String) -> Unit = {
             _answerText.value = it
         }
-        val text = this.questionState.collectAsState().value?.questionText ?: "Err"
+        val text = questionText.collectAsState().value
         val onSubmit: () -> Unit = {
             if (answerText.isNotBlank()) {
-                this.questionState.value?.provideAnswer(answerText)
+                provideAnswer.value(answerText)
             }
+        }
+
+        if( !isVisible.collectAsState().value) {
+            return
         }
 
         Text(
@@ -88,11 +100,3 @@ class Question() : GenericGameItem() {
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
-
-/**
- * Class representing a question that needs to be answered
- */
-data class QuestionState(
-    val questionText: String,
-    val provideAnswer: (String) -> Unit
-)

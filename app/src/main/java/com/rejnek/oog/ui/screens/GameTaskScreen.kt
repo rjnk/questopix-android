@@ -73,9 +73,8 @@ fun GameNavigationTextScreen(
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 
-            if(viewModel.question?.visible == true){
-                viewModel.question.Show()
-            }
+            viewModel.question?.Show()
+
 
             // Display JavaScript buttons if available and no active question
             if (buttons.isNotEmpty()) {
@@ -90,7 +89,7 @@ fun GameNavigationTextScreen(
                 }
             }
             // Show default continue button when no custom buttons or questions are available
-            else if (viewModel.question?.visible == false && buttons.isEmpty()) {
+            else if (viewModel.question?.isVisible?.collectAsState()?.value == false && buttons.isEmpty()) {
                 Button(
                     onClick = {
                         viewModel.onContinueClicked()
