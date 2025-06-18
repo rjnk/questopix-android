@@ -3,15 +3,11 @@ package com.rejnek.oog.data.engine
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import android.webkit.JavascriptInterface
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.rejnek.oog.data.engine.gameItems.GenericGameItem
-import com.rejnek.oog.data.engine.gameItems.Question
 import com.rejnek.oog.data.repository.GameRepository
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
@@ -19,21 +15,20 @@ import kotlin.coroutines.resume
 class JsGameEngine(
     private val context: Context
 ) {
-
+    // My variables
     private var repository: GameRepository? = null
+    private val gameItems = arrayListOf<GenericGameItem>()
 
     // WebView instance for JavaScript execution
     private var webView: WebView? = null
     private var isInitialized = false
 
     // Interface for JavaScript to call Kotlin functions
-    private val jsInterface = GameJsInterface()
-
-    private val gameItems = arrayListOf<GenericGameItem>()
+    private val jsInterface = JsGameInterface(gameItems)
 
     /**
      * Initialize the JavaScript engine with WebView.
-     * This should be called before any JavaScript evaluation.
+     * This needs to be called before any JavaScript evaluation.
      */
     @SuppressLint("SetJavaScriptEnabled")
     suspend fun initialize(
@@ -44,7 +39,6 @@ class JsGameEngine(
         }
 
         repository = gameRepository
-
         repository?.gameItems?.let { items ->
             gameItems.addAll(items.toList())
         }
@@ -67,13 +61,37 @@ class JsGameEngine(
             loadDataWithBaseURL(null, htmlTemplate(gameItems), "text/html", "UTF-8", null)
         }
 
+        // Update the WebView reference in jsInterface
+        jsInterface.updateWebView(webView)
+
         isInitialized = true
 
-        for( i in gameItems) {
+        for (i in gameItems) {
             i.init(repository, jsInterface)
         }
 
         Result.success(true)
+    }
+
+    /**
+     * Evaluate JavaScript code without expecting a result.
+     * This is useful for executing commands that do not return a value.
+     * @param code The JavaScript code to evaluate
+     * @return Result indicating success or failure of the evaluation
+     */
+    suspend fun evaluateJs(code: String): Result<Unit> {
+        evaluateJs(code, expectResult = false)
+        return Result.success(Unit)
+    }
+
+    /**
+     * Evaluate JavaScript code and expect a result.
+     * This is useful for getting values from the JavaScript context.
+     * @param code The JavaScript code to evaluate
+     * @return Result containing the evaluation result as a string
+     */
+    suspend fun getJsValue(code: String): Result<String> {
+        return evaluateJs(code, expectResult = true)
     }
 
     /**
@@ -150,30 +168,6 @@ class JsGameEngine(
         </html>
     """.trimIndent()
 
-    /**
-     * Evaluate JavaScript code without expecting a result.
-     * This is useful for executing commands that do not return a value.
-     * @param code The JavaScript code to evaluate
-     * @return Result indicating success or failure of the evaluation
-     */
-    suspend fun evaluateJs(code: String): Result<Unit> {
-        evaluateJs(code, expectResult = false)
-        return Result.success(Unit)
-    }
-
-    /**
-     * Evaluate JavaScript code and expect a result.
-     * This is useful for getting values from the JavaScript context.
-     * @param code The JavaScript code to evaluate
-     * @return Result containing the evaluation result as a string
-     */
-    suspend fun getJsValue(code: String): Result<String> {
-        return evaluateJs(code, expectResult = true)
-    }
-
-    /**
-     * Clean the JavaScript result by removing quotes from strings
-     */
     private fun cleanJsResult(result: String): String {
         return if (result.startsWith("\"") && result.endsWith("\"") && result.length >= 2) {
             result.substring(1, result.length - 1)
@@ -182,78 +176,11 @@ class JsGameEngine(
         }
     }
 
-    // JavaScript interface class that serves as a bridge between JS and Kotlin
-    inner class GameJsInterface {
-        private val javaScriptCallbacks = mutableMapOf<String, (String) -> Unit>()
-        private var callbackIdCounter = 0
-
-        /**
-         * Generic method for handling direct actions from JavaScript that don't need to wait for callbacks
-         * @param actionType The type of action to perform (corresponds to game item ID)
-         * @param data Additional data needed for the action
-         * @return An immediate result string, if any (empty string for void actions)
-         */
-        @JavascriptInterface
-        fun directAction(actionType: String, data: String): Unit {
-            Log.d("JsGameEngine", "Direct action: $actionType with data: $data")
-
-            val gameItem = gameItems.find { it.id == actionType }
-
-            CoroutineScope(Dispatchers.Main).launch {
-                gameItem?.run(data, "blank")
-            }
-        }
-
-        /**
-         * Generic method to register a callback from JavaScript
-         * @param callbackType The type of callback
-         * @param data Additional data needed for the callback
-         * @return A callback ID that JavaScript can use to resolve the callback
-         */
-        @JavascriptInterface
-        fun registerCallback(callbackType: String, data: String): String {
-            val callbackId = "callback_${callbackType}_${callbackIdCounter++}_${System.currentTimeMillis()}"
-            Log.d("JsGameEngine", "Registering $callbackType callback: $callbackId with data: $data")
-
-            CoroutineScope(Dispatchers.Main).launch {
-                val gameItem = gameItems.find { it.id == callbackType }
-                gameItem?.run(data, callbackId) ?: Log.e("JsGameEngine", "No game item found with ID: $callbackType")
-            }
-
-            return callbackId
-        }
-
-        /**
-         * Resolves a callback by its ID with the provided result
-         * This is called by Kotlin when the callback action is completed
-         */
-        internal fun resolveCallback(callbackId: String, result: String) {
-            Log.d("JsGameEngine", "Resolving callback: $callbackId with result: $result")
-
-            // Resolve the promise in JavaScript with the result
-            CoroutineScope(Dispatchers.Main).launch {
-                val escapedResult = result.replace("'", "\\'")
-                webView?.evaluateJavascript("""
-                    if (window._callbackResolvers && window._callbackResolvers['$callbackId']) {
-                        window._callbackResolvers['$callbackId']('$escapedResult');
-                        delete window._callbackResolvers['$callbackId'];
-                    }
-                """.trimIndent(), null)
-            }
-        }
-    }
-
-    /**
-     * Release resources when they're no longer needed
-     */
     fun cleanup() {
-        try {
-            Log.d("JsGameEngine", "Cleaning up WebView JavaScript engine resources")
-            webView?.destroy()
-            webView = null
-            isInitialized = false
-        } catch (e: Exception) {
-            Log.e("JsGameEngine", "Error during cleanup", e)
-        }
+        Log.d("JsGameEngine", "Cleaning up WebView JavaScript engine resources")
+        jsInterface.updateWebView(null)
+        webView?.destroy()
+        webView = null
+        isInitialized = false
     }
 }

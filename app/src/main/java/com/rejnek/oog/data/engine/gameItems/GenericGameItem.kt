@@ -1,17 +1,16 @@
 package com.rejnek.oog.data.engine.gameItems
 
-import com.rejnek.oog.data.engine.JsGameEngine
-import com.rejnek.oog.data.engine.JsGameEngine.GameJsInterface
+import com.rejnek.oog.data.engine.JsGameInterface
 import com.rejnek.oog.data.repository.GameRepository
 
 abstract class GenericGameItem(
     var gameRepository: GameRepository? = null,
-    var game: GameJsInterface? = null,
+    var game: JsGameInterface? = null,
 ) {
     abstract val id: String
     abstract val js: String
 
-    fun init(gameRepository: GameRepository?, game: GameJsInterface?) {
+    fun init(gameRepository: GameRepository?, game: JsGameInterface?) {
         this.gameRepository = gameRepository
         this.game = game
     }
