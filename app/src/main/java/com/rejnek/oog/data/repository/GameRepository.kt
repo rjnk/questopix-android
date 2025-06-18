@@ -75,10 +75,6 @@ class GameRepository(
         executeOnStart()
     }
 
-    private suspend fun getJsValue(id: String): String? {
-        return jsEngine.getJsValue(id).getOrNull()
-    }
-
     /**
      * Execute the onStart method of the current game element in JavaScript
      * This is called when the element is set or when the game starts
@@ -97,5 +93,9 @@ class GameRepository(
 
     fun cleanup() {
         jsEngine.cleanup()
+    }
+
+    private suspend fun getJsValue(id: String): String? {
+        return jsEngine.getJsValue(id).getOrNull()
     }
 }
