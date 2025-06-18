@@ -13,7 +13,7 @@ val demoGame = """
         },
         description: "Tohle je jednoduchá demonstrační hra pro účely vyzkoušení načítání z javascriptu.",
         onContinue: function() {
-            Android.debugPrint("CONSOLE PRINT: game is starting!");
+            debugPrint("CONSOLE PRINT: game is starting!");
             Android.showTask("task1");
         }
     }
@@ -39,17 +39,17 @@ val demoGame = """
         type: "task",
         description: "Odpověz na otázku o stromech",
         onStart: async function() {
-            Android.debugPrint("Open question shown");
+            debugPrint("Open question shown");
             
             // Use await with the question function
             const answer = await question("Odpověz na otázku: Jaký je tvůj oblíbený strom?");
             
             if (answer === "buk") {
-                Android.debugPrint("Správně!");
+                debugPrint("Správně!");
                 Android.showTask("finish");
             }
             else {
-                Android.debugPrint("Špatně.");
+                debugPrint("Špatně.");
                 Android.showTask("task1");
             }
             

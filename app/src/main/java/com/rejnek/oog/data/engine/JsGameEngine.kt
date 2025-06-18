@@ -137,6 +137,11 @@ class JsGameEngine(
                     });
                 }
                 
+                // Function for direct actions that don't need to wait for user input
+                function directAction(type, data) {
+                    return Android.directAction(type, data || "");
+                }
+                
                 ${gameItems.joinToString("\n\n") { action -> action.js }}
             </script>
         </head>
@@ -184,17 +189,36 @@ class JsGameEngine(
         private var callbackIdCounter = 0
 
         @JavascriptInterface
-        fun debugPrint(message: String) {
-            Log.d("JsGameEngine", "JS Debug: $message")
-        }
-
-        @JavascriptInterface
         fun showTask(elementId: String) {
             Log.d("JsGameEngine", "JS wants to show element: $elementId")
 
             CoroutineScope(Dispatchers.Main).launch {
                 repository?.showTask(elementId)
             }
+        }
+
+        @JavascriptInterface
+        fun debugPrint(message: String) {
+            Log.d("JsGameEngine", "JS Debug: $message")
+        }
+
+        /**
+         * Generic method for handling direct actions from JavaScript that don't need to wait for callbacks
+         * @param actionType The type of action to perform (corresponds to game item ID)
+         * @param data Additional data needed for the action
+         * @return An immediate result string, if any (empty string for void actions)
+         */
+        @JavascriptInterface
+        fun directAction(actionType: String, data: String): String {
+            Log.d("JsGameEngine", "Direct action: $actionType with data: $data")
+
+            val gameItem = gameItems.find { it.id == actionType }
+
+            CoroutineScope(Dispatchers.Main).launch {
+                gameItem?.run(data, "blank")
+            }
+
+            return ""
         }
 
         /**

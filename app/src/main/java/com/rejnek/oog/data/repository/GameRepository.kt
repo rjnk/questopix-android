@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import android.util.Log
 import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.engine.demoGame
+import com.rejnek.oog.data.engine.gameItems.DebugPrint
 import com.rejnek.oog.data.engine.gameItems.GenericGameItem
 import com.rejnek.oog.data.engine.gameItems.InGameButton
 import com.rejnek.oog.data.engine.gameItems.Question
@@ -21,6 +22,7 @@ class GameRepository(
     val jsEngine = JsGameEngine(context)
 
     val gameItems = arrayListOf<GenericGameItem>(
+        DebugPrint(),
         Question(),
         InGameButton()
     )
