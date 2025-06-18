@@ -1,9 +1,9 @@
-package com.rejnek.oog.data.engine.gameItems
+package com.rejnek.oog.data.gameItems
 
 import com.rejnek.oog.data.engine.JsGameInterface
 import com.rejnek.oog.data.repository.GameRepository
 
-abstract class GenericGameItem(
+abstract class GenericGameFactory(
     var gameRepository: GameRepository? = null,
     var game: JsGameInterface? = null,
 ) {
@@ -15,7 +15,5 @@ abstract class GenericGameItem(
         this.game = game
     }
 
-    abstract suspend fun run(data: String, callbackId: String)
-
-    abstract fun clear()
+    abstract suspend fun create(data: String, callbackId: String)
 }

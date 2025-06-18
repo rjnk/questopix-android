@@ -1,4 +1,4 @@
-package com.rejnek.oog.data.engine.gameItems
+package com.rejnek.oog.data.gameItems
 
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class ButtonFactory() : GenericGameItem() {
+class ButtonFactory() : GenericGameFactory() {
     override val id: String = "button"
     override val js: String = """
         function ${id}(buttonText, callback) {
@@ -22,7 +22,7 @@ class ButtonFactory() : GenericGameItem() {
         }
     """.trimIndent()
 
-    override suspend fun run(data: String, callbackId: String) {
+    override suspend fun create(data: String, callbackId: String) {
         val btn = Button(
             text = data,
             onClick = { game?.resolveCallback(callbackId, "") }
@@ -30,10 +30,6 @@ class ButtonFactory() : GenericGameItem() {
         gameRepository?.addUIElement {
             btn.Show()
         }
-    }
-
-    override fun clear() {
-        // Nothing for now
     }
 }
 

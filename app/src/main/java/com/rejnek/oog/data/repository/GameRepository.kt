@@ -10,20 +10,20 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.engine.demoGame
-import com.rejnek.oog.data.engine.gameItems.ButtonFactory
-import com.rejnek.oog.data.engine.gameItems.DebugPrint
-import com.rejnek.oog.data.engine.gameItems.GenericGameItem
-import com.rejnek.oog.data.engine.gameItems.HeadingFactory
-import com.rejnek.oog.data.engine.gameItems.QuestionFactory
-import com.rejnek.oog.data.engine.gameItems.ShowTask
-import com.rejnek.oog.data.engine.gameItems.TextFactory
+import com.rejnek.oog.data.gameItems.ButtonFactory
+import com.rejnek.oog.data.gameItems.DebugPrint
+import com.rejnek.oog.data.gameItems.GenericGameFactory
+import com.rejnek.oog.data.gameItems.HeadingFactory
+import com.rejnek.oog.data.gameItems.QuestionFactory
+import com.rejnek.oog.data.gameItems.ShowTask
+import com.rejnek.oog.data.gameItems.TextFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class GameRepository(
     context: Context
 ) {
-    val gameItems = arrayListOf<GenericGameItem>(
+    val gameItems = arrayListOf<GenericGameFactory>(
         DebugPrint(),
         QuestionFactory(),
         ShowTask(),
@@ -68,10 +68,6 @@ class GameRepository(
 
         if( elementType != GameElementType.FINISH && elementType != GameElementType.START ) {
             _uiElements.value = emptyList()
-
-            for (item in gameItems) {
-                item.clear()
-            }
         }
 
         Log.d("GameRepository", "Current element set to ${_currentElement.value}")

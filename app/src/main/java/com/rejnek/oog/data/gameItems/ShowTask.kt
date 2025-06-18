@@ -1,8 +1,6 @@
-package com.rejnek.oog.data.engine.gameItems
+package com.rejnek.oog.data.gameItems
 
-import android.util.Log
-
-class ShowTask : GenericGameItem() {
+class ShowTask : GenericGameFactory() {
     override val id = "showTask"
     override val js: String = """
         function showTask(elementId) {
@@ -10,11 +8,7 @@ class ShowTask : GenericGameItem() {
         }
     """.trimIndent()
 
-    override suspend fun run(data: String, callbackId: String) {
+    override suspend fun create(data: String, callbackId: String) {
         gameRepository?.setCurrentElement(data)
-    }
-
-    override fun clear() {
-        // blank
     }
 }

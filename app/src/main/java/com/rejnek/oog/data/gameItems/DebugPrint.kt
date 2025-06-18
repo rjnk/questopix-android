@@ -1,8 +1,8 @@
-package com.rejnek.oog.data.engine.gameItems
+package com.rejnek.oog.data.gameItems
 
 import android.util.Log
 
-class DebugPrint : GenericGameItem() {
+class DebugPrint : GenericGameFactory() {
     override val id = "debugPrint"
     override val js: String = """
         function debugPrint(message) {
@@ -10,11 +10,7 @@ class DebugPrint : GenericGameItem() {
         }
     """.trimIndent()
 
-    override suspend fun run(data: String, callbackId: String) {
+    override suspend fun create(data: String, callbackId: String) {
         Log.d("DebugPrint", "JS Debug: $data")
-    }
-
-    override fun clear() {
-        // blank
     }
 }

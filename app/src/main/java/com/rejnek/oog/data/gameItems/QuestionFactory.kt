@@ -1,6 +1,5 @@
-package com.rejnek.oog.data.engine.gameItems
+package com.rejnek.oog.data.gameItems
 
-import android.util.Log
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -17,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class QuestionFactory() : GenericGameItem() {
+class QuestionFactory() : GenericGameFactory() {
     override val id: String = "question"
     override val js: String = """
         async function question(questionText) {
@@ -25,7 +24,7 @@ class QuestionFactory() : GenericGameItem() {
         }
     """.trimIndent()
 
-    override suspend fun run(data: String, callbackId: String) {
+    override suspend fun create(data: String, callbackId: String) {
         val question = Question(
             questionText = data,
             onSubmit = { answer ->
@@ -34,10 +33,6 @@ class QuestionFactory() : GenericGameItem() {
         )
 
         gameRepository?.addUIElement { question.Show() }
-    }
-
-    override fun clear() {
-        // Nothing for now
     }
 }
 

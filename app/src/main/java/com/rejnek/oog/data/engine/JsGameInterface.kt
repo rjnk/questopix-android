@@ -3,7 +3,7 @@ package com.rejnek.oog.data.engine
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
-import com.rejnek.oog.data.engine.gameItems.GenericGameItem
+import com.rejnek.oog.data.gameItems.GenericGameFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
  * JavaScript interface class that serves as a bridge between JS and Kotlin
  */
 class JsGameInterface(
-    private val gameItems: ArrayList<GenericGameItem>,
+    private val gameItems: ArrayList<GenericGameFactory>,
     private var webView: WebView? = null
 ) {
     private val javaScriptCallbacks = mutableMapOf<String, (String) -> Unit>()
@@ -31,7 +31,7 @@ class JsGameInterface(
         val gameItem = gameItems.find { it.id == actionType }
 
         CoroutineScope(Dispatchers.Main).launch {
-            gameItem?.run(data, "blank")
+            gameItem?.create(data, "blank")
         }
     }
 
@@ -48,7 +48,7 @@ class JsGameInterface(
 
         CoroutineScope(Dispatchers.Main).launch {
             val gameItem = gameItems.find { it.id == callbackType }
-            gameItem?.run(data, callbackId) ?: Log.e("JsGameEngine", "No game item found with ID: $callbackType")
+            gameItem?.create(data, callbackId) ?: Log.e("JsGameEngine", "No game item found with ID: $callbackType")
         }
 
         return callbackId

@@ -1,9 +1,9 @@
-package com.rejnek.oog.data.engine.gameItems
+package com.rejnek.oog.data.gameItems
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 
-class TextFactory : GenericGameItem() {
+class TextFactory : GenericGameFactory() {
     override val id = "text"
     override val js: String = """
         function ${id}(elementId) {
@@ -11,12 +11,8 @@ class TextFactory : GenericGameItem() {
         }
     """.trimIndent()
 
-    override suspend fun run(data: String, callbackId: String) {
+    override suspend fun create(data: String, callbackId: String) {
         gameRepository?.addUIElement { MyText(data).Show() }
-    }
-
-    override fun clear() {
-        // blank
     }
 }
 
