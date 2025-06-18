@@ -6,9 +6,7 @@ import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.rejnek.oog.data.engine.gameItems.Question
 import com.rejnek.oog.data.model.GameElementType
-import com.rejnek.oog.data.repository.GameRepository.ButtonState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
@@ -21,29 +19,14 @@ class GameTaskViewModel(
     private val _description = MutableStateFlow("Loading...")
     val description = _description.asStateFlow()
 
-    // Changed from a single button state to a list of buttons
-    private val _buttons = MutableStateFlow<List<ButtonState>>(emptyList())
-    val buttons = _buttons.asStateFlow()
-
     private val _navigationEvents = MutableSharedFlow<NavigationEvent>()
     val navigationEvents = _navigationEvents.asSharedFlow()
 
     // Expose UI elements from the repository
     val uiElements = gameRepository.uiElements
 
-    val question: Question? = gameRepository.gameItems.find { it is Question } as? Question
 
     init {
-        // Observe buttons from repository - in its own coroutine
-        viewModelScope.launch {
-            gameRepository.buttons.collect { buttons ->
-                if(gameRepository.currentElement.value.elementType == GameElementType.FINISH) {
-                    return@collect
-                }
-                _buttons.value = buttons
-            }
-        }
-
         // Observe current element changes in a separate coroutine
         viewModelScope.launch {
             gameRepository.currentElement.collect { elem ->
@@ -56,21 +39,6 @@ class GameTaskViewModel(
                     _description.value = elem.description
                 }
             }
-        }
-    }
-
-    fun onContinueClicked() {
-        viewModelScope.launch {
-            gameRepository.executeOnContinue(null)
-        }
-    }
-
-    /**
-     * Handle JS button click for a specific button
-     */
-    fun onJsButtonClicked(buttonId: Int) {
-        viewModelScope.launch {
-            gameRepository.executeButtonAction(buttonId)
         }
     }
 

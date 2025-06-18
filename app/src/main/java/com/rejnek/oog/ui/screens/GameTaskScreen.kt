@@ -49,7 +49,6 @@ fun GameNavigationTextScreen(
     }
 
     // Collect the UI state
-    val buttons by viewModel.buttons.collectAsState()
     val uiElements by viewModel.uiElements.collectAsState()
 
     Scaffold(

@@ -11,7 +11,7 @@ class ShowTask : GenericGameItem() {
     """.trimIndent()
 
     override suspend fun run(data: String, callbackId: String) {
-        gameRepository?.showTask(data)
+        gameRepository?.setCurrentElement(data)
     }
 
     override fun clear() {

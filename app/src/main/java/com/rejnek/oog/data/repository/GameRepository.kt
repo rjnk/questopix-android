@@ -10,10 +10,11 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.engine.demoGame
-import com.rejnek.oog.data.engine.gameItems.Button
+import com.rejnek.oog.data.engine.gameItems.ButtonFactory
 import com.rejnek.oog.data.engine.gameItems.DebugPrint
 import com.rejnek.oog.data.engine.gameItems.GenericGameItem
 import com.rejnek.oog.data.engine.gameItems.Question
+import com.rejnek.oog.data.engine.gameItems.QuestionFactory
 import com.rejnek.oog.data.engine.gameItems.ShowTask
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -25,9 +26,9 @@ class GameRepository(
 
     val gameItems = arrayListOf<GenericGameItem>(
         DebugPrint(),
-        Question(),
+        QuestionFactory(),
         ShowTask(),
-        Button(),
+        ButtonFactory(),
     )
 
     private val _currentElement = MutableStateFlow(
@@ -40,10 +41,6 @@ class GameRepository(
         )
     )
     val currentElement: StateFlow<GameElement> = _currentElement.asStateFlow()
-
-    // Changed from a single button state to a list of buttons
-    private val _buttons = MutableStateFlow<List<ButtonState>>(emptyList())
-    val buttons: StateFlow<List<ButtonState>> = _buttons.asStateFlow()
 
     private val _name = MutableStateFlow("Loading...")
     val name = _name.asStateFlow()
@@ -85,9 +82,6 @@ class GameRepository(
             visible = true
         )
 
-        // Clear buttons when changing elements
-        _buttons.value = emptyList()
-
         // Clear UI elements when changing elements
         _uiElements.value = emptyList()
 
@@ -114,17 +108,6 @@ class GameRepository(
         val elementId = currentElement.value.id
         jsEngine.evaluateJs("$elementId.onStart()")
     }
-    
-    /**
-     * Execute a specific button's action
-     */
-    suspend fun executeButtonAction(buttonId: Int) {
-        val buttons = _buttons.value
-        if (buttonId >= 0 && buttonId < buttons.size) {
-            // Execute the callback for this button
-            buttons[buttonId].onClick.invoke()
-        }
-    }
 
     /**
      * Add a UI element (Composable function) to be displayed in the GameTaskScreen
@@ -140,25 +123,4 @@ class GameRepository(
     fun cleanup() {
         jsEngine.cleanup()
     }
-
-    /**
-     * Implementation of GameEngineCallback interface
-     */
-    suspend fun showTask(elementId: String) {
-        setCurrentElement(elementId)
-    }
-
-    suspend fun addButton(text: String, onClick: () -> Unit) {
-        Log.d("GameRepository", "Adding button: $text")
-        // Add the new button to the list
-        _buttons.value = _buttons.value + ButtonState(text, onClick)
-    }
-
-    /**
-     * Class representing state of a button created from JavaScript
-     */
-    data class ButtonState(
-        val text: String,
-        val onClick: () -> Unit
-    )
 }

@@ -15,10 +15,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class Question() : GenericGameItem() {
+class QuestionFactory() : GenericGameItem() {
     override val id: String = "question"
     override val js: String = """
         async function question(questionText) {
@@ -27,31 +26,33 @@ class Question() : GenericGameItem() {
     """.trimIndent()
 
     override suspend fun run(data: String, callbackId: String) {
-        Log.d("Question", "Running with data: $data and callbackId: $callbackId")
+        val question = Question(
+            questionText = data,
+            onSubmit = { answer ->
+                game?.resolveCallback(callbackId, answer)
+            }
+        )
 
-        _questionText.value = data
-        _provideAnswer.value = { answer ->
-            Log.d("Question", "Answer provided: $answer")
-            game?.resolveCallback(callbackId, answer)
-        }
-        
-        // Add this question's UI to the game screen
-        gameRepository?.addUIElement { Show() }
+        gameRepository?.addUIElement { question.Show() }
     }
 
     override fun clear() {
         // Nothing for now
     }
+}
 
-    val _questionText = MutableStateFlow("Err")
+class Question(
+    questionText: String,
+    onSubmit: (String) -> Unit
+) {
+    private val _questionText = MutableStateFlow(questionText)
     val questionText = _questionText.asStateFlow()
 
-    val _provideAnswer = MutableStateFlow<(String) -> Unit>({})
-    val provideAnswer = _provideAnswer.asStateFlow()
+    private val _onSubmit = MutableStateFlow(onSubmit)
+    val onSubmit = _onSubmit.asStateFlow()
 
     private val _answerText = MutableStateFlow("")
     val answerText = _answerText.asStateFlow()
-
 
     @Composable
     fun Show(
@@ -61,12 +62,8 @@ class Question() : GenericGameItem() {
         val onValueChange: (String) -> Unit = {
             _answerText.value = it
         }
-        val text = questionText.collectAsState().value
-        val onSubmit: () -> Unit = {
-            if (answerText.isNotBlank()) {
-                provideAnswer.value(answerText)
-            }
-        }
+        val text by questionText.collectAsState()
+        val onSubmit by this.onSubmit.collectAsState()
 
         Text(
             text = text,
@@ -86,11 +83,13 @@ class Question() : GenericGameItem() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Button(
-            onClick = onSubmit,
+            onClick = {
+                if (answerText.isNotBlank()) {
+                    onSubmit(answerText)
+                }
+            },
         ) {
             Text("Submit")
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
     }
 }
