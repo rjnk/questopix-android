@@ -6,10 +6,10 @@ import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import android.util.Log
+import com.rejnek.oog.data.engine.gameItems.Question
+import com.rejnek.oog.data.engine.gameItems.QuestionState
 import com.rejnek.oog.data.model.GameElementType
 import com.rejnek.oog.data.repository.GameRepository.ButtonState
-import com.rejnek.oog.data.repository.GameRepository.QuestionState
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
@@ -37,6 +37,8 @@ class GameTaskViewModel(
     private val _navigationEvents = MutableSharedFlow<NavigationEvent>()
     val navigationEvents = _navigationEvents.asSharedFlow()
 
+    val question: Question? = gameRepository.gameItems.find { it is Question } as? Question
+
     init {
         // Observe buttons from repository - in its own coroutine
         viewModelScope.launch {
@@ -50,7 +52,7 @@ class GameTaskViewModel(
 
         // Observe questions from repository
         viewModelScope.launch {
-            gameRepository.questionState.collect { question ->
+            question?.questionState?.collect { question ->
                 if(gameRepository.currentElement.value.elementType == GameElementType.FINISH) {
                     return@collect
                 }

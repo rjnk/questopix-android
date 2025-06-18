@@ -89,7 +89,7 @@ fun GameNavigationTextScreen(
 
             // Display question input if there's an active question
             questionState?.let { question ->
-                Question().Show(
+                viewModel.question?.Show(
                     text = question.questionText,
                     answerText = answerText,
                     onValueChange = { viewModel.onAnswerTextChanged(it) },

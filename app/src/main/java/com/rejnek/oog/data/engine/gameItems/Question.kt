@@ -11,6 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 class Question() : GenericGameItem() {
     override val id: String = "question"
@@ -20,10 +23,17 @@ class Question() : GenericGameItem() {
         }
     """.trimIndent()
 
+    val _questionState = MutableStateFlow<QuestionState?>(null)
+    val questionState: StateFlow<QuestionState?> = _questionState.asStateFlow()
+
     override suspend fun run(data: String, callbackId: String) {
         gameRepository?.showQuestion(data) { answer ->
             game?.resolveCallback(callbackId, answer)
         }
+    }
+
+    override fun clear() {
+        _questionState.value = null
     }
 
     @Composable

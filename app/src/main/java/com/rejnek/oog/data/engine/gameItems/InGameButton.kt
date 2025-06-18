@@ -20,4 +20,8 @@ class InGameButton() : GenericGameItem() {
             game?.resolveCallback(callbackId, "")
         }
     }
+
+    override fun clear() {
+
+    }
 }

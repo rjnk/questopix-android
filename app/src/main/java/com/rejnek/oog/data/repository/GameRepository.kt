@@ -21,8 +21,10 @@ class GameRepository(
 ) {
     val jsEngine = JsGameEngine(context)
 
+    val q = Question()
+
     val gameItems = arrayListOf<GenericGameItem>(
-        Question(),
+        q,
         InGameButton()
     )
 
@@ -42,8 +44,7 @@ class GameRepository(
     val buttons: StateFlow<List<ButtonState>> = _buttons.asStateFlow()
 
     // Add state for questions
-    private val _questionState = MutableStateFlow<QuestionState?>(null)
-    val questionState: StateFlow<QuestionState?> = _questionState.asStateFlow()
+
 
     private val _name = MutableStateFlow("Loading...")
     val name = _name.asStateFlow()
@@ -85,7 +86,9 @@ class GameRepository(
         _buttons.value = emptyList()
 
         // Clear any active question
-        _questionState.value = null
+        for (item in gameItems) {
+            item.clear()
+        }
 
         Log.d("GameRepository", "Current element set: ${_currentElement.value}")
 
@@ -120,7 +123,7 @@ class GameRepository(
      * Submit answer to a question
      */
     suspend fun submitAnswer(answer: String) {
-        _questionState.value?.provideAnswer(answer)
+        q._questionState.value?.provideAnswer(answer)
     }
 
     /**
@@ -145,7 +148,7 @@ class GameRepository(
 
     suspend fun showQuestion(questionText: String, provideAnswer: (String) -> Unit) {
         Log.d("GameRepository", "Showing question: $questionText")
-        _questionState.value = QuestionState(questionText, provideAnswer)
+        q._questionState.value = QuestionState(questionText, provideAnswer)
     }
 
     /**

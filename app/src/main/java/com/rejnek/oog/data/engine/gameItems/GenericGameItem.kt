@@ -17,4 +17,6 @@ abstract class GenericGameItem(
     }
 
     abstract suspend fun run(data: String, callbackId: String)
+
+    abstract fun clear()
 }
