@@ -60,3 +60,11 @@ class Question() : GenericGameItem() {
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
+
+/**
+ * Class representing a question that needs to be answered
+ */
+data class QuestionState(
+    val questionText: String,
+    val provideAnswer: (String) -> Unit
+)

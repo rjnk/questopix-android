@@ -30,13 +30,82 @@ class JsGameEngine(
     // Interface for JavaScript to call Kotlin functions
     private val jsInterface = GameJsInterface()
 
-    private val gameItems = arrayListOf<GenericGameItem>(
-        Question(),
-        InGameButton()
-    )
+    private val gameItems = arrayListOf<GenericGameItem>()
 
-    // HTML template for WebView to provide persistent JS context
-    private val htmlTemplate = """
+    /**
+     * Initialize the JavaScript engine with WebView.
+     * This should be called before any JavaScript evaluation.
+     */
+    @SuppressLint("SetJavaScriptEnabled")
+    suspend fun initialize(
+        gameRepository: GameRepository
+    ): Result<Boolean> = withContext(Dispatchers.Main) {
+        if (isInitialized) {
+            return@withContext Result.success(true)
+        }
+
+        repository = gameRepository
+
+        repository?.gameItems?.let { items ->
+            gameItems.addAll(items.toList())
+        }
+
+        // Create WebView instance on the main thread
+        webView = WebView(context).apply {
+            settings.javaScriptEnabled = true
+            settings.domStorageEnabled = true
+
+            // Add JavaScript interface to enable JavaScript->Kotlin calls
+            addJavascriptInterface(jsInterface, "Android")
+
+            // Set WebViewClient to know when the page is loaded
+            webViewClient = object : WebViewClient() {
+                override fun onPageFinished(view: WebView?, url: String?) {
+                    super.onPageFinished(view, url)
+                }
+            }
+
+            loadDataWithBaseURL(null, htmlTemplate(gameItems), "text/html", "UTF-8", null)
+        }
+
+        isInitialized = true
+
+        for( i in gameItems) {
+            i.init(repository, jsInterface)
+        }
+
+        Result.success(true)
+    }
+
+    /**
+     * Evaluate JavaScript code using WebView.
+     * Code is executed in the persistent context of the WebView.
+     * @param code The JavaScript code to evaluate
+     * @param expectResult If true, wraps code to extract result; if false, returns empty string
+     * @return Result containing the evaluation result as a string (empty if no result expected)
+     */
+    private suspend fun evaluateJs(code: String, expectResult: Boolean): Result<String> =
+        withContext(Dispatchers.Main) {
+            val webViewInstance = webView ?: throw IllegalStateException("WebView is not initialized")
+
+            val actualCode = if (expectResult) "sendResult($code);" else code
+
+            val result = suspendCancellableCoroutine<String> { continuation ->
+                webViewInstance.evaluateJavascript(actualCode) { resultValue ->
+                    continuation.resume(
+                        when {
+                            resultValue == "null" || resultValue == null -> "null"
+                            else -> resultValue
+                        }
+                    )
+                }
+            }
+
+            Log.d("JsGameEngine", "JavaScript executed. Evaluation result: $result")
+            Result.success(cleanJsResult(result))
+        }
+
+    private fun htmlTemplate(gameItems: List<GenericGameItem>) = """
         <!DOCTYPE html>
         <html>
         <head>
@@ -76,75 +145,6 @@ class JsGameEngine(
         </body>
         </html>
     """.trimIndent()
-
-    /**
-     * Initialize the JavaScript engine with WebView.
-     * This should be called before any JavaScript evaluation.
-     */
-    @SuppressLint("SetJavaScriptEnabled")
-    suspend fun initialize(
-        gameRepository: GameRepository
-    ): Result<Boolean> = withContext(Dispatchers.Main) {
-        if (isInitialized) {
-            return@withContext Result.success(true)
-        }
-
-        // Create WebView instance on the main thread
-        webView = WebView(context).apply {
-            settings.javaScriptEnabled = true
-            settings.domStorageEnabled = true
-
-            // Add JavaScript interface to enable JavaScript->Kotlin calls
-            addJavascriptInterface(jsInterface, "Android")
-
-            // Set WebViewClient to know when the page is loaded
-            webViewClient = object : WebViewClient() {
-                override fun onPageFinished(view: WebView?, url: String?) {
-                    super.onPageFinished(view, url)
-                }
-            }
-
-            loadDataWithBaseURL(null, htmlTemplate, "text/html", "UTF-8", null)
-        }
-
-        isInitialized = true
-        repository = gameRepository
-
-        // TODO how to now if repository is already initialized?
-        for( i in gameItems) {
-            i.init(repository, jsInterface)
-        }
-
-        Result.success(true)
-    }
-
-    /**
-     * Evaluate JavaScript code using WebView.
-     * Code is executed in the persistent context of the WebView.
-     * @param code The JavaScript code to evaluate
-     * @param expectResult If true, wraps code to extract result; if false, returns empty string
-     * @return Result containing the evaluation result as a string (empty if no result expected)
-     */
-    private suspend fun evaluateJs(code: String, expectResult: Boolean): Result<String> =
-        withContext(Dispatchers.Main) {
-            val webViewInstance = webView ?: throw IllegalStateException("WebView is not initialized")
-
-            val actualCode = if (expectResult) "sendResult($code);" else code
-
-            val result = suspendCancellableCoroutine<String> { continuation ->
-                webViewInstance.evaluateJavascript(actualCode) { resultValue ->
-                    continuation.resume(
-                        when {
-                            resultValue == "null" || resultValue == null -> "null"
-                            else -> resultValue
-                        }
-                    )
-                }
-            }
-
-            Log.d("JsGameEngine", "JavaScript executed. Evaluation result: $result")
-            Result.success(cleanJsResult(result))
-        }
 
     /**
      * Evaluate JavaScript code without expecting a result.

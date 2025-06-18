@@ -9,6 +9,10 @@ import kotlinx.coroutines.flow.asStateFlow
 import android.util.Log
 import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.engine.demoGame
+import com.rejnek.oog.data.engine.gameItems.GenericGameItem
+import com.rejnek.oog.data.engine.gameItems.InGameButton
+import com.rejnek.oog.data.engine.gameItems.Question
+import com.rejnek.oog.data.engine.gameItems.QuestionState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -16,6 +20,11 @@ class GameRepository(
     context: Context
 ) {
     val jsEngine = JsGameEngine(context)
+
+    val gameItems = arrayListOf<GenericGameItem>(
+        Question(),
+        InGameButton()
+    )
 
     private val _currentElement = MutableStateFlow(
         GameElement(
@@ -145,13 +154,5 @@ class GameRepository(
     data class ButtonState(
         val text: String,
         val onClick: () -> Unit
-    )
-
-    /**
-     * Class representing a question that needs to be answered
-     */
-    data class QuestionState(
-        val questionText: String,
-        val provideAnswer: (String) -> Unit
     )
 }
