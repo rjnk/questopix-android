@@ -13,6 +13,7 @@ import com.rejnek.oog.data.engine.demoGame
 import com.rejnek.oog.data.engine.gameItems.ButtonFactory
 import com.rejnek.oog.data.engine.gameItems.DebugPrint
 import com.rejnek.oog.data.engine.gameItems.GenericGameItem
+import com.rejnek.oog.data.engine.gameItems.HeadingFactory
 import com.rejnek.oog.data.engine.gameItems.Question
 import com.rejnek.oog.data.engine.gameItems.QuestionFactory
 import com.rejnek.oog.data.engine.gameItems.ShowTask
@@ -30,7 +31,8 @@ class GameRepository(
         QuestionFactory(),
         ShowTask(),
         ButtonFactory(),
-        TextFactory()
+        TextFactory(),
+        HeadingFactory()
     )
 
     private val _currentElement = MutableStateFlow(

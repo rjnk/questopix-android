@@ -61,12 +61,6 @@ fun GameNavigationTextScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            Text(
-                text = viewModel.name.collectAsState().value,
-                style = MaterialTheme.typography.headlineLarge,
-                modifier = Modifier.padding(bottom = 24.dp)
-            )
-
             // Render dynamically added UI elements
             uiElements.forEach { element ->
                 element()

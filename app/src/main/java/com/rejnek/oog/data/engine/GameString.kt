@@ -23,6 +23,7 @@ val demoGame = """
         name: "Mostní úkol",
         type: "task",
         onStart: function() {
+            heading("Pod mostem");
             text("Projdi se pod mostem, pak můžeš pokračovat");
             button("Pokračovat", function() {
                 showTask("openQuestion1");
@@ -41,6 +42,7 @@ val demoGame = """
         description: "Odpověz na otázku o stromech",
         onStart: async function() {
             debugPrint("Open question shown");
+            heading("Otevřená otázka o stromech");
             
             // Use await with the question function
             const answer = await question("Odpověz na otázku: Jaký je tvůj oblíbený strom?");
