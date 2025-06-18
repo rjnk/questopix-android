@@ -79,19 +79,6 @@ fun GameNavigationTextScreen(
                 element()
                 Spacer(modifier = Modifier.height(8.dp))
             }
-
-            // Display JavaScript buttons if available and no active question
-            if (buttons.isNotEmpty()) {
-                buttons.forEachIndexed { index, button ->
-                    Button(
-                        onClick = { viewModel.onJsButtonClicked(index) }
-                    ) {
-                        Text(button.text)
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-                }
-            }
         }
     }
 }

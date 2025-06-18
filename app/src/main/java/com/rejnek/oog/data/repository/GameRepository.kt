@@ -10,9 +10,9 @@ import android.util.Log
 import androidx.compose.runtime.Composable
 import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.engine.demoGame
+import com.rejnek.oog.data.engine.gameItems.Button
 import com.rejnek.oog.data.engine.gameItems.DebugPrint
 import com.rejnek.oog.data.engine.gameItems.GenericGameItem
-import com.rejnek.oog.data.engine.gameItems.InGameButton
 import com.rejnek.oog.data.engine.gameItems.Question
 import com.rejnek.oog.data.engine.gameItems.ShowTask
 import kotlinx.coroutines.Dispatchers
@@ -26,8 +26,8 @@ class GameRepository(
     val gameItems = arrayListOf<GenericGameItem>(
         DebugPrint(),
         Question(),
-        InGameButton(),
-        ShowTask()
+        ShowTask(),
+        Button(),
     )
 
     private val _currentElement = MutableStateFlow(
