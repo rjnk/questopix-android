@@ -24,9 +24,11 @@ val demoGame = """
         type: "task",
         description: "Projdi se pod mostem, pak můžeš pokračovat",
         onStart: function() {
+            text("Ahooooj");
             button("Pokračovat", function() {
                 showTask("openQuestion1");
             });
+            text("Nazdaaaar");
             button("Rovnou do cíle", function() {
                 showTask("finish");
             });

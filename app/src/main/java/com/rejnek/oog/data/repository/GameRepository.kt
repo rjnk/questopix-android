@@ -16,6 +16,7 @@ import com.rejnek.oog.data.engine.gameItems.GenericGameItem
 import com.rejnek.oog.data.engine.gameItems.Question
 import com.rejnek.oog.data.engine.gameItems.QuestionFactory
 import com.rejnek.oog.data.engine.gameItems.ShowTask
+import com.rejnek.oog.data.engine.gameItems.TextFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -29,6 +30,7 @@ class GameRepository(
         QuestionFactory(),
         ShowTask(),
         ButtonFactory(),
+        TextFactory()
     )
 
     private val _currentElement = MutableStateFlow(
