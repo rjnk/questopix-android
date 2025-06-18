@@ -105,14 +105,6 @@ class GameRepository(
         executeOnStart()
     }
 
-    /**
-     * Execute onContinue script for a game element
-     */
-    suspend fun executeOnContinue(element: GameElement?) {
-        val elementId = currentElement.value.id
-        jsEngine.evaluateJs("$elementId.onContinue()")
-    }
-
     suspend fun executeOnStart() {
         val elementId = currentElement.value.id
         jsEngine.evaluateJs("$elementId.onStart()")

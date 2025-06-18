@@ -35,10 +35,4 @@ class GameStartViewModel(
             }
         }
     }
-
-    fun onContinueClicked() {
-        viewModelScope.launch {
-            gameRepository.executeOnContinue(null)
-        }
-    }
 }

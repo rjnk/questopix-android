@@ -1,20 +1,23 @@
 package com.rejnek.oog.data.engine
 
 val demoGame = """
-    // startovní úkol
+    // startovní úkol / first task
     const start = {
         name: "Hra v divočině",
-        type: "start",
-        gameType: "linear",
+        type: "task",
         coordinates: {
             lat: 50.0815,
             lng: 14.3980,
             radius: 25
         },
-        description: "Tohle je jednoduchá demonstrační hra pro účely vyzkoušení načítání z javascriptu.",
-        onContinue: function() {
-            debugPrint("CONSOLE PRINT: game is starting!");
-            showTask("task1");
+        onStart: function() {
+            heading("Hra v divočině");
+            text("Vítejte v naší hře! Tato hra je o dobrodružství v divočině.");
+            text("Vaším úkolem je projít různými úkoly a odpovědět na otázky.");
+            text("Připravte se na zábavu!");
+            button("Začít hru", function() {
+                showTask("task1");
+            });
         }
     }
 
