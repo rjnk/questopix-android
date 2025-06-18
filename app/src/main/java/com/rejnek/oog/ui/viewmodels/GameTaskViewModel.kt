@@ -26,14 +26,6 @@ class GameTaskViewModel(
     private val _buttons = MutableStateFlow<List<ButtonState>>(emptyList())
     val buttons = _buttons.asStateFlow()
 
-    // Add state for question to expose to UI
-    private val _questionState = MutableStateFlow<QuestionState?>(null)
-    val questionState = _questionState.asStateFlow()
-
-    // Text field value for answer input
-    private val _answerText = MutableStateFlow("")
-    val answerText = _answerText.asStateFlow()
-
     private val _navigationEvents = MutableSharedFlow<NavigationEvent>()
     val navigationEvents = _navigationEvents.asSharedFlow()
 
@@ -47,16 +39,6 @@ class GameTaskViewModel(
                     return@collect
                 }
                 _buttons.value = buttons
-            }
-        }
-
-        // Observe questions from repository
-        viewModelScope.launch {
-            question?.questionState?.collect { question ->
-                if(gameRepository.currentElement.value.elementType == GameElementType.FINISH) {
-                    return@collect
-                }
-                _questionState.value = question
             }
         }
 
@@ -87,25 +69,6 @@ class GameTaskViewModel(
     fun onJsButtonClicked(buttonId: Int) {
         viewModelScope.launch {
             gameRepository.executeButtonAction(buttonId)
-        }
-    }
-
-    /**
-     * Update answer text as user types
-     */
-    fun onAnswerTextChanged(text: String) {
-        _answerText.value = text
-    }
-
-    /**
-     * Submit answer to current question
-     */
-    fun submitAnswer() {
-        val currentAnswer = _answerText.value.trim()
-        if (currentAnswer.isNotEmpty()) {
-            viewModelScope.launch {
-                gameRepository.submitAnswer(currentAnswer)
-            }
         }
     }
 

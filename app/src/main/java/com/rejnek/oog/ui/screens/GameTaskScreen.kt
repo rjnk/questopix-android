@@ -25,9 +25,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewModelScope
 import com.rejnek.oog.data.engine.gameItems.Question
 import com.rejnek.oog.ui.viewmodels.GameTaskViewModel
 import com.rejnek.oog.ui.viewmodels.GameTaskViewModel.NavigationEvent
+import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -37,9 +39,6 @@ fun GameNavigationTextScreen(
     onFinishTask: () -> Unit,
     viewModel: GameTaskViewModel = koinViewModel()
 ) {
-    // Focus requester for text field
-    val focusRequester = remember { FocusRequester() }
-
     LaunchedEffect(Unit) {
         viewModel.navigationEvents.collect { event ->
             when (event) {
@@ -51,19 +50,6 @@ fun GameNavigationTextScreen(
 
     // Collect the UI state
     val buttons by viewModel.buttons.collectAsState()
-    val questionState by viewModel.questionState.collectAsState()
-    val answerText by viewModel.answerText.collectAsState()
-
-    // Auto focus on text field when question appears
-    LaunchedEffect(questionState) {
-        if (questionState != null) {
-            try {
-                focusRequester.requestFocus()
-            } catch (e: Exception) {
-                // Handle potential focus request exceptions
-            }
-        }
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -87,18 +73,12 @@ fun GameNavigationTextScreen(
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 
-            // Display question input if there's an active question
-            questionState?.let { question ->
-                viewModel.question?.Show(
-                    text = question.questionText,
-                    answerText = answerText,
-                    onValueChange = { viewModel.onAnswerTextChanged(it) },
-                    onSubmit = { viewModel.submitAnswer() }
-                )
+            if(viewModel.question?.visible == true){
+                viewModel.question.Show()
             }
 
             // Display JavaScript buttons if available and no active question
-            if (questionState == null && buttons.isNotEmpty()) {
+            if (buttons.isNotEmpty()) {
                 buttons.forEachIndexed { index, button ->
                     Button(
                         onClick = { viewModel.onJsButtonClicked(index) }
@@ -110,7 +90,7 @@ fun GameNavigationTextScreen(
                 }
             }
             // Show default continue button when no custom buttons or questions are available
-            else if (questionState == null && buttons.isEmpty()) {
+            else if (viewModel.question?.visible == false && buttons.isEmpty()) {
                 Button(
                     onClick = {
                         viewModel.onContinueClicked()

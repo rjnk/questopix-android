@@ -9,6 +9,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,27 +25,43 @@ class Question() : GenericGameItem() {
         }
     """.trimIndent()
 
-    val _questionState = MutableStateFlow<QuestionState?>(null)
-    val questionState: StateFlow<QuestionState?> = _questionState.asStateFlow()
-
     override suspend fun run(data: String, callbackId: String) {
-        gameRepository?.showQuestion(data) { answer ->
+        visible = true
+
+        _questionState.value = QuestionState(data) { answer ->
             game?.resolveCallback(callbackId, answer)
         }
     }
 
     override fun clear() {
+        visible = false
         _questionState.value = null
     }
 
+    val _questionState = MutableStateFlow<QuestionState?>(null)
+    val questionState: StateFlow<QuestionState?> = _questionState.asStateFlow()
+
+    private val _answerText = MutableStateFlow("")
+    val answerText = _answerText.asStateFlow()
+
+    var visible = false
+
+
     @Composable
     fun Show(
-        text: String,
-        answerText: String,
-        onValueChange: (String) -> Unit,
-        onSubmit: () -> Unit,
         modifier: Modifier = Modifier
     ) {
+        val answerText by this.answerText.collectAsState()
+        val onValueChange: (String) -> Unit = {
+            _answerText.value = it
+        }
+        val text = this.questionState.collectAsState().value?.questionText ?: "Err"
+        val onSubmit: () -> Unit = {
+            if (answerText.isNotBlank()) {
+                this.questionState.value?.provideAnswer(answerText)
+            }
+        }
+
         Text(
             text = text,
             style = MaterialTheme.typography.bodyLarge,

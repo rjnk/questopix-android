@@ -21,10 +21,8 @@ class GameRepository(
 ) {
     val jsEngine = JsGameEngine(context)
 
-    val q = Question()
-
     val gameItems = arrayListOf<GenericGameItem>(
-        q,
+        Question(),
         InGameButton()
     )
 
@@ -86,6 +84,7 @@ class GameRepository(
         _buttons.value = emptyList()
 
         // Clear any active question
+        // TODO this problematic as this is too fast and the screen flickers
         for (item in gameItems) {
             item.clear()
         }
@@ -120,13 +119,6 @@ class GameRepository(
     }
 
     /**
-     * Submit answer to a question
-     */
-    suspend fun submitAnswer(answer: String) {
-        q._questionState.value?.provideAnswer(answer)
-    }
-
-    /**
      * Clean up JavaScript engine
      */
     fun cleanup() {
@@ -144,11 +136,6 @@ class GameRepository(
         Log.d("GameRepository", "Adding button: $text")
         // Add the new button to the list
         _buttons.value = _buttons.value + ButtonState(text, onClick)
-    }
-
-    suspend fun showQuestion(questionText: String, provideAnswer: (String) -> Unit) {
-        Log.d("GameRepository", "Showing question: $questionText")
-        q._questionState.value = QuestionState(questionText, provideAnswer)
     }
 
     /**
