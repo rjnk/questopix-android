@@ -17,7 +17,12 @@ import com.rejnek.oog.data.gameItems.direct.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
 import com.rejnek.oog.data.gameItems.direct.ShowTask
 import com.rejnek.oog.data.gameItems.direct.TextFactory
+import com.rejnek.oog.data.model.Coordinates
+import com.rejnek.oog.services.LocationService
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class GameRepository(
@@ -33,6 +38,15 @@ class GameRepository(
     )
 
     val jsEngine = JsGameEngine(context)
+
+    // Initialize LocationService to track user's position
+    private val locationService = LocationService(context)
+
+    // Current user location accessible as a pair of (latitude, longitude)
+    val currentLocation = locationService.currentLocation
+
+    // Current task location monitoring scope
+    private val locationMonitoringScope = CoroutineScope(Dispatchers.IO)
 
     private val _currentElement = MutableStateFlow(
         GameElement(
@@ -51,6 +65,18 @@ class GameRepository(
     suspend fun initializeGame() = withContext(Dispatchers.IO) {
         jsEngine.evaluateJs(demoGame) // Load the demo js code
         setCurrentElement("start")
+        startLocationMonitoring()
+    }
+
+    private fun startLocationMonitoring() {
+        locationMonitoringScope.launch {
+            currentLocation.collectLatest { location ->
+                Log.d("GameRepository", "Location updated: $location")
+                if( checkLocation() ){
+                    executeOnEnter()
+                }
+            }
+        }
     }
 
     suspend fun setCurrentElement(elementId: String) {
@@ -58,11 +84,13 @@ class GameRepository(
         val elementType = getJsValue("$elementId.type")?.let {
             GameElementType.valueOf(it.toString().uppercase())
         } ?: GameElementType.UNKNOWN
+        val coordinates = jsEngine.getCoordinates(elementId)
 
         _currentElement.value = GameElement(
             id = elementId,
             name = name,
             elementType = elementType,
+            coordinates = coordinates,
             visible = true
         )
 
@@ -72,16 +100,26 @@ class GameRepository(
 
         Log.d("GameRepository", "Current element set to ${_currentElement.value}")
 
-        executeOnStart()
+        if( checkLocation() ) {
+            executeOnEnter()
+        }
+        else {
+            executeOnStart()
+        }
     }
 
-    /**
-     * Execute the onStart method of the current game element in JavaScript
-     * This is called when the element is set or when the game starts
-     */
+    suspend fun checkLocation(): Boolean {
+        return currentElement.value.isInside(currentLocation.value.first, currentLocation.value.second)
+    }
+
     suspend fun executeOnStart() {
         val elementId = currentElement.value.id
         jsEngine.evaluateJs("$elementId.onStart()")
+    }
+
+    suspend fun executeOnEnter() {
+        val elementId = currentElement.value.id
+        jsEngine.evaluateJs("$elementId.onEnter()")
     }
 
     /**
@@ -93,6 +131,7 @@ class GameRepository(
 
     fun cleanup() {
         jsEngine.cleanup()
+        // locationService.stopLocationUpdates()
     }
 
     private suspend fun getJsValue(id: String): String? {

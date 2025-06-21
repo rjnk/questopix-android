@@ -5,11 +5,6 @@ val demoGame = """
     const start = {
         name: "Hra v divočině",
         type: "task",
-        coordinates: {
-            lat: 50.0815,
-            lng: 14.3980,
-            radius: 25
-        },
         onStart: function() {
             heading("Hra v divočině");
             text("Vítejte v naší hře! Tato hra je o dobrodružství v divočině.");
@@ -25,6 +20,11 @@ val demoGame = """
     const task1 = {
         name: "Mostní úkol",
         type: "task",
+        coordinates: {
+            lat: 50.0,
+            lng: 14.0,
+            radius: 50.0
+        },
         onStart: function() {
             heading("Pod mostem");
             text("Projdi se pod mostem, pak můžeš pokračovat");
@@ -35,7 +35,11 @@ val demoGame = """
             button("Rovnou do cíle", function() {
                 showTask("finish");
             });
-        }
+        },
+        onEnter: function() {
+            debugPrint("Vstoupil jsi do úkolu 1");
+            showTask("finish");
+        },
     }
     
     // open question

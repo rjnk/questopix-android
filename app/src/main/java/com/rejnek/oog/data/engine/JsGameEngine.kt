@@ -6,6 +6,7 @@ import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.rejnek.oog.data.gameItems.GenericGameFactory
+import com.rejnek.oog.data.model.Coordinates
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -178,9 +179,43 @@ class JsGameEngine(
 
     fun cleanup() {
         Log.d("JsGameEngine", "Cleaning up WebView JavaScript engine resources")
+
+        // First remove JS interface and update WebView reference in jsInterface
+        webView?.removeJavascriptInterface("Android")
         jsInterface.updateWebView(null)
-        webView?.destroy()
-        webView = null
+
+        // Properly destroy the WebView on the main thread
+        webView?.post {
+            webView?.stopLoading()
+            webView?.clearHistory()
+            webView?.clearCache(true)
+            webView?.destroy()
+            webView = null
+        }
+
+        // Reset other state variables
         isInitialized = false
+        repository = null
+        gameItems.clear()
+    }
+
+    suspend fun getCoordinates(elementId: String): Coordinates? {
+        val lat = getJsValue("$elementId.coordinates.lat").getOrNull()
+        val lng = getJsValue("$elementId.coordinates.lng").getOrNull()
+        val radius = getJsValue("$elementId.coordinates.radius").getOrNull()
+
+        return if(lat != null && lat != "null" && lng != null && lng != "null" && radius != null && radius != "null") {
+            Coordinates(
+                lat = lat.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid latitude: $lat"),
+                lng = lng.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid longitude: $lng"),
+                radius = radius.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid radius: $radius")
+            )
+        } else{
+            null
+        }
     }
 }
+
+
+
+
