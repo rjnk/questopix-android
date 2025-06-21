@@ -23,8 +23,8 @@ class GameElement(
     val coordinates: Coordinates? = null,
     var visible: Boolean = false,
 ){
-    fun isInside(userLat: Double, userLng: Double): Boolean{
-        if (coordinates == null) return false
+    fun calculateDistance(userLat: Double, userLng: Double): Double {
+        if (coordinates == null) return Double.MAX_VALUE
 
         // Haversine formula to calculate distance in meters
         val earthRadius = 6371000.0 // Earth radius in meters
@@ -36,8 +36,13 @@ class GameElement(
                 sin(lngDistance / 2).pow(2)
 
         val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-        val distance = earthRadius * c  // Distance in meters
+        return earthRadius * c  // Distance in meters
+    }
 
+    fun isInside(userLat: Double, userLng: Double): Boolean {
+        if (coordinates == null) return false
+
+        val distance = calculateDistance(userLat, userLng)
         return distance <= coordinates.radius
     }
 }

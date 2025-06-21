@@ -34,7 +34,7 @@ class LocationService(context: Context) {
     private fun startLocationUpdates() {
         val locationRequest = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
-            2500 // interval in milliseconds
+            1500 // interval in milliseconds
         ).apply {
             setMinUpdateDistanceMeters(25f) // smallest displacement
             setWaitForAccurateLocation(true)

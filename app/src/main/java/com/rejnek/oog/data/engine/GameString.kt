@@ -27,6 +27,7 @@ val demoGame = """
         },
         onStart: function() {
             heading("Pod mostem");
+            distance();
             text("Projdi se pod mostem, pak můžeš pokračovat");
             button("Pokračovat", function() {
                 showTask("openQuestion1");

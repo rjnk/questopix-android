@@ -15,6 +15,7 @@ import com.rejnek.oog.data.gameItems.direct.DebugPrint
 import com.rejnek.oog.data.gameItems.GenericGameFactory
 import com.rejnek.oog.data.gameItems.direct.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
+import com.rejnek.oog.data.gameItems.direct.DistanceFactory
 import com.rejnek.oog.data.gameItems.direct.ShowTask
 import com.rejnek.oog.data.gameItems.direct.TextFactory
 import com.rejnek.oog.data.model.Coordinates
@@ -34,7 +35,8 @@ class GameRepository(
         ShowTask(),
         ButtonFactory(),
         TextFactory(),
-        HeadingFactory()
+        HeadingFactory(),
+        DistanceFactory()
     )
 
     val jsEngine = JsGameEngine(context)
