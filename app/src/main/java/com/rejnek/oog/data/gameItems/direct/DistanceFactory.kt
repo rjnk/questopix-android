@@ -34,7 +34,6 @@ class Distance(
             return
         }
 
-        // Remember the last non-null distance
         val lastDistance = remember { mutableStateOf<Int?>(null) }
         val distance = currentElement?.value?.calculateDistance(
             location.first,
