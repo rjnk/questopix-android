@@ -4,6 +4,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import com.rejnek.oog.data.model.GameElement
 
@@ -27,19 +29,24 @@ class Distance(
     @Composable
     fun Show() {
         val location = currentLocation?.value
-        if (location != null) {
-            Text(
-                text = "Zbyva: ${
-                    currentElement?.value?.calculateDistance(
-                        currentLocation.value.first,
-                        currentLocation.value.second
-                    )?.toInt()
-                }m",
-            )
-        } else {
-            Text(
-                text = "Location unavailable",
-            )
+        if (location == null) {
+            Text("Location unavailable")
+            return
         }
+
+        // Remember the last non-null distance
+        val lastDistance = remember { mutableStateOf<Int?>(null) }
+        val distance = currentElement?.value?.calculateDistance(
+            location.first,
+            location.second
+        )?.toInt()
+
+        if (distance != null) {
+            lastDistance.value = distance
+        }
+
+        lastDistance.value?.let {
+            Text("Zbyva: ${it}m")
+        } ?: Text("Distance unavailable")
     }
 }
