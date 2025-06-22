@@ -60,6 +60,9 @@ class GameRepository(
     )
     val currentElement: StateFlow<GameElement> = _currentElement.asStateFlow()
 
+    private val _visibleElements = MutableStateFlow<List<GameElement>>(emptyList())
+    val visibleElements: StateFlow<List<GameElement>> = _visibleElements.asStateFlow()
+
     private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
     val uiElements: StateFlow<List<@Composable () -> Unit>> = _uiElements.asStateFlow()
 
@@ -82,20 +85,9 @@ class GameRepository(
     }
 
     suspend fun setCurrentElement(elementId: String) {
-        val name = getJsValue("$elementId.name") ?: "Err"
-        val elementType = getJsValue("$elementId.type")?.let {
-            GameElementType.valueOf(it.toString().uppercase())
-        } ?: GameElementType.UNKNOWN
-        val coordinates = jsEngine.getCoordinates(elementId)
+        _currentElement.value = getGameElement(elementId)
 
-        _currentElement.value = GameElement(
-            id = elementId,
-            name = name,
-            elementType = elementType,
-            coordinates = coordinates,
-            visible = true
-        )
-
+        val elementType = _currentElement.value.elementType
         if( elementType != GameElementType.FINISH && elementType != GameElementType.START ) {
             _uiElements.value = emptyList()
         }
@@ -108,9 +100,35 @@ class GameRepository(
         else {
             executeOnStart()
         }
+
+        setElementVisible(elementId, true) // TODO temp
     }
 
-    suspend fun checkLocation(): Boolean {
+    suspend fun getGameElement(id: String): GameElement {
+        val name = getJsValue("$id.name") ?: "Err"
+        val elementType = getJsValue("$id.type")?.let {
+            GameElementType.valueOf(it.toString().uppercase())
+        } ?: GameElementType.UNKNOWN
+        val coordinates = jsEngine.getCoordinates(id)
+
+        return GameElement(
+            id = id,
+            name = name,
+            elementType = elementType,
+            coordinates = coordinates,
+            visible = true
+        )
+    }
+
+    suspend fun setElementVisible(elementId: String, visible: Boolean) {
+        if( visible) {
+            _visibleElements.value = _visibleElements.value + getGameElement(elementId)
+        } else {
+            _visibleElements.value = _visibleElements.value.filter { it.id != elementId }
+        }
+    }
+
+    fun checkLocation(): Boolean {
         return currentElement.value.isInside(currentLocation.value.first, currentLocation.value.second)
     }
 

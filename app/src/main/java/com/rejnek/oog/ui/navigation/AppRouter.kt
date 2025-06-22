@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rejnek.oog.ui.screens.GameFinishScreen
+import com.rejnek.oog.ui.screens.GameMenuScreen
 import com.rejnek.oog.ui.screens.GameTaskScreen
 import com.rejnek.oog.ui.screens.HomeScreen
 
@@ -20,7 +21,7 @@ fun AppRouter() {
         composable(Routes.HomeScreen.route) {
             HomeScreen(
                 onLoadGameClick = {
-                    navController.navigate(Routes.GameTaskScreen.route)
+                    navController.navigate(Routes.GameMenuScreen.route)
                 }
             )
         }
@@ -41,6 +42,14 @@ fun AppRouter() {
                     navController.navigate(Routes.HomeScreen.route) {
                         popUpTo(Routes.HomeScreen.route) { inclusive = true }
                     }
+                }
+            )
+        }
+
+        composable(Routes.GameMenuScreen.route) {
+            GameMenuScreen(
+                openTask = {
+                    navController.navigate(Routes.GameTaskScreen.route)
                 }
             )
         }

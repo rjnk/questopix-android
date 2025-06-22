@@ -1,0 +1,79 @@
+package com.rejnek.oog.ui.screens
+
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Card
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.rejnek.oog.data.model.GameElement
+import com.rejnek.oog.ui.viewmodels.GameMenuViewModel
+import org.koin.androidx.compose.koinViewModel
+
+@Composable
+fun GameMenuScreen(
+    openTask: () -> Unit,
+    viewModel: GameMenuViewModel = koinViewModel()
+){
+    val visibleElements = viewModel.visibleElements.collectAsState()
+
+    Scaffold{
+        GameMenuContent(
+            visibleElements = visibleElements,
+            onElementClick = {
+                viewModel.clickOnElement(it)
+                openTask()
+            },
+            modifier = Modifier.padding(it)
+        )
+    }
+}
+
+@Composable
+fun GameMenuContent(
+    visibleElements: State<List<GameElement>>,
+    onElementClick: (String) -> Unit,
+    modifier: Modifier = Modifier
+){
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .imePadding()
+            .verticalScroll(rememberScrollState())
+    ) {
+        Text(
+            text = "Inbox",
+            style = MaterialTheme.typography.headlineMedium,
+        )
+        for (element in visibleElements.value) {
+            GameMenuElement(
+                element = element,
+                onClick = { onElementClick(element.id) },
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun GameMenuElement(
+    element: GameElement,
+    onClick: (String) -> Unit,
+    modifier: Modifier
+) {
+    Card(
+        onClick = { onClick(element.id) },
+        modifier = modifier,
+    ) {
+        Text(element.name)
+    }
+}
