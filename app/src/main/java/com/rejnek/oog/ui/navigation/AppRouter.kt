@@ -1,5 +1,6 @@
 package com.rejnek.oog.ui.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -21,17 +22,19 @@ fun AppRouter() {
         composable(Routes.HomeScreen.route) {
             HomeScreen(
                 onLoadGameClick = {
-                    navController.navigate(Routes.GameMenuScreen.route)
+                    navController.navigate(Routes.GameTaskScreen.route)
                 }
             )
         }
 
         composable(Routes.GameTaskScreen.route) {
+            BackHandler {
+                navController.navigate(Routes.GameMenuScreen.route)
+            }
+
             GameTaskScreen(
                 onFinishTask = {
-                    navController.navigate(Routes.GameFinishScreen.route) {
-                        popUpTo(Routes.HomeScreen.route) { inclusive = true }
-                    }
+                    navController.navigate(Routes.GameFinishScreen.route)
                 }
             )
         }
@@ -39,9 +42,7 @@ fun AppRouter() {
         composable(Routes.GameFinishScreen.route) {
             GameFinishScreen(
                 onBackToHomeClick = {
-                    navController.navigate(Routes.HomeScreen.route) {
-                        popUpTo(Routes.HomeScreen.route) { inclusive = true }
-                    }
+                    navController.navigate(Routes.HomeScreen.route)
                 }
             )
         }

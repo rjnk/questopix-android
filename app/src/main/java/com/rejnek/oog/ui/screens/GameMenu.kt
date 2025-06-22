@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.data.model.GameElement
@@ -45,6 +46,7 @@ fun GameMenuContent(
     modifier: Modifier = Modifier
 ){
     Column(
+        horizontalAlignment = CenterHorizontally,
         modifier = modifier
             .fillMaxSize()
             .imePadding()
@@ -58,7 +60,6 @@ fun GameMenuContent(
             GameMenuElement(
                 element = element,
                 onClick = { onElementClick(element.id) },
-                modifier = Modifier.padding(8.dp)
             )
         }
     }
@@ -68,12 +69,17 @@ fun GameMenuContent(
 fun GameMenuElement(
     element: GameElement,
     onClick: (String) -> Unit,
-    modifier: Modifier
+    modifier: Modifier = Modifier
 ) {
     Card(
         onClick = { onClick(element.id) },
-        modifier = modifier,
+        modifier = modifier
+            .padding(8.dp)
+            .fillMaxSize(),
     ) {
-        Text(element.name)
+        Text(
+            element.name,
+            modifier = Modifier.padding(8.dp),
+        )
     }
 }

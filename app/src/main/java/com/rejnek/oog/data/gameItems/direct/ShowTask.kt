@@ -6,6 +6,10 @@ class ShowTask : GenericDirectFactory() {
     override val id = "showTask"
 
     override suspend fun create(data: String, callbackId: String) {
+        val currentElementId = gameRepository?.currentElement?.value?.id ?: ""
+        gameRepository?.setElementVisible(currentElementId, false)
+
         gameRepository?.setCurrentElement(data)
+        gameRepository?.setElementVisible(data, true)
     }
 }

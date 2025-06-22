@@ -16,6 +16,8 @@ import com.rejnek.oog.data.gameItems.GenericGameFactory
 import com.rejnek.oog.data.gameItems.direct.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
 import com.rejnek.oog.data.gameItems.direct.DistanceFactory
+import com.rejnek.oog.data.gameItems.direct.SetHiden
+import com.rejnek.oog.data.gameItems.direct.SetVisible
 import com.rejnek.oog.data.gameItems.direct.ShowTask
 import com.rejnek.oog.data.gameItems.direct.TextFactory
 import com.rejnek.oog.data.model.Coordinates
@@ -36,7 +38,9 @@ class GameRepository(
         ButtonFactory(),
         TextFactory(),
         HeadingFactory(),
-        DistanceFactory()
+        DistanceFactory(),
+        SetVisible(),
+        SetHiden()
     )
 
     val jsEngine = JsGameEngine(context)
@@ -70,6 +74,7 @@ class GameRepository(
     suspend fun initializeGame() = withContext(Dispatchers.IO) {
         jsEngine.evaluateJs(demoGame) // Load the demo js code
         setCurrentElement("start")
+        setElementVisible("start", true)
         startLocationMonitoring()
     }
 
@@ -100,8 +105,6 @@ class GameRepository(
         else {
             executeOnStart()
         }
-
-        setElementVisible(elementId, true) // TODO temp
     }
 
     suspend fun getGameElement(id: String): GameElement {
@@ -122,8 +125,12 @@ class GameRepository(
 
     suspend fun setElementVisible(elementId: String, visible: Boolean) {
         if( visible) {
+            if (_visibleElements.value.any { it.id == elementId }) {
+                return
+            }
             _visibleElements.value = _visibleElements.value + getGameElement(elementId)
         } else {
+
             _visibleElements.value = _visibleElements.value.filter { it.id != elementId }
         }
     }
@@ -151,7 +158,7 @@ class GameRepository(
 
     fun cleanup() {
         jsEngine.cleanup()
-        // locationService.stopLocationUpdates()
+        _visibleElements.value = emptyList()
     }
 
     private suspend fun getJsValue(id: String): String? {

@@ -11,7 +11,9 @@ val demoGame = """
             text("Vaším úkolem je projít různými úkoly a odpovědět na otázky.");
             text("Připravte se na zábavu!");
             button("Začít hru", function() {
-                showTask("task1");
+                setVisible("task1", true);
+                setVisible("openQuestion1", true);
+                setVisible("start", false);
             });
         }
     }
