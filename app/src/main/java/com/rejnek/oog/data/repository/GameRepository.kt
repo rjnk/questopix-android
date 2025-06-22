@@ -16,11 +16,10 @@ import com.rejnek.oog.data.gameItems.GenericGameFactory
 import com.rejnek.oog.data.gameItems.direct.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
 import com.rejnek.oog.data.gameItems.direct.DistanceFactory
-import com.rejnek.oog.data.gameItems.direct.SetHiden
+import com.rejnek.oog.data.gameItems.direct.SetHidden
 import com.rejnek.oog.data.gameItems.direct.SetVisible
 import com.rejnek.oog.data.gameItems.direct.ShowTask
 import com.rejnek.oog.data.gameItems.direct.TextFactory
-import com.rejnek.oog.data.model.Coordinates
 import com.rejnek.oog.services.LocationService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -40,7 +39,7 @@ class GameRepository(
         HeadingFactory(),
         DistanceFactory(),
         SetVisible(),
-        SetHiden()
+        SetHidden()
     )
 
     val jsEngine = JsGameEngine(context)
@@ -54,15 +53,8 @@ class GameRepository(
     // Current task location monitoring scope
     private val locationMonitoringScope = CoroutineScope(Dispatchers.IO)
 
-    private val _currentElement = MutableStateFlow(
-        GameElement(
-            id = "initial",
-            name = "Loading...",
-            elementType = GameElementType.ERROR,
-            visible = true
-        )
-    )
-    val currentElement: StateFlow<GameElement> = _currentElement.asStateFlow()
+    private val _currentElement: MutableStateFlow<GameElement?> = MutableStateFlow(null)
+    val currentElement: StateFlow<GameElement?> = _currentElement.asStateFlow()
 
     private val _visibleElements = MutableStateFlow<List<GameElement>>(emptyList())
     val visibleElements: StateFlow<List<GameElement>> = _visibleElements.asStateFlow()
@@ -92,12 +84,12 @@ class GameRepository(
     suspend fun setCurrentElement(elementId: String) {
         _currentElement.value = getGameElement(elementId)
 
-        val elementType = _currentElement.value.elementType
+        val elementType = _currentElement.value?.elementType
         if( elementType != GameElementType.FINISH && elementType != GameElementType.START ) {
             _uiElements.value = emptyList()
         }
 
-        Log.d("GameRepository", "Current element set to ${_currentElement.value}")
+        Log.d("GameRepository", "Current element set to ${_currentElement.value?.id}")
 
         if( checkLocation() ) {
             executeOnEnter()
@@ -124,28 +116,35 @@ class GameRepository(
     }
 
     suspend fun setElementVisible(elementId: String, visible: Boolean) {
-        if( visible) {
-            if (_visibleElements.value.any { it.id == elementId }) {
-                return
-            }
-            _visibleElements.value = _visibleElements.value + getGameElement(elementId)
-        } else {
+        Log.d("GameRepository", "Setting element $elementId visibility to $visible")
 
-            _visibleElements.value = _visibleElements.value.filter { it.id != elementId }
+        if (visible) {
+            if (!_visibleElements.value.any { it.id == elementId }) {
+                val elementToAdd = getGameElement(elementId)
+                _visibleElements.value = _visibleElements.value + elementToAdd
+            }
+        } else {
+            val newList = _visibleElements.value.filter { it.id != elementId }
+            _visibleElements.value = newList
+
+            if( _currentElement.value?.id == elementId ) {
+                Log.d("GameRepository", "Current element $elementId is no longer visible, resetting current element")
+                _currentElement.value = null
+            }
         }
     }
 
     fun checkLocation(): Boolean {
-        return currentElement.value.isInside(currentLocation.value.first, currentLocation.value.second)
+        return currentElement.value?.isInside(currentLocation.value.first, currentLocation.value.second) == true
     }
 
     suspend fun executeOnStart() {
-        val elementId = currentElement.value.id
+        val elementId = currentElement.value?.id
         jsEngine.evaluateJs("$elementId.onStart()")
     }
 
     suspend fun executeOnEnter() {
-        val elementId = currentElement.value.id
+        val elementId = currentElement.value?.id
         jsEngine.evaluateJs("$elementId.onEnter()")
     }
 

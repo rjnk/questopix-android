@@ -33,6 +33,9 @@ fun AppRouter() {
             }
 
             GameTaskScreen(
+                onGoToMenu = {
+                    navController.navigate(Routes.GameMenuScreen.route)
+                },
                 onFinishTask = {
                     navController.navigate(Routes.GameFinishScreen.route)
                 }
@@ -40,6 +43,8 @@ fun AppRouter() {
         }
 
         composable(Routes.GameFinishScreen.route) {
+            BackHandler {  }
+
             GameFinishScreen(
                 onBackToHomeClick = {
                     navController.navigate(Routes.HomeScreen.route)

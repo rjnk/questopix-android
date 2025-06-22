@@ -22,7 +22,7 @@ class DistanceFactory : GenericDirectFactory() {
 
 class Distance(
     private val currentLocation: State<Pair<Double, Double>>?,
-    private val currentElement: State<GameElement>?
+    private val currentElement: State<GameElement?>?
 ) {
     @Composable
     fun Show() {

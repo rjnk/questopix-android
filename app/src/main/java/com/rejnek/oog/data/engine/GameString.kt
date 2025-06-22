@@ -11,9 +11,9 @@ val demoGame = """
             text("Vaším úkolem je projít různými úkoly a odpovědět na otázky.");
             text("Připravte se na zábavu!");
             button("Začít hru", function() {
-                setVisible("task1", true);
-                setVisible("openQuestion1", true);
-                setVisible("start", false);
+                setVisible("task1");
+                setVisible("openQuestion1");
+                setHidden("start");
             });
         }
     }
@@ -37,6 +37,11 @@ val demoGame = """
             text("...nebo zkratka");
             button("Rovnou do cíle", function() {
                 showTask("finish");
+            });
+            text("nebo menu");
+            button("Zpět do menu", function() {
+                setHidden("task1");
+                setVisible("task1");
             });
         },
         onEnter: function() {
