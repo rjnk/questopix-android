@@ -41,6 +41,7 @@ koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compos
 rhino = { group = "org.mozilla", name = "rhino", version.ref = "rhino" }
 androidx-javascriptengine = { group = "androidx.javascriptengine", name = "javascriptengine", version.ref = "androidxJavascriptEngine" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+maplibre-android-sdk = { group = "org.maplibre.gl", name = "android-sdk", version = "11.8.5" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

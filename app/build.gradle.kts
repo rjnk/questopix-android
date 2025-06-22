@@ -62,6 +62,7 @@ dependencies {
     // JavaScript engine
     implementation(libs.androidx.javascriptengine)
     implementation(libs.play.services.location)
+    implementation(libs.maplibre.android.sdk)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

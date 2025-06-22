@@ -1,6 +1,7 @@
 package com.rejnek.oog.di
 
 import com.rejnek.oog.data.repository.GameRepository
+import com.rejnek.oog.ui.screens.MapViewModel
 import com.rejnek.oog.ui.viewmodels.*
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -18,4 +19,5 @@ val appModule = module {
     viewModel { GameTaskViewModel(get()) }
     viewModel { GameFinishViewModel(get()) }
     viewModel { GameMenuViewModel(get()) }
+    viewModel { MapViewModel(androidContext().applicationContext as android.app.Application) }
 }
