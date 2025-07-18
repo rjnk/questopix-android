@@ -1,30 +1,29 @@
-package com.rejnek.oog.ui.screens
+package com.rejnek.oog.data.gameItems.direct.map
 
 import android.app.Application
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import org.maplibre.android.MapLibre
-import org.maplibre.android.WellKnownTileServer
-import org.maplibre.android.maps.MapView
-import org.maplibre.android.maps.MapLibreMap
-import org.maplibre.android.maps.Style
-import org.maplibre.android.style.layers.RasterLayer
-import org.maplibre.android.style.layers.CircleLayer
-import org.maplibre.android.style.sources.RasterSource
-import org.maplibre.android.style.sources.GeoJsonSource
-import org.maplibre.android.style.sources.TileSet
-import org.maplibre.android.geometry.LatLng
-import org.maplibre.android.camera.CameraUpdateFactory
-import com.rejnek.oog.services.LocationService
 import androidx.lifecycle.viewModelScope
 import com.rejnek.oog.data.repository.GameRepository
+import com.rejnek.oog.services.LocationService
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import org.maplibre.geojson.Point
+import org.maplibre.android.MapLibre
+import org.maplibre.android.WellKnownTileServer
+import org.maplibre.android.camera.CameraUpdateFactory
+import org.maplibre.android.geometry.LatLng
+import org.maplibre.android.maps.MapLibreMap
+import org.maplibre.android.maps.MapView
+import org.maplibre.android.maps.Style
+import org.maplibre.android.style.layers.CircleLayer
+import org.maplibre.android.style.layers.PropertyFactory
+import org.maplibre.android.style.layers.RasterLayer
+import org.maplibre.android.style.sources.GeoJsonSource
+import org.maplibre.android.style.sources.RasterSource
+import org.maplibre.android.style.sources.TileSet
 import org.maplibre.geojson.Feature
-import org.maplibre.android.style.layers.PropertyFactory.*
+import org.maplibre.geojson.Point
 
 class MapViewModel(
     app: Application,
@@ -101,7 +100,8 @@ class MapViewModel(
         map.setStyle(style) { loadedStyle ->
             // Create a tile set with Mapy.com URL
             val tileUrl = "https://api.mapy.com/v1/maptiles/basic/256/{z}/{x}/{y}?apikey=$mapyApiKey"
-            val tileSet = TileSet("2.2.0", tileUrl)  // Fixed: passing a single URL string instead of an array
+            val tileSet =
+                TileSet("2.2.0", tileUrl)  // Fixed: passing a single URL string instead of an array
             tileSet.minZoom = 0f
             tileSet.maxZoom = 20f
 
@@ -139,10 +139,10 @@ class MapViewModel(
                     // Add a circle layer to represent user location
                     val circleLayer = CircleLayer(layerId, sourceId)
                         .withProperties(
-                            circleRadius(8f),
-                            circleColor("#007AFF"), // Blue color
-                            circleStrokeWidth(2f),
-                            circleStrokeColor("#FFFFFF") // White border
+                            PropertyFactory.circleRadius(8f),
+                            PropertyFactory.circleColor("#007AFF"), // Blue color
+                            PropertyFactory.circleStrokeWidth(2f),
+                            PropertyFactory.circleStrokeColor("#FFFFFF") // White border
                         )
                     style.addLayer(circleLayer)
                 } else {
@@ -191,10 +191,10 @@ class MapViewModel(
                 // Create circle layer for marker with distinct styling
                 val circleLayer = CircleLayer(layerId, sourceId)
                     .withProperties(
-                        circleRadius(12f),
-                        circleColor("#FF5722"), // Orange-red color
-                        circleStrokeWidth(3f),
-                        circleStrokeColor("#FFFFFF") // White border
+                        PropertyFactory.circleRadius(12f),
+                        PropertyFactory.circleColor("#FF5722"), // Orange-red color
+                        PropertyFactory.circleStrokeWidth(3f),
+                        PropertyFactory.circleStrokeColor("#FFFFFF") // White border
                     )
                 style.addLayer(circleLayer)
             }

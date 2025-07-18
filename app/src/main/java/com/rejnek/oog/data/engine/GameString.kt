@@ -13,6 +13,7 @@ val demoGame = """
             button("Začít hru", function() {
                 setVisible("task1");
                 setVisible("openQuestion1");
+                setVisible("map1");
                 setHidden("start");
             });
         }
@@ -77,6 +78,18 @@ val demoGame = """
             }
             
             return;
+        }
+    }
+    
+    // map task
+    const map1 = {
+        name: "Mapa",
+        type: "task",
+        description: "Koukni se na mapu a najdi další úkoly",
+        onStart: async function() {
+            debugPrint("Map shown");
+            heading("Mega mapa úkolů");
+            map();
         }
     }
 

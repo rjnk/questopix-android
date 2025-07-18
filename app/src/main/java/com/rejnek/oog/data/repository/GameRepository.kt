@@ -20,6 +20,7 @@ import com.rejnek.oog.data.gameItems.direct.SetHidden
 import com.rejnek.oog.data.gameItems.direct.SetVisible
 import com.rejnek.oog.data.gameItems.direct.ShowTask
 import com.rejnek.oog.data.gameItems.direct.TextFactory
+import com.rejnek.oog.data.gameItems.direct.map.MapFactory
 import com.rejnek.oog.services.LocationService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,7 +40,8 @@ class GameRepository(
         HeadingFactory(),
         DistanceFactory(),
         SetVisible(),
-        SetHidden()
+        SetHidden(),
+        MapFactory()
     )
 
     val jsEngine = JsGameEngine(context)
