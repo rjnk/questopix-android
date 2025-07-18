@@ -13,6 +13,9 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.ViewModelStoreOwner
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.activity.compose.LocalActivity
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MyLocation
+import androidx.compose.ui.unit.dp
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -50,12 +53,23 @@ fun GameMapScreen(
                     if (index == 0) onNavigateToMenu()
                 }
             )
+        },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = { mapViewModel.centerOnUserLocation() },
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MyLocation,
+                    contentDescription = "Center on my location"
+                )
+            }
         }
     ) { innerPadding ->
         AndroidView(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
+                .padding(innerPadding)
+                .fillMaxSize(),
             factory = { mapView }
         )
 

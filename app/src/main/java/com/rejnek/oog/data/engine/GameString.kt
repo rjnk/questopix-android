@@ -54,6 +54,11 @@ val demoGame = """
     const openQuestion1 = {
         name: "Otázka o stromech",
         type: "task",
+        coordinates: {
+            lat: 50.01,
+            lng: 14.0,
+            radius: 50.0
+        },
         description: "Odpověz na otázku o stromech",
         onStart: async function() {
             debugPrint("Open question shown");

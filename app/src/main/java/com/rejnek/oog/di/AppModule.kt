@@ -19,5 +19,8 @@ val appModule = module {
     viewModel { GameTaskViewModel(get()) }
     viewModel { GameFinishViewModel(get()) }
     viewModel { GameMenuViewModel(get()) }
-    viewModel { MapViewModel(androidContext().applicationContext as android.app.Application) }
+    viewModel { MapViewModel(
+        androidContext().applicationContext as android.app.Application,
+        get()
+    ) }
 }

@@ -2,6 +2,7 @@ package com.rejnek.oog.ui.screens
 
 import android.app.Application
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -19,12 +20,16 @@ import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.camera.CameraUpdateFactory
 import com.rejnek.oog.services.LocationService
 import androidx.lifecycle.viewModelScope
+import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.launch
 import org.maplibre.geojson.Point
 import org.maplibre.geojson.Feature
 import org.maplibre.android.style.layers.PropertyFactory.*
 
-class MapViewModel(app: Application) : AndroidViewModel(app) {
+class MapViewModel(
+    app: Application,
+    val repository: GameRepository
+) : AndroidViewModel(app) {
     private val _mapView: MutableStateFlow<MapView?> = MutableStateFlow(null)
 
     private val _isMapInitialized = MutableStateFlow(false)
@@ -39,7 +44,7 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
     private val mapyApiKey = "nHQoydgWRXuzTsUY4_GESDAfL00F0QKIeeZp3nmAXg0"
 
     // Default location (updated to match your example - near Czech Republic center)
-    private val defaultLocation = LatLng(49.8729317, 14.8981184)
+    private val defaultLocation = LatLng(50.0, 14.0)
     private val defaultZoom = 15.0
 
     init {
@@ -49,6 +54,13 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
                 if (latitude != 0.0 && longitude != 0.0) {
                     updateLocationOnMap(latitude, longitude)
                 }
+            }
+        }
+
+        // Observe visible elements changes and update markers
+        viewModelScope.launch {
+            repository.visibleElements.collect {
+                updateGameMarkers()
             }
         }
     }
@@ -67,6 +79,8 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
         mapView.onCreate(null)
         mapView.getMapAsync { map ->
             this.mapLibreMap = map // Store reference to the map
+            // Disable map rotation
+            map.uiSettings.isRotateGesturesEnabled = false
             // Configure custom style with Mapy.com tiles
             configureMapyStyle(map)
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, defaultZoom))
@@ -100,6 +114,9 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
             // Add source and layer to style
             loadedStyle.addSource(rasterSource)
             loadedStyle.addLayer(rasterLayer)
+
+            // Add custom markers after style is loaded
+            updateGameMarkers()
         }
     }
 
@@ -138,9 +155,49 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     fun centerOnUserLocation() {
-        val currentLoc = locationService.currentLocation.value
-        if (currentLoc.first != 0.0 && currentLoc.second != 0.0) {
-            updateLocationOnMap(currentLoc.first, currentLoc.second)
+        locationService.currentLocation.value.let { (latitude, longitude) ->
+            mapLibreMap?.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLng(latitude, longitude), defaultZoom))
+        }
+    }
+
+    private fun updateGameMarkers() {
+        mapLibreMap?.style?.let { style ->
+            // Remove existing game marker layers and sources
+            var index = 0
+            while (style.getLayer("game-marker-layer-$index") != null) {
+                style.removeLayer("game-marker-layer-$index")
+                style.removeSource("game-marker-source-$index")
+                index++
+            }
+
+            // Add new markers from repository
+            val markers = repository.visibleElements.value.mapNotNull { element ->
+                element.coordinates?.let { coords ->
+                    Pair(coords.lat, coords.lng)
+                }
+            }
+
+            markers.forEachIndexed { markerIndex, (latitude, longitude) ->
+                val sourceId = "game-marker-source-$markerIndex"
+                val layerId = "game-marker-layer-$markerIndex"
+
+                // Create point for marker location
+                val markerPoint = Point.fromLngLat(longitude, latitude)
+                val geoJsonSource = GeoJsonSource(sourceId, Feature.fromGeometry(markerPoint))
+
+                // Add source to style
+                style.addSource(geoJsonSource)
+
+                // Create circle layer for marker with distinct styling
+                val circleLayer = CircleLayer(layerId, sourceId)
+                    .withProperties(
+                        circleRadius(12f),
+                        circleColor("#FF5722"), // Orange-red color
+                        circleStrokeWidth(3f),
+                        circleStrokeColor("#FFFFFF") // White border
+                    )
+                style.addLayer(circleLayer)
+            }
         }
     }
 
