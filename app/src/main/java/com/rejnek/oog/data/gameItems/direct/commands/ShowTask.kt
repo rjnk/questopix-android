@@ -1,4 +1,4 @@
-package com.rejnek.oog.data.gameItems.direct
+package com.rejnek.oog.data.gameItems.direct.commands
 
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 

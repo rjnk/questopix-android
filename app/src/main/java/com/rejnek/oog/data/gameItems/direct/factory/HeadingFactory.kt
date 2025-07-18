@@ -1,4 +1,4 @@
-package com.rejnek.oog.data.gameItems.direct
+package com.rejnek.oog.data.gameItems.direct.factory
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

@@ -1,9 +1,8 @@
-package com.rejnek.oog.data.gameItems.direct.map
+package com.rejnek.oog.data.gameItems.direct.factory.map
 
 import androidx.activity.compose.LocalActivity
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import com.rejnek.oog.ui.components.GameNavBar
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.platform.LocalContext

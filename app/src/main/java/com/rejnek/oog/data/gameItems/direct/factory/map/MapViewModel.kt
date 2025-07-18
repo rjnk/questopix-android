@@ -1,4 +1,4 @@
-package com.rejnek.oog.data.gameItems.direct.map
+package com.rejnek.oog.data.gameItems.direct.factory.map
 
 import android.app.Application
 import android.content.Context
