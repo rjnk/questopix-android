@@ -41,7 +41,6 @@ class GameTaskViewModel(
         }
     }
 
-    // In GameNavigationTextViewModel
     sealed class NavigationEvent {
         object Menu: NavigationEvent()
         object Finish : NavigationEvent()

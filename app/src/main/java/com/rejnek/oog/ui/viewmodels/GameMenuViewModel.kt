@@ -16,4 +16,10 @@ class GameMenuViewModel(
             gameRepository.setCurrentElement(elementId)
         }
     }
+
+    fun onSecondaryClicked() {
+        viewModelScope.launch {
+            gameRepository.setCurrentElement(gameRepository.secondaryTabElementId.value)
+        }
+    }
 }

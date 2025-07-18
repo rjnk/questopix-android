@@ -68,6 +68,9 @@ fun AppRouter() {
             SecondaryTabScreen(
                 onNavigateToMenu = {
                     navController.navigate(Routes.GameMenuScreen.route)
+                },
+                onFinishTask = {
+                    navController.navigate(Routes.GameFinishScreen.route)
                 }
             )
         }

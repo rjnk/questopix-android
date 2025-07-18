@@ -12,16 +12,27 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.ui.viewmodels.GameTaskViewModel.NavigationEvent
 import com.rejnek.oog.ui.viewmodels.SecondaryTabViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun SecondaryTabScreen(
     onNavigateToMenu: () -> Unit = {},
+    onFinishTask: () -> Unit = {},
     viewModel: SecondaryTabViewModel = koinViewModel()
 ) {
     var selectedIndex by remember { mutableStateOf(1) }
     val uiElements by viewModel.uiElements.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collect { event ->
+            when (event) {
+                is NavigationEvent.Finish -> onFinishTask()
+                NavigationEvent.Menu -> {}
+            }
+        }
+    }
 
     Scaffold(
         bottomBar = {

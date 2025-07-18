@@ -168,6 +168,7 @@ class GameRepository(
 
     fun cleanup() {
         jsEngine.cleanup()
+        _uiElements.value = emptyList()
         _visibleElements.value = emptyList()
     }
 

@@ -39,7 +39,10 @@ fun GameMenuScreen(
                 selectedIndex = selectedIndex,
                 onItemSelected = { index ->
                     selectedIndex = index
-                    if (index == 1) onNavigateToMap()
+                    if (index == 1){
+                        onNavigateToMap()
+                        viewModel.onSecondaryClicked()
+                    }
                 }
             )
         }
