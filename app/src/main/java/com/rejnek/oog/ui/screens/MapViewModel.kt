@@ -2,8 +2,6 @@ package com.rejnek.oog.ui.screens
 
 import android.app.Application
 import android.content.Context
-import android.view.LayoutInflater
-import android.widget.ImageView
 import androidx.lifecycle.AndroidViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,22 +11,29 @@ import org.maplibre.android.maps.MapView
 import org.maplibre.android.maps.MapLibreMap
 import org.maplibre.android.maps.Style
 import org.maplibre.android.style.layers.RasterLayer
+import org.maplibre.android.style.layers.CircleLayer
 import org.maplibre.android.style.sources.RasterSource
+import org.maplibre.android.style.sources.GeoJsonSource
 import org.maplibre.android.style.sources.TileSet
 import org.maplibre.android.geometry.LatLng
 import org.maplibre.android.camera.CameraUpdateFactory
-import android.widget.LinearLayout
-import android.view.Gravity
-import android.view.View
-import android.content.Intent
-import android.net.Uri
+import com.rejnek.oog.services.LocationService
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.launch
+import org.maplibre.geojson.Point
+import org.maplibre.geojson.Feature
+import org.maplibre.android.style.layers.PropertyFactory.*
 
 class MapViewModel(app: Application) : AndroidViewModel(app) {
     private val _mapView: MutableStateFlow<MapView?> = MutableStateFlow(null)
-    val mapView: StateFlow<MapView?> = _mapView
 
     private val _isMapInitialized = MutableStateFlow(false)
     val isMapInitialized: StateFlow<Boolean> = _isMapInitialized
+
+    // Location service
+    private val locationService = LocationService(app.applicationContext)
+
+    private var mapLibreMap: MapLibreMap? = null
 
     // Mapy.com API key
     private val mapyApiKey = "nHQoydgWRXuzTsUY4_GESDAfL00F0QKIeeZp3nmAXg0"
@@ -36,6 +41,17 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
     // Default location (updated to match your example - near Czech Republic center)
     private val defaultLocation = LatLng(49.8729317, 14.8981184)
     private val defaultZoom = 15.0
+
+    init {
+        // Start observing location updates
+        viewModelScope.launch {
+            locationService.currentLocation.collect { (latitude, longitude) ->
+                if (latitude != 0.0 && longitude != 0.0) {
+                    updateLocationOnMap(latitude, longitude)
+                }
+            }
+        }
+    }
 
     fun getOrCreateMapView(context: Context): MapView {
         _mapView.value?.let { return it }
@@ -50,12 +66,10 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
 
         mapView.onCreate(null)
         mapView.getMapAsync { map ->
+            this.mapLibreMap = map // Store reference to the map
             // Configure custom style with Mapy.com tiles
             configureMapyStyle(map)
             map.moveCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, defaultZoom))
-
-            // Add the required Mapy.com logo
-            addMapyLogo(mapView.context, map)
 
             _isMapInitialized.value = true
         }
@@ -89,38 +103,47 @@ class MapViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    private fun addMapyLogo(context: Context, map: MapLibreMap) {
-        val logoView = LinearLayout(context).apply {
-            orientation = LinearLayout.VERTICAL
-            gravity = Gravity.CENTER
+    private fun updateLocationOnMap(latitude: Double, longitude: Double) {
+        mapLibreMap?.let { map ->
+            val currentLocation = LatLng(latitude, longitude)
 
-            val logoImage = ImageView(context).apply {
-                // We'd need to add the Mapy.com logo to the project's resources
-                // For now, we're creating a placeholder
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.WRAP_CONTENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-                )
-                // You should replace this with the actual Mapy.com logo
-                // setImageResource(R.drawable.mapy_logo)
+            // Update or add the location feature
+            val locationPoint = Point.fromLngLat(longitude, latitude)
+
+            map.style?.let { style ->
+                val sourceId = "user-location-source"
+                val layerId = "user-location-layer"
+
+                if (style.getSource(sourceId) == null) {
+                    // Create a new GeoJSON source and layer for user location
+                    val geoJsonSource = GeoJsonSource(sourceId, Feature.fromGeometry(locationPoint))
+                    style.addSource(geoJsonSource)
+
+                    // Add a circle layer to represent user location
+                    val circleLayer = CircleLayer(layerId, sourceId)
+                        .withProperties(
+                            circleRadius(8f),
+                            circleColor("#007AFF"), // Blue color
+                            circleStrokeWidth(2f),
+                            circleStrokeColor("#FFFFFF") // White border
+                        )
+                    style.addLayer(circleLayer)
+                } else {
+                    // Update existing source with new location
+                    val source = style.getSource(sourceId) as? GeoJsonSource
+                    source?.setGeoJson(Feature.fromGeometry(locationPoint))
+                }
             }
-
-            setOnClickListener {
-                // Open Mapy.com when logo is clicked
-                val intent = Intent(Intent.ACTION_VIEW, Uri.parse("https://mapy.com/"))
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                context.startActivity(intent)
-            }
-
-            addView(logoImage)
         }
-
-        // Add the logo view to the map (this is simplified - in a real implementation
-        // you would need to create a proper custom control similar to the JavaScript example)
-        // mapView.addView(logoView)
     }
 
-    // Lifecycle methods to be called from the UI
+    fun centerOnUserLocation() {
+        val currentLoc = locationService.currentLocation.value
+        if (currentLoc.first != 0.0 && currentLoc.second != 0.0) {
+            updateLocationOnMap(currentLoc.first, currentLoc.second)
+        }
+    }
+
     fun onStart() {
         _mapView.value?.onStart()
     }
