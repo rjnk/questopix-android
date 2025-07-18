@@ -15,6 +15,7 @@ import com.rejnek.oog.data.gameItems.direct.commands.DebugPrint
 import com.rejnek.oog.data.gameItems.GenericGameFactory
 import com.rejnek.oog.data.gameItems.direct.factory.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
+import com.rejnek.oog.data.gameItems.direct.commands.SetGameType
 import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
 import com.rejnek.oog.data.gameItems.direct.commands.SetHidden
 import com.rejnek.oog.data.gameItems.direct.commands.SetSecondary
@@ -22,6 +23,7 @@ import com.rejnek.oog.data.gameItems.direct.commands.SetVisible
 import com.rejnek.oog.data.gameItems.direct.commands.ShowTask
 import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
 import com.rejnek.oog.data.gameItems.direct.factory.map.MapFactory
+import com.rejnek.oog.data.model.GameType
 import com.rejnek.oog.services.LocationService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -43,7 +45,8 @@ class GameRepository(
         SetVisible(),
         SetHidden(),
         MapFactory(),
-        SetSecondary()
+        SetSecondary(),
+        SetGameType()
     )
 
     val jsEngine = JsGameEngine(context)
@@ -56,6 +59,9 @@ class GameRepository(
 
     // Current task location monitoring scope
     private val locationMonitoringScope = CoroutineScope(Dispatchers.IO)
+
+    private val _gameType = MutableStateFlow<GameType>(GameType.UNKNOWN)
+    val gameType: StateFlow<GameType> = _gameType.asStateFlow()
 
     // Elements that are displayed in the game
     private val _currentElement: MutableStateFlow<GameElement?> = MutableStateFlow(null)
@@ -164,6 +170,10 @@ class GameRepository(
 
     fun setSecondaryTabElement(elementId: String) {
         _secondaryTabElementId.value = elementId
+    }
+
+    fun setGameType(type: GameType) {
+        _gameType.value = type
     }
 
     fun cleanup() {

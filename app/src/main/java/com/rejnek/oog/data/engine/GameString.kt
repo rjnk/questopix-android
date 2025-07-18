@@ -11,11 +11,12 @@ val demoGame = """
             text("Vaším úkolem je projít různými úkoly a odpovědět na otázky.");
             text("Připravte se na zábavu!");
             button("Začít hru", function() {
-                setVisible("task1");
-                setVisible("openQuestion1");
-                setVisible("map1");
-                setSecondary("task1");
-                setHidden("start");
+                setGameType("open");
+                showTask("task1");
+//                setVisible("openQuestion1");
+//                setVisible("map1");
+                setSecondary("map1");
+//                setHidden("start");
             });
         }
     }
@@ -67,6 +68,8 @@ val demoGame = """
         },
         description: "Odpověz na otázku o stromech",
         onStart: async function() {
+            setGameType("linear");
+        
             debugPrint("Open question shown");
             heading("Otevřená otázka o stromech");
             

@@ -1,5 +1,6 @@
 package com.rejnek.oog.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -22,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.data.model.GameElementType
+import com.rejnek.oog.data.model.GameType
 import com.rejnek.oog.ui.viewmodels.GameTaskViewModel
 import com.rejnek.oog.ui.viewmodels.GameTaskViewModel.NavigationEvent
 import org.koin.androidx.compose.koinViewModel
@@ -44,12 +46,18 @@ fun GameTaskScreen(
 
     val uiElements by viewModel.uiElements.collectAsState()
 
+    if(viewModel.gameType.collectAsState().value != GameType.OPEN){
+        BackHandler {  }
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             TopAppBar(
                 title = {},
                 navigationIcon = {
+                    if(viewModel.gameType.collectAsState().value != GameType.OPEN) return@TopAppBar
+
                     IconButton(onClick = { onGoToMenu() }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,

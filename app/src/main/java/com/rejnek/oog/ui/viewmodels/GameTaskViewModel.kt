@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import com.rejnek.oog.data.model.GameElementType
+import com.rejnek.oog.data.model.GameType
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
@@ -19,6 +20,9 @@ class GameTaskViewModel(
 
     private val _navigationEvents = MutableSharedFlow<NavigationEvent>()
     val navigationEvents = _navigationEvents.asSharedFlow()
+
+    private val _gameType = MutableStateFlow<GameType>(GameType.UNKNOWN)
+    val gameType = _gameType.asStateFlow()
 
     // Expose UI elements from the repository
     val uiElements = gameRepository.uiElements
@@ -37,6 +41,13 @@ class GameTaskViewModel(
                     _navigationEvents.emit(NavigationEvent.Finish)
                     return@collect
                 }
+            }
+        }
+
+        // Observe game type changes
+        viewModelScope.launch {
+            gameRepository.gameType.collect { type ->
+                _gameType.value = type
             }
         }
     }

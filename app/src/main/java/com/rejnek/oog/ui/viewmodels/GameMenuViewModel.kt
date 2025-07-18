@@ -19,7 +19,9 @@ class GameMenuViewModel(
 
     fun onSecondaryClicked() {
         viewModelScope.launch {
-            gameRepository.setCurrentElement(gameRepository.secondaryTabElementId.value)
+            if(gameRepository.secondaryTabElementId.value.isNotBlank()){
+                gameRepository.setCurrentElement(gameRepository.secondaryTabElementId.value)
+            }
         }
     }
 }

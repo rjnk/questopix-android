@@ -47,6 +47,13 @@ class GameElement(
     }
 }
 
+enum class GameType {
+    LINEAR,
+    BRANCHING,
+    OPEN,
+    UNKNOWN
+}
+
 enum class GameElementType {
     ERROR,
     UNKNOWN,
