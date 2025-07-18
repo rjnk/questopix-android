@@ -17,6 +17,7 @@ import com.rejnek.oog.data.gameItems.direct.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
 import com.rejnek.oog.data.gameItems.direct.DistanceFactory
 import com.rejnek.oog.data.gameItems.direct.SetHidden
+import com.rejnek.oog.data.gameItems.direct.SetSecondary
 import com.rejnek.oog.data.gameItems.direct.SetVisible
 import com.rejnek.oog.data.gameItems.direct.ShowTask
 import com.rejnek.oog.data.gameItems.direct.TextFactory
@@ -41,7 +42,8 @@ class GameRepository(
         DistanceFactory(),
         SetVisible(),
         SetHidden(),
-        MapFactory()
+        MapFactory(),
+        SetSecondary()
     )
 
     val jsEngine = JsGameEngine(context)
@@ -55,6 +57,7 @@ class GameRepository(
     // Current task location monitoring scope
     private val locationMonitoringScope = CoroutineScope(Dispatchers.IO)
 
+    // Elements that are displayed in the game
     private val _currentElement: MutableStateFlow<GameElement?> = MutableStateFlow(null)
     val currentElement: StateFlow<GameElement?> = _currentElement.asStateFlow()
 
@@ -64,6 +67,8 @@ class GameRepository(
     private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
     val uiElements: StateFlow<List<@Composable () -> Unit>> = _uiElements.asStateFlow()
 
+    private val _secondaryTabElementId = MutableStateFlow<String>("")
+    val secondaryTabElementId: StateFlow<String> = _secondaryTabElementId.asStateFlow()
 
     suspend fun initializeGame() = withContext(Dispatchers.IO) {
         jsEngine.evaluateJs(demoGame) // Load the demo js code
@@ -155,6 +160,10 @@ class GameRepository(
      */
     fun addUIElement(element: @Composable () -> Unit) {
         _uiElements.value = _uiElements.value + element
+    }
+
+    fun setSecondaryTabElement(elementId: String) {
+        _secondaryTabElementId.value = elementId
     }
 
     fun cleanup() {

@@ -24,4 +24,5 @@ val appModule = module {
         androidContext().applicationContext as Application,
         get()
     ) }
+    viewModel { SecondaryTabViewModel(get()) }
 }

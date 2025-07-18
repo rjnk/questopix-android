@@ -14,6 +14,7 @@ val demoGame = """
                 setVisible("task1");
                 setVisible("openQuestion1");
                 setVisible("map1");
+                setSecondary("task1");
                 setHidden("start");
             });
         }
@@ -39,10 +40,14 @@ val demoGame = """
             button("Rovnou do cíle", function() {
                 showTask("finish");
             });
-            text("nebo menu");
-            button("Zpět do menu", function() {
-                setHidden("task1");
-                setVisible("task1");
+//            text("nebo menu");
+//            button("Zpět do menu", function() {
+//                setHidden("task1");
+//                setVisible("task1");
+//            });
+            text("nebo mapa");
+            button("Zobrazit mapu", function() {
+                showTask("map1");
             });
         },
         onEnter: function() {
