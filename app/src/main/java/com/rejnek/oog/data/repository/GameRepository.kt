@@ -49,32 +49,34 @@ class GameRepository(
         SetGameType()
     )
 
+    // JavaScript game engine
     val jsEngine = JsGameEngine(context)
 
-    // Initialize LocationService to track user's position
+    // User location
     private val locationService = LocationService(context)
-
-    // Current user location accessible as a pair of (latitude, longitude)
     val currentLocation = locationService.currentLocation
 
     // Current task location monitoring scope
     private val locationMonitoringScope = CoroutineScope(Dispatchers.IO)
 
+    // Need to save --------------------------------------------------------------------------------
     private val _gameType = MutableStateFlow<GameType>(GameType.UNKNOWN)
     val gameType: StateFlow<GameType> = _gameType.asStateFlow()
 
-    // Elements that are displayed in the game
+    // If the game type is Branching - the current element is the visible one
     private val _currentElement: MutableStateFlow<GameElement?> = MutableStateFlow(null)
     val currentElement: StateFlow<GameElement?> = _currentElement.asStateFlow()
 
+    // If the game type is Open, this is the list of all visible elements
     private val _visibleElements = MutableStateFlow<List<GameElement>>(emptyList())
     val visibleElements: StateFlow<List<GameElement>> = _visibleElements.asStateFlow()
 
-    private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
-    val uiElements: StateFlow<List<@Composable () -> Unit>> = _uiElements.asStateFlow()
-
     private val _secondaryTabElementId = MutableStateFlow<String>("")
     val secondaryTabElementId: StateFlow<String> = _secondaryTabElementId.asStateFlow()
+    // ---------------------------------------------------------------------------------------------
+
+    private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
+    val uiElements: StateFlow<List<@Composable () -> Unit>> = _uiElements.asStateFlow()
 
     suspend fun initializeGame() = withContext(Dispatchers.IO) {
         jsEngine.evaluateJs(demoGame) // Load the demo js code
