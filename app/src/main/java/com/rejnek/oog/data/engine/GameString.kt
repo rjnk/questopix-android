@@ -1,6 +1,12 @@
 package com.rejnek.oog.data.engine
 
 val demoGame = """
+    let currentTask = start;
+    let secondaryTask = null;
+    let visibleTasks = [];
+    let gameType = "branching";
+    let score = 20;
+    
     // startovní úkol / first task
     const start = {
         name: "Hra v divočině",
@@ -11,11 +17,11 @@ val demoGame = """
             text("Vaším úkolem je projít různými úkoly a odpovědět na otázky.");
             text("Připravte se na zábavu!");
             button("Začít hru", function() {
-                setGameType("open");
+                gameType = "open";
                 showTask("task1");
 //                setVisible("openQuestion1");
 //                setVisible("map1");
-                setSecondary("map1");
+                secondaryTask = "map1";
 //                setHidden("start");
             });
         }
@@ -33,6 +39,7 @@ val demoGame = """
         onStart: function() {
             heading("Pod mostem");
             distance();
+            text("Score: " + score);
             text("Projdi se pod mostem, pak můžeš pokračovat");
             button("Pokračovat", function() {
                 showTask("openQuestion1");
