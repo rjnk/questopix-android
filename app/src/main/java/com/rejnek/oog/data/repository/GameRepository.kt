@@ -1,7 +1,7 @@
 package com.rejnek.oog.data.repository
 
 import android.content.Context
-import com.rejnek.oog.data.model.GameElement
+import com.rejnek.oog.data.model.GameTask
 import com.rejnek.oog.data.model.GameElementType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -53,8 +53,8 @@ class GameRepository(
 
     // Need to save --------------------------------------------------------------------------------
     // If the game type is Branching - the current element is the visible one
-    private val _currentElement: MutableStateFlow<GameElement?> = MutableStateFlow(null)
-    val currentElement: StateFlow<GameElement?> = _currentElement.asStateFlow()
+    private val _selectedElement: MutableStateFlow<GameTask?> = MutableStateFlow(null)
+    val selectedElement: StateFlow<GameTask?> = _selectedElement.asStateFlow()
 
     // ---------------------------------------------------------------------------------------------
 
@@ -79,14 +79,14 @@ class GameRepository(
     }
 
     suspend fun setCurrentElement(elementId: String) {
-        _currentElement.value = getGameElement(elementId)
+        _selectedElement.value = getGameElement(elementId)
 
-        val elementType = _currentElement.value?.elementType
+        val elementType = _selectedElement.value?.elementType
         if( elementType != GameElementType.FINISH && elementType != GameElementType.START ) {
             _uiElements.value = emptyList()
         }
 
-        Log.d("GameRepository", "Current element set to ${_currentElement.value?.id}")
+        Log.d("GameRepository", "Current element set to ${_selectedElement.value?.id}")
 
         if( checkLocation() ) {
             executeOnEnter()
@@ -96,7 +96,7 @@ class GameRepository(
         }
     }
 
-    suspend fun getGameElement(id: String): GameElement {
+    suspend fun getGameElement(id: String): GameTask {
         Log.d("GameRepository", "Getting game element with ID: $id")
 
         val name = getJsValue("$id.name") ?: "Err"
@@ -105,7 +105,7 @@ class GameRepository(
         } ?: GameElementType.UNKNOWN
         val coordinates = jsEngine.getCoordinates(id)
 
-        return GameElement(
+        return GameTask(
             id = id,
             name = name,
             elementType = elementType,
@@ -115,16 +115,16 @@ class GameRepository(
     }
 
     fun checkLocation(): Boolean {
-        return currentElement.value?.isInside(currentLocation.value.first, currentLocation.value.second) == true
+        return selectedElement.value?.isInside(currentLocation.value.first, currentLocation.value.second) == true
     }
 
     suspend fun executeOnStart() {
-        val elementId = currentElement.value?.id
+        val elementId = selectedElement.value?.id
         jsEngine.evaluateJs("$elementId.onStart()")
     }
 
     suspend fun executeOnEnter() {
-        val elementId = currentElement.value?.id
+        val elementId = selectedElement.value?.id
         jsEngine.evaluateJs("$elementId.onEnter()")
     }
 
@@ -144,7 +144,7 @@ class GameRepository(
         return GameType.valueOf(typeString.uppercase())
     }
 
-    suspend fun getVisibleElements(): List<GameElement> {
+    suspend fun getVisibleElements(): List<GameTask> {
         val ids = jsEngine
             .getJsValue("visibleTasks")
             .getOrNull()

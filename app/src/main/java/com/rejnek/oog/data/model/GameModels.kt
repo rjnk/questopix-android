@@ -6,7 +6,6 @@ import kotlin.math.sqrt
 import kotlin.math.sin
 import kotlin.math.cos
 import kotlin.math.atan2
-import kotlin.math.PI
 
 @Serializable
 data class Coordinates(
@@ -16,7 +15,7 @@ data class Coordinates(
 )
 
 @Serializable
-class GameElement(
+class GameTask(
     val id: String,
     val name: String,
     val elementType: GameElementType,

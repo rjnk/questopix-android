@@ -7,7 +7,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
-import com.rejnek.oog.data.model.GameElement
+import com.rejnek.oog.data.model.GameTask
 
 class DistanceFactory : GenericDirectFactory() {
     override val id = "distance"
@@ -16,7 +16,7 @@ class DistanceFactory : GenericDirectFactory() {
         gameRepository?.addUIElement {
             Distance(
                 gameRepository?.currentLocation?.collectAsState(),
-                gameRepository?.currentElement?.collectAsState()
+                gameRepository?.selectedElement?.collectAsState()
             ).Show()
         }
     }
@@ -24,7 +24,7 @@ class DistanceFactory : GenericDirectFactory() {
 
 class Distance(
     private val currentLocation: State<Pair<Double, Double>>?,
-    private val currentElement: State<GameElement?>?
+    private val currentElement: State<GameTask?>?
 ) {
     @Composable
     fun Show() {

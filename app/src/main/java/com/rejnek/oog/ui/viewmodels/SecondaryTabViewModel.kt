@@ -1,6 +1,5 @@
 package com.rejnek.oog.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rejnek.oog.data.model.GameElementType
@@ -20,7 +19,7 @@ class SecondaryTabViewModel(
 
     init {
         viewModelScope.launch {
-            gameRepository.currentElement.collect { elem ->
+            gameRepository.selectedElement.collect { elem ->
                 if(elem?.elementType == GameElementType.FINISH) {
                     _navigationEvents.emit(NavigationEvent.Finish)
                     return@collect

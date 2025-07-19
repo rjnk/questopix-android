@@ -1,6 +1,5 @@
 package com.rejnek.oog.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rejnek.oog.data.repository.GameRepository
@@ -31,7 +30,7 @@ class GameTaskViewModel(
     init {
         // Observe current element changes in a separate coroutine
         viewModelScope.launch {
-            gameRepository.currentElement.collect { elem ->
+            gameRepository.selectedElement.collect { elem ->
                 if(elem == null){
                     _navigationEvents.emit(NavigationEvent.Menu)
                     return@collect
