@@ -13,11 +13,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.rejnek.oog.data.gameItems.GenericGameFactory
+import com.rejnek.oog.data.gameItems.GenericItemFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class QuestionFactory() : GenericGameFactory() {
+class QuestionFactory() : GenericItemFactory() {
     override val id: String = "question"
     override val js: String = """
         async function $id(questionText) {

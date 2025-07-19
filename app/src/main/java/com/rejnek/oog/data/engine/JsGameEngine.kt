@@ -5,7 +5,7 @@ import android.content.Context
 import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.rejnek.oog.data.gameItems.GenericGameFactory
+import com.rejnek.oog.data.gameItems.GenericItemFactory
 import com.rejnek.oog.data.model.Coordinates
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.Dispatchers
@@ -18,7 +18,7 @@ class JsGameEngine(
 ) {
     // My variables
     private var repository: GameRepository? = null
-    private val gameItems = arrayListOf<GenericGameFactory>()
+    private val gameItems = arrayListOf<GenericItemFactory>()
 
     // WebView instance for JavaScript execution
     private var webView: WebView? = null
@@ -123,7 +123,7 @@ class JsGameEngine(
             Result.success(cleanJsResult(result))
         }
 
-    private fun htmlTemplate(gameItems: List<GenericGameFactory>) = """
+    private fun htmlTemplate(gameItems: List<GenericItemFactory>) = """
         <!DOCTYPE html>
         <html>
         <head>

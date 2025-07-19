@@ -3,7 +3,7 @@ package com.rejnek.oog.data.gameItems
 import com.rejnek.oog.data.engine.JsGameInterface
 import com.rejnek.oog.data.repository.GameRepository
 
-abstract class GenericGameFactory(
+abstract class GenericItemFactory(
     var gameRepository: GameRepository? = null,
     var game: JsGameInterface? = null,
 ) {

@@ -3,7 +3,7 @@ package com.rejnek.oog.data.engine
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
-import com.rejnek.oog.data.gameItems.GenericGameFactory
+import com.rejnek.oog.data.gameItems.GenericItemFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -12,7 +12,7 @@ import kotlinx.coroutines.launch
  * JavaScript interface class that serves as a bridge between JS and Kotlin
  */
 class JsGameInterface(
-    private val gameItems: ArrayList<GenericGameFactory>,
+    private val gameItems: ArrayList<GenericItemFactory>,
     private var webView: WebView? = null
 ) {
     private val javaScriptCallbacks = mutableMapOf<String, (String) -> Unit>()

@@ -9,7 +9,7 @@ val demoGame = """
     
     // for open
     let secondaryTask = "task1";
-    let visibleTasks = ["start", "map1", "openQuestion1", "task1"];
+    let visibleTasks = ["start"];
     
     // custom
     let score = 20;
@@ -25,7 +25,13 @@ val demoGame = """
             text("Připravte se na zábavu!");
             button("Začít hru", function() {
                 gameType = "open";
-                showTask("task1");
+                
+                // showTask("task1");
+                // OR
+                currentTask = "task1";
+                if (!visibleTasks.includes("task1")) { visibleTasks.push("task1"); }
+                visibleTasks = visibleTasks.filter(task => task !== "start");
+                refresh();
             });
         }
     }
@@ -47,6 +53,7 @@ val demoGame = """
             text("Projdi se pod mostem, pak můžeš pokračovat");
             button("Pokračovat", function() {
                 showTask("openQuestion1");
+                visibleTasks = visibleTasks.filter(task => task !== "map1");
             });
             text("...nebo zkratka");
             button("Rovnou do cíle", function() {
@@ -54,7 +61,10 @@ val demoGame = """
             });
             text("nebo mapa");
             button("Zobrazit mapu", function() {
-                showTask("map1");
+                // todo this doesn't work as expected
+                visibleTasks = visibleTasks.filter(task => task !== "task1");
+                if (!visibleTasks.includes("map1")) { visibleTasks.push("map1"); }
+                refresh();
             });
         },
         onEnter: function() {

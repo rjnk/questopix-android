@@ -12,9 +12,10 @@ import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.engine.demoGame
 import com.rejnek.oog.data.gameItems.callback.ButtonFactory
 import com.rejnek.oog.data.gameItems.direct.commands.DebugPrint
-import com.rejnek.oog.data.gameItems.GenericGameFactory
+import com.rejnek.oog.data.gameItems.GenericItemFactory
 import com.rejnek.oog.data.gameItems.direct.factory.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
+import com.rejnek.oog.data.gameItems.direct.commands.Refresh
 import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
 import com.rejnek.oog.data.gameItems.direct.commands.ShowTask
 import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
@@ -30,7 +31,7 @@ import kotlinx.coroutines.withContext
 class GameRepository(
     context: Context
 ) {
-    val gameItems = arrayListOf<GenericGameFactory>(
+    val gameItems = arrayListOf<GenericItemFactory>(
         DebugPrint(),
         QuestionFactory(),
         ShowTask(),
@@ -39,6 +40,7 @@ class GameRepository(
         HeadingFactory(),
         DistanceFactory(),
         MapFactory(),
+        Refresh()
     )
 
     // JavaScript game engine
@@ -51,19 +53,15 @@ class GameRepository(
     // Current task location monitoring scope
     private val locationMonitoringScope = CoroutineScope(Dispatchers.IO)
 
-    // Need to save --------------------------------------------------------------------------------
-    // If the game type is Branching - the current element is the visible one
     private val _selectedElement: MutableStateFlow<GameTask?> = MutableStateFlow(null)
     val selectedElement: StateFlow<GameTask?> = _selectedElement.asStateFlow()
-
-    // ---------------------------------------------------------------------------------------------
 
     private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
     val uiElements: StateFlow<List<@Composable () -> Unit>> = _uiElements.asStateFlow()
 
     suspend fun initializeGame() = withContext(Dispatchers.IO) {
         jsEngine.evaluateJs(demoGame) // Load the demo js code
-        setCurrentElement("start")
+        selectTask("start")
         startLocationMonitoring()
     }
 
@@ -78,15 +76,19 @@ class GameRepository(
         }
     }
 
-    suspend fun setCurrentElement(elementId: String) {
-        _selectedElement.value = getGameElement(elementId)
+    suspend fun refresh(){
+        selectTask(getCurrentTaskId())
+    }
+
+    suspend fun selectTask(elementId: String) {
+        _selectedElement.value = getTask(elementId)
 
         val elementType = _selectedElement.value?.elementType
         if( elementType != GameElementType.FINISH && elementType != GameElementType.START ) {
             _uiElements.value = emptyList()
         }
 
-        Log.d("GameRepository", "Current element set to ${_selectedElement.value?.id}")
+        Log.d("GameRepository", "Selected element set to ${_selectedElement.value?.id}")
 
         if( checkLocation() ) {
             executeOnEnter()
@@ -96,7 +98,7 @@ class GameRepository(
         }
     }
 
-    suspend fun getGameElement(id: String): GameTask {
+    suspend fun getTask(id: String): GameTask {
         Log.d("GameRepository", "Getting game element with ID: $id")
 
         val name = getJsValue("$id.name") ?: "Err"
@@ -135,12 +137,16 @@ class GameRepository(
         _uiElements.value = _uiElements.value + element
     }
 
+    suspend fun getCurrentTaskId() : String {
+        return getJsValue("currentTask") ?: ""
+    }
+
     suspend fun getSecondaryTabElementId() : String {
-        return jsEngine.getJsValue("secondaryTask").getOrNull() ?: ""
+        return getJsValue("secondaryTask") ?: ""
     }
 
     suspend fun getGameType(): GameType {
-        val typeString = jsEngine.getJsValue("gameType").getOrNull() ?: return GameType.UNKNOWN
+        val typeString = getJsValue("gameType") ?: return GameType.UNKNOWN
         return GameType.valueOf(typeString.uppercase())
     }
 
@@ -156,7 +162,7 @@ class GameRepository(
 
         Log.d("GameRepository", "Visible elements IDs: $ids")
 
-        return ids.map { id -> getGameElement(id) }
+        return ids.map { id -> getTask(id) }
     }
 
     fun cleanup() {

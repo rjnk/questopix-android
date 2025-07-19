@@ -27,14 +27,14 @@ class GameMenuViewModel(
 
     fun clickOnElement(elementId: String) {
         viewModelScope.launch {
-            gameRepository.setCurrentElement(elementId)
+            gameRepository.selectTask(elementId)
         }
     }
 
     fun onSecondaryClicked() {
         viewModelScope.launch {
             if(gameRepository.getSecondaryTabElementId().isNotEmpty()){
-                gameRepository.setCurrentElement(gameRepository.getSecondaryTabElementId())
+                gameRepository.selectTask(gameRepository.getSecondaryTabElementId())
             }
         }
     }

@@ -1,11 +1,11 @@
 package com.rejnek.oog.data.gameItems
 
-abstract class GenericDirectFactory : GenericGameFactory() {
+abstract class GenericDirectFactory : GenericItemFactory() {
     override val js: String
         get() =
             """
-            function ${id}(elementId) {
-                directAction("$id", elementId);
+            function ${id}(data) {
+                directAction("$id", data);
             }
             """.trimIndent()
 }

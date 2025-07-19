@@ -6,11 +6,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import com.rejnek.oog.data.gameItems.GenericGameFactory
+import com.rejnek.oog.data.gameItems.GenericItemFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class ButtonFactory() : GenericGameFactory() {
+class ButtonFactory() : GenericItemFactory() {
     override val id: String = "button"
     override val js: String = """
         function ${id}(buttonText, callback) {
