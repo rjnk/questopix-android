@@ -9,7 +9,7 @@ val demoGame = """
     
     // for open
     let secondaryTask = "task1";
-    let visibleTasks = [];
+    let visibleTasks = ["start", "map1", "openQuestion1", "task1"];
     
     // custom
     let score = 20;
@@ -19,16 +19,13 @@ val demoGame = """
         name: "Hra v divočině",
         type: "task",
         onStart: function() {
-            heading("Hra v divočině");
+            heading("Hra v divočině!!!");
             text("Vítejte v naší hře! Tato hra je o dobrodružství v divočině.");
             text("Vaším úkolem je projít různými úkoly a odpovědět na otázky.");
             text("Připravte se na zábavu!");
             button("Začít hru", function() {
-                gameType = "branching";
+                gameType = "open";
                 showTask("task1");
-//                setVisible("openQuestion1");
-//                setVisible("map1");
-//                setHidden("start");
             });
         }
     }
@@ -55,11 +52,6 @@ val demoGame = """
             button("Rovnou do cíle", function() {
                 showTask("finish");
             });
-//            text("nebo menu");
-//            button("Zpět do menu", function() {
-//                setHidden("task1");
-//                setVisible("task1");
-//            });
             text("nebo mapa");
             button("Zobrazit mapu", function() {
                 showTask("map1");

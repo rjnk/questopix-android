@@ -10,8 +10,8 @@ class ShowTask : GenericDirectFactory() {
 
         // make the current element visible and hide the previous one
         gameRepository?.setCurrentElement(data)
-        gameRepository?.setElementVisible(data, true)
-        gameRepository?.setElementVisible(currentElementId, false)
+        gameRepository?.jsEngine?.evaluateJs("if (!visibleTasks.includes('$data')) { visibleTasks.push('$data'); }")
+        gameRepository?.jsEngine?.evaluateJs("visibleTasks = visibleTasks.filter(task => task !== '$currentElementId');")
 
         // If the current element is the secondary tab, update it
         if(gameRepository?.getSecondaryTabElementId() == currentElementId) {

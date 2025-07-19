@@ -31,7 +31,7 @@ fun GameMenuScreen(
     onNavigateToMap: () -> Unit,
     viewModel: GameMenuViewModel = koinViewModel()
 ){
-    val visibleElements = viewModel.visibleElements.collectAsState()
+    val visibleElements by viewModel.visibleElements.collectAsState()
     var selectedIndex by remember { mutableStateOf(0) }
     Scaffold(
         bottomBar = {
@@ -60,7 +60,7 @@ fun GameMenuScreen(
 
 @Composable
 fun GameMenuContent(
-    visibleElements: State<List<GameElement>>,
+    visibleElements: List<GameElement>,
     onElementClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ){
@@ -75,7 +75,7 @@ fun GameMenuContent(
             text = "Inbox",
             style = MaterialTheme.typography.headlineMedium,
         )
-        for (element in visibleElements.value) {
+        for (element in visibleElements) {
             GameMenuElement(
                 element = element,
                 onClick = { onElementClick(element.id) },

@@ -56,12 +56,12 @@ class MapViewModel(
             }
         }
 
-        // Observe visible elements changes and update markers
-        viewModelScope.launch {
-            repository.visibleElements.collect {
-                updateGameMarkers()
-            }
-        }
+//        // Observe visible elements changes and update markers
+//        viewModelScope.launch {
+//            repository.visibleElements.collect {
+//                updateGameMarkers()
+//            }
+//        }
     }
 
     fun getOrCreateMapView(context: Context): MapView {
@@ -116,7 +116,7 @@ class MapViewModel(
             loadedStyle.addLayer(rasterLayer)
 
             // Add custom markers after style is loaded
-            updateGameMarkers()
+//            updateGameMarkers()
         }
     }
 
@@ -160,46 +160,46 @@ class MapViewModel(
         }
     }
 
-    private fun updateGameMarkers() {
-        mapLibreMap?.style?.let { style ->
-            // Remove existing game marker layers and sources
-            var index = 0
-            while (style.getLayer("game-marker-layer-$index") != null) {
-                style.removeLayer("game-marker-layer-$index")
-                style.removeSource("game-marker-source-$index")
-                index++
-            }
-
-            // Add new markers from repository
-            val markers = repository.visibleElements.value.mapNotNull { element ->
-                element.coordinates?.let { coords ->
-                    Pair(coords.lat, coords.lng)
-                }
-            }
-
-            markers.forEachIndexed { markerIndex, (latitude, longitude) ->
-                val sourceId = "game-marker-source-$markerIndex"
-                val layerId = "game-marker-layer-$markerIndex"
-
-                // Create point for marker location
-                val markerPoint = Point.fromLngLat(longitude, latitude)
-                val geoJsonSource = GeoJsonSource(sourceId, Feature.fromGeometry(markerPoint))
-
-                // Add source to style
-                style.addSource(geoJsonSource)
-
-                // Create circle layer for marker with distinct styling
-                val circleLayer = CircleLayer(layerId, sourceId)
-                    .withProperties(
-                        PropertyFactory.circleRadius(12f),
-                        PropertyFactory.circleColor("#FF5722"), // Orange-red color
-                        PropertyFactory.circleStrokeWidth(3f),
-                        PropertyFactory.circleStrokeColor("#FFFFFF") // White border
-                    )
-                style.addLayer(circleLayer)
-            }
-        }
-    }
+//    private fun updateGameMarkers() {
+//        mapLibreMap?.style?.let { style ->
+//            // Remove existing game marker layers and sources
+//            var index = 0
+//            while (style.getLayer("game-marker-layer-$index") != null) {
+//                style.removeLayer("game-marker-layer-$index")
+//                style.removeSource("game-marker-source-$index")
+//                index++
+//            }
+//
+//            // Add new markers from repository
+//            val markers = repository.visibleElements.value.mapNotNull { element ->
+//                element.coordinates?.let { coords ->
+//                    Pair(coords.lat, coords.lng)
+//                }
+//            }
+//
+//            markers.forEachIndexed { markerIndex, (latitude, longitude) ->
+//                val sourceId = "game-marker-source-$markerIndex"
+//                val layerId = "game-marker-layer-$markerIndex"
+//
+//                // Create point for marker location
+//                val markerPoint = Point.fromLngLat(longitude, latitude)
+//                val geoJsonSource = GeoJsonSource(sourceId, Feature.fromGeometry(markerPoint))
+//
+//                // Add source to style
+//                style.addSource(geoJsonSource)
+//
+//                // Create circle layer for marker with distinct styling
+//                val circleLayer = CircleLayer(layerId, sourceId)
+//                    .withProperties(
+//                        PropertyFactory.circleRadius(12f),
+//                        PropertyFactory.circleColor("#FF5722"), // Orange-red color
+//                        PropertyFactory.circleStrokeWidth(3f),
+//                        PropertyFactory.circleStrokeColor("#FFFFFF") // White border
+//                    )
+//                style.addLayer(circleLayer)
+//            }
+//        }
+//    }
 
     fun onStart() {
         _mapView.value?.onStart()

@@ -16,8 +16,6 @@ import com.rejnek.oog.data.gameItems.GenericGameFactory
 import com.rejnek.oog.data.gameItems.direct.factory.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
 import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
-import com.rejnek.oog.data.gameItems.direct.commands.SetHidden
-import com.rejnek.oog.data.gameItems.direct.commands.SetVisible
 import com.rejnek.oog.data.gameItems.direct.commands.ShowTask
 import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
 import com.rejnek.oog.data.gameItems.direct.factory.map.MapFactory
@@ -40,8 +38,6 @@ class GameRepository(
         TextFactory(),
         HeadingFactory(),
         DistanceFactory(),
-        SetVisible(),
-        SetHidden(),
         MapFactory(),
     )
 
@@ -56,16 +52,10 @@ class GameRepository(
     private val locationMonitoringScope = CoroutineScope(Dispatchers.IO)
 
     // Need to save --------------------------------------------------------------------------------
-//    private val _gameType = MutableStateFlow<GameType>(GameType.UNKNOWN)
-//    val gameType: StateFlow<GameType> = _gameType.asStateFlow()
-
     // If the game type is Branching - the current element is the visible one
     private val _currentElement: MutableStateFlow<GameElement?> = MutableStateFlow(null)
     val currentElement: StateFlow<GameElement?> = _currentElement.asStateFlow()
 
-    // If the game type is Open, this is the list of all visible elements
-    private val _visibleElements = MutableStateFlow<List<GameElement>>(emptyList())
-    val visibleElements: StateFlow<List<GameElement>> = _visibleElements.asStateFlow()
     // ---------------------------------------------------------------------------------------------
 
     private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
@@ -74,7 +64,6 @@ class GameRepository(
     suspend fun initializeGame() = withContext(Dispatchers.IO) {
         jsEngine.evaluateJs(demoGame) // Load the demo js code
         setCurrentElement("start")
-        setElementVisible("start", true)
         startLocationMonitoring()
     }
 
@@ -108,6 +97,8 @@ class GameRepository(
     }
 
     suspend fun getGameElement(id: String): GameElement {
+        Log.d("GameRepository", "Getting game element with ID: $id")
+
         val name = getJsValue("$id.name") ?: "Err"
         val elementType = getJsValue("$id.type")?.let {
             GameElementType.valueOf(it.toString().uppercase())
@@ -121,25 +112,6 @@ class GameRepository(
             coordinates = coordinates,
             visible = true
         )
-    }
-
-    suspend fun setElementVisible(elementId: String, visible: Boolean) {
-        Log.d("GameRepository", "Setting element $elementId visibility to $visible")
-
-        if (visible) {
-            if (!_visibleElements.value.any { it.id == elementId }) {
-                val elementToAdd = getGameElement(elementId)
-                _visibleElements.value = _visibleElements.value + elementToAdd
-            }
-        } else {
-            val newList = _visibleElements.value.filter { it.id != elementId }
-            _visibleElements.value = newList
-
-            if( _currentElement.value?.id == elementId ) {
-                Log.d("GameRepository", "Current element $elementId is no longer visible, resetting current element")
-                _currentElement.value = null
-            }
-        }
     }
 
     fun checkLocation(): Boolean {
@@ -172,10 +144,24 @@ class GameRepository(
         return GameType.valueOf(typeString.uppercase())
     }
 
+    suspend fun getVisibleElements(): List<GameElement> {
+        val ids = jsEngine
+            .getJsValue("visibleTasks")
+            .getOrNull()
+            ?.removeSurrounding("[", "]")
+            ?.replace("\"", "")
+            ?.split(",")
+            ?.map { it.trim() }
+            ?: return emptyList()
+
+        Log.d("GameRepository", "Visible elements IDs: $ids")
+
+        return ids.map { id -> getGameElement(id) }
+    }
+
     fun cleanup() {
         jsEngine.cleanup()
         _uiElements.value = emptyList()
-        _visibleElements.value = emptyList()
     }
 
     private suspend fun getJsValue(id: String): String? {
