@@ -18,7 +18,6 @@ import com.rejnek.oog.data.gameItems.callback.QuestionFactory
 import com.rejnek.oog.data.gameItems.direct.commands.SetGameType
 import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
 import com.rejnek.oog.data.gameItems.direct.commands.SetHidden
-import com.rejnek.oog.data.gameItems.direct.commands.SetSecondary
 import com.rejnek.oog.data.gameItems.direct.commands.SetVisible
 import com.rejnek.oog.data.gameItems.direct.commands.ShowTask
 import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
@@ -45,7 +44,6 @@ class GameRepository(
         SetVisible(),
         SetHidden(),
         MapFactory(),
-        SetSecondary(),
         SetGameType()
     )
 
@@ -70,9 +68,6 @@ class GameRepository(
     // If the game type is Open, this is the list of all visible elements
     private val _visibleElements = MutableStateFlow<List<GameElement>>(emptyList())
     val visibleElements: StateFlow<List<GameElement>> = _visibleElements.asStateFlow()
-
-    private val _secondaryTabElementId = MutableStateFlow<String>("")
-    val secondaryTabElementId: StateFlow<String> = _secondaryTabElementId.asStateFlow()
     // ---------------------------------------------------------------------------------------------
 
     private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
@@ -170,8 +165,8 @@ class GameRepository(
         _uiElements.value = _uiElements.value + element
     }
 
-    fun setSecondaryTabElement(elementId: String) {
-        _secondaryTabElementId.value = elementId
+    suspend fun getSecondaryTabElementId() : String {
+        return jsEngine.getJsValue("secondaryTask").getOrNull() ?: ""
     }
 
     fun setGameType(type: GameType) {

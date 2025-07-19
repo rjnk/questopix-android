@@ -14,8 +14,8 @@ class ShowTask : GenericDirectFactory() {
         gameRepository?.setElementVisible(currentElementId, false)
 
         // If the current element is the secondary tab, update it
-        if(gameRepository?.secondaryTabElementId?.value == currentElementId) {
-            gameRepository?.setSecondaryTabElement(data)
+        if(gameRepository?.getSecondaryTabElementId() == currentElementId) {
+            gameRepository?.jsEngine?.evaluateJs("secondaryTask = '$data';")
         }
     }
 }

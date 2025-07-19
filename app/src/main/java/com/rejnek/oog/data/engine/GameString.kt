@@ -1,10 +1,17 @@
 package com.rejnek.oog.data.engine
 
 val demoGame = """
-    let currentTask = start;
-    let secondaryTask = null;
-    let visibleTasks = [];
+    // generic
     let gameType = "branching";
+    
+    // for branching
+    let currentTask = "start";
+    
+    // for open
+    let secondaryTask = "task1";
+    let visibleTasks = [];
+    
+    // custom
     let score = 20;
     
     // startovní úkol / first task
@@ -21,7 +28,6 @@ val demoGame = """
                 showTask("task1");
 //                setVisible("openQuestion1");
 //                setVisible("map1");
-                secondaryTask = "map1";
 //                setHidden("start");
             });
         }
@@ -37,6 +43,8 @@ val demoGame = """
             radius: 50.0
         },
         onStart: function() {
+            setGameType("open");
+            score += 10;
             heading("Pod mostem");
             distance();
             text("Score: " + score);
