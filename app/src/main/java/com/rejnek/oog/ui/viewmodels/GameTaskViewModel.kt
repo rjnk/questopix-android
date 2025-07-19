@@ -41,13 +41,8 @@ class GameTaskViewModel(
                     _navigationEvents.emit(NavigationEvent.Finish)
                     return@collect
                 }
-            }
-        }
 
-        // Observe game type changes
-        viewModelScope.launch {
-            gameRepository.gameType.collect { type ->
-                _gameType.value = type
+                _gameType.value = gameRepository.getGameType()
             }
         }
     }

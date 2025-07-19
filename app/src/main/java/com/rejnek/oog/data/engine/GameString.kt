@@ -24,7 +24,7 @@ val demoGame = """
             text("Vaším úkolem je projít různými úkoly a odpovědět na otázky.");
             text("Připravte se na zábavu!");
             button("Začít hru", function() {
-                gameType = "open";
+                gameType = "branching";
                 showTask("task1");
 //                setVisible("openQuestion1");
 //                setVisible("map1");
@@ -43,7 +43,6 @@ val demoGame = """
             radius: 50.0
         },
         onStart: function() {
-            setGameType("open");
             score += 10;
             heading("Pod mostem");
             distance();
@@ -82,9 +81,7 @@ val demoGame = """
             radius: 50.0
         },
         description: "Odpověz na otázku o stromech",
-        onStart: async function() {
-            setGameType("linear");
-        
+        onStart: async function() {        
             debugPrint("Open question shown");
             heading("Otevřená otázka o stromech");
             

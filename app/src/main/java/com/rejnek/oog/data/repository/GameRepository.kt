@@ -15,7 +15,6 @@ import com.rejnek.oog.data.gameItems.direct.commands.DebugPrint
 import com.rejnek.oog.data.gameItems.GenericGameFactory
 import com.rejnek.oog.data.gameItems.direct.factory.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
-import com.rejnek.oog.data.gameItems.direct.commands.SetGameType
 import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
 import com.rejnek.oog.data.gameItems.direct.commands.SetHidden
 import com.rejnek.oog.data.gameItems.direct.commands.SetVisible
@@ -44,7 +43,6 @@ class GameRepository(
         SetVisible(),
         SetHidden(),
         MapFactory(),
-        SetGameType()
     )
 
     // JavaScript game engine
@@ -58,8 +56,8 @@ class GameRepository(
     private val locationMonitoringScope = CoroutineScope(Dispatchers.IO)
 
     // Need to save --------------------------------------------------------------------------------
-    private val _gameType = MutableStateFlow<GameType>(GameType.UNKNOWN)
-    val gameType: StateFlow<GameType> = _gameType.asStateFlow()
+//    private val _gameType = MutableStateFlow<GameType>(GameType.UNKNOWN)
+//    val gameType: StateFlow<GameType> = _gameType.asStateFlow()
 
     // If the game type is Branching - the current element is the visible one
     private val _currentElement: MutableStateFlow<GameElement?> = MutableStateFlow(null)
@@ -169,8 +167,9 @@ class GameRepository(
         return jsEngine.getJsValue("secondaryTask").getOrNull() ?: ""
     }
 
-    fun setGameType(type: GameType) {
-        _gameType.value = type
+    suspend fun getGameType(): GameType {
+        val typeString = jsEngine.getJsValue("gameType").getOrNull() ?: return GameType.UNKNOWN
+        return GameType.valueOf(typeString.uppercase())
     }
 
     fun cleanup() {
