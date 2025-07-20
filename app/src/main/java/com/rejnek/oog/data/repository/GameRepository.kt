@@ -126,12 +126,32 @@ class GameRepository(
 
     suspend fun executeOnStart() {
         val elementId = selectedElement.value?.id
-        jsEngine.evaluateJs("$elementId.onStart()")
+
+        val onStartActivated = getJsValue("_onStartActivated.includes('$elementId')")?.toBoolean() == true;
+        if(onStartActivated){
+            jsEngine.evaluateJs("$elementId.onStart()")
+        }
+        else{
+            jsEngine.evaluateJs("$elementId.onStartFirst()")
+            jsEngine.evaluateJs("if (!_onStartActivated.includes($elementId)) { _onStartActivated.push('$elementId'); }")
+            jsEngine.evaluateJs("$elementId.onStart()")
+        }
+        jsEngine.evaluateJs("save()")
     }
 
     suspend fun executeOnEnter() {
         val elementId = selectedElement.value?.id
-        jsEngine.evaluateJs("$elementId.onEnter()")
+
+        val onEnterActivated = getJsValue("_onEnterActivated.includes('$elementId')")?.toBoolean() == true;
+        if(onEnterActivated){
+            jsEngine.evaluateJs("$elementId.onEnter()")
+        }
+        else{
+            jsEngine.evaluateJs("$elementId.onEnterFirst()")
+            jsEngine.evaluateJs("if (!_onEnterActivated.includes($elementId)) { _onEnterActivated.push('$elementId'); }")
+        }
+
+        jsEngine.evaluateJs("save()")
     }
 
     /**

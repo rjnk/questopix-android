@@ -3,6 +3,8 @@ package com.rejnek.oog.data.engine
 val demoGame = """
     // generic
     var _gameType = "branching";
+    var _onStartActivated = [];
+    var _onEnterActivated = [];
     
     // for branching
     var _currentTask = "start";
@@ -36,8 +38,11 @@ val demoGame = """
             lng: 14.0,
             radius: 50.0
         },
-        onStart: function() {
+        onStartFirst: function() {
             _score += 10;
+            text("onStartFirst!");
+        },
+        onStart: function() {
             heading("První úkol");
             text("_score: " + _score);
             button("Další úkol", function() {
