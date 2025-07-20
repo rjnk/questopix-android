@@ -141,7 +141,7 @@ class JsGameEngine(
                 };
                 
                 // Initialize callback resolvers storage
-                window._callbackResolvers = {};
+                window.callbackResolvers = {};
                 
                 // Generic function to create a callback and wait for its result
                 async function createCallback(type, data) {
@@ -151,7 +151,7 @@ class JsGameEngine(
                     // Return a promise that will be resolved when the callback is triggered
                     return new Promise((resolve) => {
                         // Store the resolver function that will be called when the callback is triggered
-                        window._callbackResolvers[callbackId] = resolve;
+                        window.callbackResolvers[callbackId] = resolve;
                     });
                 }
                 
@@ -160,6 +160,24 @@ class JsGameEngine(
                     Android.directAction(type, data || "");
                 }
                 
+                // Additional custom functions
+                function showTask(newTask) {
+                    let previousTask = _currentTask; 
+    
+                    // visibleElements
+                    if (!_visibleTasks.includes(newTask)) { _visibleTasks.push(newTask); }
+                    _visibleTasks = _visibleTasks.filter(task => task !== previousTask);
+               
+                    // If the current element is the secondary tab, update it
+                    if(_secondaryTask === previousTask) {
+                        _secondaryTask = newTask;
+                    }
+                
+                    _currentTask = newTask;
+                    refresh();
+                }
+                
+                // Functions that interact with Android
                 ${gameItems.joinToString("\n\n") { action -> action.js }}
             </script>
         </head>

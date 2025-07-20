@@ -16,7 +16,7 @@ class ButtonFactory() : GenericItemFactory() {
         function ${id}(buttonText, callback) {
             const callbackId = Android.registerCallback("$id", buttonText);
             
-            window._callbackResolvers[callbackId] = () => {
+            window.callbackResolvers[callbackId] = () => {
                 callback();
                 return "";
             };

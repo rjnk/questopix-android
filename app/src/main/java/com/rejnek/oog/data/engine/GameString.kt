@@ -2,17 +2,111 @@ package com.rejnek.oog.data.engine
 
 val demoGame = """
     // generic
-    let gameType = "branching";
+    var _gameType = "branching";
     
     // for branching
-    let currentTask = "start";
+    var _currentTask = "start";
     
     // for open
-    let secondaryTask = "task1";
-    let visibleTasks = ["start"];
+    var _secondaryTask = "";
+    var _visibleTasks = [];
     
     // custom
-    let score = 20;
+    var _score = 0;
+    
+    // startovní úkol / first task
+    const start = {
+        name: "Hra v divočině",
+        type: "task",
+        onStart: function() {
+            heading("Dlouhá hra");
+            text("Vítejte v dlouhé hře.");
+            button("Začít hru", function() {                
+                showTask("task1");
+            });
+        }
+    }
+
+    // 1. úkol
+    const task1 = {
+        name: "První úkol",
+        type: "task",
+        coordinates: {
+            lat: 50.0,
+            lng: 14.0,
+            radius: 50.0
+        },
+        onStart: function() {
+            _score += 10;
+            heading("První úkol");
+            text("_score: " + _score);
+            button("Další úkol", function() {
+                showTask("task2");
+            });
+        }
+    }
+    
+    // 2. úkol
+    const task2 = {
+        name: "Druhý úkol",
+        type: "task",
+        coordinates: {
+            lat: 50.0,
+            lng: 14.0,
+            radius: 50.0
+        },
+        onStart: function() {
+            _score += 10;
+            heading("Druhý úkol");
+            text("_score: " + _score);
+            save();
+            button("Další úkol", function() {
+                showTask("task3");
+            });
+        }
+    }
+    
+    // 3. úkol
+    const task3 = {
+        name: "První úkol",
+        type: "task",
+        coordinates: {
+            lat: 50.0,
+            lng: 14.0,
+            radius: 50.0
+        },
+        onStart: function() {
+            _score += 10;
+            heading("Třetí úkol");
+            text("_score: " + _score);
+            button("Další úkol", function() {
+                showTask("finish");
+            });
+        }
+    }
+
+    // ukončení hry
+    const finish = {
+        name: "Konec hry",
+        type: "finish",
+        description: "Gratulujeme! Dokončili jste dlouhou hru!",
+    }
+""".trimIndent()
+
+
+val demoGameOrg = """
+    // generic
+    let _gameType = "branching";
+    
+    // for branching
+    let _currentTask = "start";
+    
+    // for open
+    let _secondaryTask = "task1";
+    let _visibleTasks = ["start"];
+    
+    // custom
+    let _score = 20;
     
     // startovní úkol / first task
     const start = {
@@ -24,13 +118,13 @@ val demoGame = """
             text("Vaším úkolem je projít různými úkoly a odpovědět na otázky.");
             text("Připravte se na zábavu!");
             button("Začít hru", function() {
-                gameType = "open";
+                _gameType = "open";
                 
                 // showTask("task1");
                 // OR
-                currentTask = "task1";
-                if (!visibleTasks.includes("task1")) { visibleTasks.push("task1"); }
-                visibleTasks = visibleTasks.filter(task => task !== "start");
+                _currentTask = "task1";
+                if (!_visibleTasks.includes("task1")) { _visibleTasks.push("task1"); }
+                _visibleTasks = _visibleTasks.filter(task => task !== "start");
                 refresh();
             });
         }
@@ -46,14 +140,14 @@ val demoGame = """
             radius: 50.0
         },
         onStart: function() {
-            score += 10;
+            _score += 10;
             heading("Pod mostem");
             distance();
-            text("Score: " + score);
+            text("_score: " + _score);
             text("Projdi se pod mostem, pak můžeš pokračovat");
             button("Pokračovat", function() {
                 showTask("openQuestion1");
-                visibleTasks = visibleTasks.filter(task => task !== "map1");
+                _visibleTasks = _visibleTasks.filter(task => task !== "map1");
             });
             text("...nebo zkratka");
             button("Rovnou do cíle", function() {
@@ -62,8 +156,8 @@ val demoGame = """
             text("nebo mapa");
             button("Zobrazit mapu", function() {
                 // todo this doesn't work as expected
-                visibleTasks = visibleTasks.filter(task => task !== "task1");
-                if (!visibleTasks.includes("map1")) { visibleTasks.push("map1"); }
+                _visibleTasks = _visibleTasks.filter(task => task !== "task1");
+                if (!_visibleTasks.includes("map1")) { _visibleTasks.push("map1"); }
                 refresh();
             });
         },

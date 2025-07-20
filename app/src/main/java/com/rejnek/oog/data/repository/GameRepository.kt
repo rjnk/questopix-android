@@ -16,8 +16,8 @@ import com.rejnek.oog.data.gameItems.GenericItemFactory
 import com.rejnek.oog.data.gameItems.direct.factory.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
 import com.rejnek.oog.data.gameItems.direct.commands.Refresh
+import com.rejnek.oog.data.gameItems.direct.commands.Save
 import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
-import com.rejnek.oog.data.gameItems.direct.commands.ShowTask
 import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
 import com.rejnek.oog.data.gameItems.direct.factory.map.MapFactory
 import com.rejnek.oog.data.model.GameType
@@ -34,13 +34,13 @@ class GameRepository(
     val gameItems = arrayListOf<GenericItemFactory>(
         DebugPrint(),
         QuestionFactory(),
-        ShowTask(),
         ButtonFactory(),
         TextFactory(),
         HeadingFactory(),
         DistanceFactory(),
         MapFactory(),
-        Refresh()
+        Refresh(),
+        Save()
     )
 
     // JavaScript game engine
@@ -138,21 +138,21 @@ class GameRepository(
     }
 
     suspend fun getCurrentTaskId() : String {
-        return getJsValue("currentTask") ?: ""
+        return getJsValue("_currentTask") ?: ""
     }
 
     suspend fun getSecondaryTabElementId() : String {
-        return getJsValue("secondaryTask") ?: ""
+        return getJsValue("_secondaryTask") ?: ""
     }
 
     suspend fun getGameType(): GameType {
-        val typeString = getJsValue("gameType") ?: return GameType.UNKNOWN
+        val typeString = getJsValue("_gameType") ?: return GameType.UNKNOWN
         return GameType.valueOf(typeString.uppercase())
     }
 
     suspend fun getVisibleElements(): List<GameTask> {
         val ids = jsEngine
-            .getJsValue("visibleTasks")
+            .getJsValue("_visibleTasks")
             .getOrNull()
             ?.removeSurrounding("[", "]")
             ?.replace("\"", "")

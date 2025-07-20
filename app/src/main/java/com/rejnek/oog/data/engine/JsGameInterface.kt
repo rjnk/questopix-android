@@ -62,9 +62,9 @@ class JsGameInterface(
         CoroutineScope(Dispatchers.Main).launch {
             val escapedResult = result.replace("'", "\\'")
             webView?.evaluateJavascript("""
-                if (window._callbackResolvers && window._callbackResolvers['$callbackId']) {
-                    window._callbackResolvers['$callbackId']('$escapedResult');
-                    delete window._callbackResolvers['$callbackId'];
+                if (window.callbackResolvers && window.callbackResolvers['$callbackId']) {
+                    window.callbackResolvers['$callbackId']('$escapedResult');
+                    delete window.callbackResolvers['$callbackId'];
                 }
             """.trimIndent(), null)
         }
