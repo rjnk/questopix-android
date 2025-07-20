@@ -175,6 +175,7 @@ class JsGameEngine(
                 
                     _currentTask = newTask;
                     refresh();
+                    save();
                 }
                 
                 // Functions that interact with Android

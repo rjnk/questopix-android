@@ -30,6 +30,6 @@ class Save : GenericDirectFactory() {
             """.trimIndent()
 
     override suspend fun create(data: String, callbackId: String) {
-        Log.d("Save", "Saving game state: $data")
+        gameRepository?.saveGameState(data);
     }
 }

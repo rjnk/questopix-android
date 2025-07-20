@@ -3,7 +3,10 @@ package com.rejnek.oog.ui.viewmodels
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rejnek.oog.data.model.GameType
 import com.rejnek.oog.data.repository.GameRepository
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 class HomeViewModel(
@@ -12,12 +15,17 @@ class HomeViewModel(
     private var jsInitialized = false
     private val TAG = "HomeViewModel"
 
+    private val _hasSavedGame = MutableStateFlow<Boolean>(false)
+    val hasSavedGame = _hasSavedGame.asStateFlow()
+
     init {
         viewModelScope.launch {
             gameRepository.jsEngine.initialize(gameRepository)
                 .onSuccess {
                     jsInitialized = true
                     Log.d(TAG, "JS engine initialized successfully")
+
+                    _hasSavedGame.value = gameRepository.hasSavedGame()
                 }
         }
     }
@@ -30,6 +38,12 @@ class HomeViewModel(
             }
 
             gameRepository.initializeGame()
+        }
+    }
+
+    fun onLoadSavedClicked() {
+        viewModelScope.launch {
+            gameRepository.loadSavedGame()
         }
     }
 }

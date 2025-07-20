@@ -59,7 +59,6 @@ val demoGame = """
             _score += 10;
             heading("Druhý úkol");
             text("_score: " + _score);
-            save();
             button("Další úkol", function() {
                 showTask("task3");
             });

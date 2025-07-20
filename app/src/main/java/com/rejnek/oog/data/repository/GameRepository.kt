@@ -22,6 +22,7 @@ import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
 import com.rejnek.oog.data.gameItems.direct.factory.map.MapFactory
 import com.rejnek.oog.data.model.GameType
 import com.rejnek.oog.services.LocationService
+import com.rejnek.oog.data.storage.GameStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collectLatest
@@ -45,6 +46,9 @@ class GameRepository(
 
     // JavaScript game engine
     val jsEngine = JsGameEngine(context)
+
+    // Game storage for saving/loading
+    private val gameStorage = GameStorage(context)
 
     // User location
     private val locationService = LocationService(context)
@@ -168,9 +172,51 @@ class GameRepository(
     fun cleanup() {
         jsEngine.cleanup()
         _uiElements.value = emptyList()
+
+        // Clear saved game state when cleaning up
+        CoroutineScope(Dispatchers.IO).launch {
+            gameStorage.clearSavedGame()
+        }
     }
 
     private suspend fun getJsValue(id: String): String? {
         return jsEngine.getJsValue(id).getOrNull()
+    }
+
+    suspend fun saveGameState(gameStateJson: String) = withContext(Dispatchers.IO) {
+        gameStorage.saveGameState(gameStateJson)
+    }
+
+    /**
+     * Check if there is a saved game available
+     */
+    suspend fun hasSavedGame(): Boolean = withContext(Dispatchers.IO) {
+        return@withContext gameStorage.hasSavedGame()
+    }
+
+    /**
+     * Load saved game and restore the state
+     */
+    suspend fun loadSavedGame() = withContext(Dispatchers.IO) {
+        val savedState = gameStorage.loadGameState()
+        if (savedState != null) {
+            // Initialize the game first
+            jsEngine.evaluateJs(demoGame)
+
+            // Restore the saved state by evaluating JavaScript that reconstructs the variables
+            jsEngine.evaluateJs("""
+                const savedState = $savedState;
+                Object.keys(savedState).forEach(key => {
+                    if (key.startsWith('_')) {
+                        globalThis[key] = savedState[key];
+                    }
+                });
+            """.trimIndent())
+
+            // Start with the current task from the restored state
+            val currentTask = getJsValue("_currentTask") ?: "start"
+            selectTask(currentTask)
+            startLocationMonitoring()
+        }
     }
 }

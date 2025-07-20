@@ -46,6 +46,11 @@ fun HomeScreen(
                 viewModel.onLoadAssetGameClicked()
                 onLoadGameClick()
             },
+            onLoadSavedClicked = {
+                viewModel.onLoadSavedClicked()
+                onLoadGameClick()
+            },
+            showSavedGame = viewModel.hasSavedGame.collectAsState().value,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -54,6 +59,8 @@ fun HomeScreen(
 @Composable
 fun HomeScreenContent(
     onLoadAssetGameClick: () -> Unit,
+    onLoadSavedClicked: () -> Unit,
+    showSavedGame: Boolean,
     modifier: Modifier = Modifier
 ){
     Column(
@@ -73,9 +80,18 @@ fun HomeScreenContent(
             Button(
                 onClick = onLoadAssetGameClick,
                 content = {
-                    Text("Load Demo Game (Asset File)")
+                    Text("Start New Game")
                 },
             )
+
+            if(showSavedGame) {
+                Button(
+                    onClick = onLoadSavedClicked,
+                    content = {
+                        Text("Load from Local Storage")
+                    }
+                )
+            }
         }
     }
 }
