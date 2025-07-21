@@ -1,8 +1,8 @@
 package com.rejnek.oog.data.engine
 
-val demoGame = """
+val demoGame2 = """
     // generic
-    var _gameType = "branching";
+    var _gameType = "open";
     var _onStartActivated = [];
     var _onEnterActivated = [];
     
@@ -67,12 +67,15 @@ val demoGame = """
             button("Další úkol", function() {
                 showTask("task3");
             });
+            button("Zpátky", function() {
+                showTask("task1");
+            });
         }
     }
     
     // 3. úkol
     const task3 = {
-        name: "První úkol",
+        name: "Třetí úkol",
         type: "task",
         coordinates: {
             lat: 50.0,
@@ -98,7 +101,7 @@ val demoGame = """
 """.trimIndent()
 
 
-val demoGameOrg = """
+val demoGame = """
     // generic
     let _gameType = "branching";
     
@@ -107,7 +110,7 @@ val demoGameOrg = """
     
     // for open
     let _secondaryTask = "task1";
-    let _visibleTasks = ["start"];
+    let _visibleTasks = ["start", "map1"];
     
     // custom
     let _score = 20;
