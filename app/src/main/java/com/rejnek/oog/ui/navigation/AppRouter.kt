@@ -1,13 +1,14 @@
 package com.rejnek.oog.ui.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rejnek.oog.ui.screens.GameFinishScreen
-import com.rejnek.oog.ui.screens.GameNavigationTextScreen
-import com.rejnek.oog.ui.screens.GameStartScreen
+import com.rejnek.oog.ui.screens.SecondaryTabScreen
+import com.rejnek.oog.ui.screens.GameMenuScreen
 import com.rejnek.oog.ui.screens.GameTaskScreen
 import com.rejnek.oog.ui.screens.HomeScreen
 
@@ -22,41 +23,54 @@ fun AppRouter() {
         composable(Routes.HomeScreen.route) {
             HomeScreen(
                 onLoadGameClick = {
-                    navController.navigate(Routes.GameStartScreen.route)
-                }
-            )
-        }
-
-        composable(Routes.GameStartScreen.route) {
-            GameStartScreen(
-                onContinueClick = {
-                    navController.navigate(Routes.GameNavigationTextScreen.route)
-                }
-            )
-        }
-
-        composable(Routes.GameNavigationTextScreen.route) {
-            GameNavigationTextScreen(
-                onContinueClick = {
                     navController.navigate(Routes.GameTaskScreen.route)
                 }
             )
         }
 
         composable(Routes.GameTaskScreen.route) {
+            BackHandler {
+                navController.navigate(Routes.GameMenuScreen.route)
+            }
+
             GameTaskScreen(
-                onContinueClick = {
+                onGoToMenu = {
+                    navController.navigate(Routes.GameMenuScreen.route)
+                },
+                onFinishTask = {
                     navController.navigate(Routes.GameFinishScreen.route)
                 }
             )
         }
 
         composable(Routes.GameFinishScreen.route) {
+            BackHandler {  }
+
             GameFinishScreen(
                 onBackToHomeClick = {
-                    navController.navigate(Routes.HomeScreen.route) {
-                        popUpTo(Routes.HomeScreen.route) { inclusive = true }
-                    }
+                    navController.navigate(Routes.HomeScreen.route)
+                }
+            )
+        }
+
+        composable(Routes.GameMenuScreen.route) {
+            GameMenuScreen(
+                openTask = {
+                    navController.navigate(Routes.GameTaskScreen.route)
+                },
+                onNavigateToMap = {
+                    navController.navigate(Routes.GameMapScreen.route)
+                }
+            )
+        }
+
+        composable(Routes.GameMapScreen.route) {
+            SecondaryTabScreen(
+                onNavigateToMenu = {
+                    navController.navigate(Routes.GameMenuScreen.route)
+                },
+                onFinishTask = {
+                    navController.navigate(Routes.GameFinishScreen.route)
                 }
             )
         }

@@ -9,7 +9,11 @@ lifecycleRuntimeKtx = "2.9.1"
 activityCompose = "1.10.1"
 composeBom = "2025.06.00"
 kotlinSerialization = "1.8.0"
-navigationCompose = "2.7.7"  # Using a stable version of navigation-compose
+navigationCompose = "2.9.0"
+koin = "4.0.3"
+rhino = "1.7.14"
+androidxJavascriptEngine = "1.0.0-rc01"
+playServicesLocation = "21.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -29,6 +33,15 @@ androidx-material3 = { group = "androidx.compose.material3", name = "material3" 
 androidx-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinSerialization" }
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
+# Koin dependencies
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
+koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
+# JavaScript engine
+rhino = { group = "org.mozilla", name = "rhino", version.ref = "rhino" }
+androidx-javascriptengine = { group = "androidx.javascriptengine", name = "javascriptengine", version.ref = "androidxJavascriptEngine" }
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+maplibre-android-sdk = { group = "org.maplibre.gl", name = "android-sdk", version = "11.8.5" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

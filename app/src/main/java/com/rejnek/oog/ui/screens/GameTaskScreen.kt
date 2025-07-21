@@ -1,31 +1,72 @@
 package com.rejnek.oog.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.data.model.GameElementType
+import com.rejnek.oog.data.model.GameType
+import com.rejnek.oog.ui.viewmodels.GameTaskViewModel
+import com.rejnek.oog.ui.viewmodels.GameTaskViewModel.NavigationEvent
+import org.koin.androidx.compose.koinViewModel
 
-@Preview(showBackground = true)
-@Composable
-fun GameTaskScreenPreview() {
-    GameTaskScreen(onContinueClick = {})
-}
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameTaskScreen(
-    onContinueClick: () -> Unit
+    onGoToMenu: () -> Unit,
+    onFinishTask: () -> Unit,
+    viewModel: GameTaskViewModel = koinViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.navigationEvents.collect { event ->
+            when (event) {
+                is NavigationEvent.Menu -> onGoToMenu()
+                is NavigationEvent.Finish -> onFinishTask()
+            }
+        }
+    }
+
+    val uiElements by viewModel.uiElements.collectAsState()
+
+    if(viewModel.gameType.collectAsState().value != GameType.OPEN){
+        BackHandler {  }
+    }
+
     Scaffold(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = {},
+                navigationIcon = {
+                    if(viewModel.gameType.collectAsState().value != GameType.OPEN) return@TopAppBar
+
+                    IconButton(onClick = { onGoToMenu() }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                }
+            )
+        }
     ) { innerPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -35,22 +76,10 @@ fun GameTaskScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            Text(
-                text = "Game Task",
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
-
-            Text(
-                text = "This is where the player completes a task or answers a question to progress in the game.",
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 32.dp)
-            )
-
-            Button(
-                onClick = onContinueClick
-            ) {
-                Text("Complete Task")
+            // Render dynamically added UI elements
+            uiElements.forEach { element ->
+                element()
+                Spacer(modifier = Modifier.height(8.dp))
             }
         }
     }

@@ -8,14 +8,14 @@ sealed class Routes(val route: String) {
     data object HomeScreen : Routes("HomeScreen")
 
     @Serializable
-    data object GameStartScreen : Routes("GameStartScreen")
-
-    @Serializable
-    data object GameNavigationTextScreen : Routes("GameNavigationTextScreen")
-
-    @Serializable
     data object GameTaskScreen : Routes("GameTaskScreen")
 
     @Serializable
     data object GameFinishScreen : Routes("GameFinishScreen")
+
+    @Serializable
+    data object GameMenuScreen : Routes("GameMenuScreen")
+
+    @Serializable
+    data object GameMapScreen : Routes("GameMapScreen")
 }

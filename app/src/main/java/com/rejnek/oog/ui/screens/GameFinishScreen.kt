@@ -2,28 +2,34 @@ package com.rejnek.oog.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-
-@Preview(showBackground = true)
-@Composable
-fun GameFinishScreenPreview() {
-    GameFinishScreen(onBackToHomeClick = {})
-}
+import com.rejnek.oog.ui.viewmodels.GameFinishViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun GameFinishScreen(
-    onBackToHomeClick: () -> Unit
+    onBackToHomeClick: () -> Unit,
+    viewModel: GameFinishViewModel = koinViewModel()
 ) {
+    val name by viewModel.name.collectAsState()
+    val description by viewModel.description.collectAsState()
+
+
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
@@ -36,19 +42,23 @@ fun GameFinishScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Game Completed!",
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(bottom = 32.dp)
+                text = "Game Completed! 🎉",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(bottom = 24.dp)
             )
 
             Text(
-                text = "Congratulations! You have completed the game.",
-                textAlign = TextAlign.Center,
+                text = description,
+                style = MaterialTheme.typography.bodyLarge,
                 modifier = Modifier.padding(bottom = 32.dp)
             )
 
             Button(
-                onClick = onBackToHomeClick
+                onClick = {
+                    viewModel.onBackToHomeClicked()
+                    onBackToHomeClick()
+                }
             ) {
                 Text("Back to Home")
             }
