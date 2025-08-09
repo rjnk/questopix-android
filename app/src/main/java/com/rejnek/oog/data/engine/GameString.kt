@@ -1,6 +1,6 @@
 package com.rejnek.oog.data.engine
 
-val demoGame2 = """
+val demoGame = """
     // generic
     var _gameType = "open";
     var _onStartActivated = [];
@@ -101,7 +101,7 @@ val demoGame2 = """
 """.trimIndent()
 
 
-val demoGame = """
+val demoGame2 = """
     // generic
     let _gameType = "branching";
     
@@ -189,7 +189,7 @@ val demoGame = """
             heading("Otevřená otázka o stromech");
             
             // Use await with the question function
-            const answer = await question("Odpověz na otázku: Jaký je tvůj oblíbený strom?");
+            const answer = await question("Jaký je tvůj oblíbený strom?");
             
             if (answer === "buk") {
                 debugPrint("Správně!");
