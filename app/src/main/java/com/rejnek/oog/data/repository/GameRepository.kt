@@ -69,6 +69,21 @@ class GameRepository(
         startLocationMonitoring()
     }
 
+    suspend fun initializeGameFromLibrary(gameId: String) = withContext(Dispatchers.IO) {
+        val game = gameStorage.getGameById(gameId)
+        if (game != null) {
+            jsEngine.evaluateJs(game.gameCode)
+            selectTask("start")
+            startLocationMonitoring()
+        }
+    }
+
+    fun addGameToLibrary(gameName: String, gameCode: String): String {
+        return gameStorage.addGameToLibrary(gameName, gameCode)
+    }
+
+    fun getLibraryGames() = gameStorage.getLibraryGames()
+
     private fun startLocationMonitoring() {
         locationMonitoringScope.launch {
             currentLocation.collectLatest { location ->

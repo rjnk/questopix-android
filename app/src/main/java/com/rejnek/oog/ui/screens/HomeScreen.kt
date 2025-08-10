@@ -22,16 +22,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import android.widget.Toast
 import com.rejnek.oog.ui.components.BottomNavigationBar
 import com.rejnek.oog.ui.components.OOGLogo
+import com.rejnek.oog.ui.components.rememberGameFilePicker
 import com.rejnek.oog.ui.navigation.Routes
 import com.rejnek.oog.ui.viewmodels.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
@@ -44,29 +40,9 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel()
 ) {
-    val context = LocalContext.current
-
-    val filePickerLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.GetContent()
-    ) { uri ->
-        uri?.let {
-            try {
-                val gameCode = context.contentResolver.openInputStream(it)?.use { inputStream ->
-                    inputStream.bufferedReader().use { reader ->
-                        reader.readText()
-                    }
-                } ?: return@let
-
-                viewModel.onLoadCustomGameFile(gameCode)
-                onLoadGameClick()
-            } catch (e: Exception) {
-                Toast.makeText(
-                    context,
-                    "Error loading game file: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
-            }
-        }
+    val launchFilePicker = rememberGameFilePicker { gameCode ->
+        viewModel.onLoadCustomGameFile(gameCode)
+        onLoadGameClick()
     }
 
     Scaffold(
@@ -85,9 +61,7 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         HomeScreenContent(
-            onLoadCustomGameClick = {
-                filePickerLauncher.launch("*/*")
-            },
+            onLoadCustomGameClick = launchFilePicker,
             onLoadSavedClicked = {
                 viewModel.onLoadSavedClicked()
                 onLoadGameClick()

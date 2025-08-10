@@ -1,28 +1,43 @@
 package com.rejnek.oog.ui.screens
 
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
-import androidx.compose.material.icons.filled.Folder
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.ui.components.BottomNavigationBar
+import com.rejnek.oog.ui.components.rememberGameFilePicker
 import com.rejnek.oog.ui.navigation.Routes
+import com.rejnek.oog.ui.viewmodels.LibraryViewModel
+import org.koin.androidx.compose.koinViewModel
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreen(
     onNavigateToHome: () -> Unit = {},
-    onNavigateToSettings: () -> Unit = {}
+    onNavigateToSettings: () -> Unit = {},
+    onGameStarted: () -> Unit = {},
+    viewModel: LibraryViewModel = koinViewModel()
 ) {
+    val libraryGames = viewModel.libraryGames.collectAsState().value
+
+    val launchFilePicker = rememberGameFilePicker { gameCode ->
+        viewModel.onAddGameFromFile(gameCode)
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -57,7 +72,7 @@ fun LibraryScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: Add functionality */ }
+                onClick = launchFilePicker
             ) {
                 Row(
                     modifier = Modifier.padding(horizontal = 16.dp),
@@ -75,6 +90,10 @@ fun LibraryScreen(
         }
     ) { innerPadding ->
         LibraryScreenContent(
+            games = libraryGames,
+            onGameSelected = { gameId ->
+                viewModel.onGameSelected(gameId, onGameStarted)
+            },
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -82,78 +101,85 @@ fun LibraryScreen(
 
 @Composable
 fun LibraryScreenContent(
+    games: List<com.rejnek.oog.data.model.LibraryGame>,
+    onGameSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val gameLibrary = listOf(
-        "Adventure Quest",
-        "Mystery Manor",
-        "Forest Explorer",
-        "City Hunt",
-        "Treasure Island"
-    )
-
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        LazyColumn(
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            items(gameLibrary) { gameName ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    onClick = { /* TODO: Handle game selection */ }
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.SportsEsports,
-                            contentDescription = null,
-                            modifier = Modifier.padding(end = 12.dp)
-                        )
-                        Text(
-                            text = gameName,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                    }
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = "Saved Games",
-            style = MaterialTheme.typography.headlineSmall,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Card(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalAlignment = Alignment.CenterVertically
+        if (games.isEmpty()) {
+            // Empty state
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Folder,
+                    imageVector = Icons.Default.SportsEsports,
                     contentDescription = null,
-                    modifier = Modifier.padding(end = 12.dp)
+                    modifier = Modifier.size(64.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+                Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "No saved games yet",
+                    text = "No games in library",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "Use the + button to add games to your library",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
+        } else {
+            LazyColumn(
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(games) { game ->
+                    GameCard(
+                        game = game,
+                        onGameSelected = { onGameSelected(game.id) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun GameCard(
+    game: com.rejnek.oog.data.model.LibraryGame,
+    onGameSelected: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        onClick = onGameSelected
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp)
+        ) {
+            Text(
+                text = game.name,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.Medium
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            // Show import date
+            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
+            Text(
+                text = "Imported ${dateFormat.format(Date(game.importedAt))}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

@@ -55,6 +55,9 @@ fun AppRouter() {
                 },
                 onNavigateToSettings = {
                     navController.navigate(Routes.SettingsScreen.route)
+                },
+                onGameStarted = {
+                    navController.navigate(Routes.GameTaskScreen.route)
                 }
             )
         }
