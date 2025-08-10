@@ -11,6 +11,7 @@ import com.rejnek.oog.ui.screens.SecondaryTabScreen
 import com.rejnek.oog.ui.screens.GameMenuScreen
 import com.rejnek.oog.ui.screens.GameTaskScreen
 import com.rejnek.oog.ui.screens.HomeScreen
+import com.rejnek.oog.ui.screens.LibraryScreen
 
 @Composable
 fun AppRouter() {
@@ -20,14 +21,27 @@ fun AppRouter() {
         navController = navController,
         startDestination = Routes.HomeScreen.route
     ) {
+        // Main screens with bottom navigation
         composable(Routes.HomeScreen.route) {
             HomeScreen(
                 onLoadGameClick = {
                     navController.navigate(Routes.GameTaskScreen.route)
+                },
+                onNavigateToLibrary = {
+                    navController.navigate(Routes.LibraryScreen.route)
                 }
             )
         }
 
+        composable(Routes.LibraryScreen.route) {
+            LibraryScreen(
+                onNavigateToHome = {
+                    navController.navigate(Routes.HomeScreen.route)
+                }
+            )
+        }
+
+        // Game screens without bottom navigation
         composable(Routes.GameTaskScreen.route) {
             BackHandler {
                 navController.navigate(Routes.GameMenuScreen.route)

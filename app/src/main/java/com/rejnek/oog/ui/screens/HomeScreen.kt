@@ -36,18 +36,33 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.ui.components.BottomNavigationBar
 import com.rejnek.oog.ui.components.OOGLogo
+import com.rejnek.oog.ui.navigation.Routes
 import com.rejnek.oog.ui.viewmodels.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun HomeScreen(
     onLoadGameClick: () -> Unit,
+    onNavigateToLibrary: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel()
 ) {
 
     Scaffold(
         topBar = {  },
+        bottomBar = {
+            BottomNavigationBar(
+                currentRoute = Routes.HomeScreen,
+                onNavigate = { route ->
+                    when (route) {
+                        Routes.LibraryScreen -> onNavigateToLibrary()
+                        Routes.HomeScreen -> { /* Already on Home, no action needed */ }
+                        else -> { /* Handle other routes if needed */ }
+                    }
+                }
+            )
+        },
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         HomeScreenContent(
