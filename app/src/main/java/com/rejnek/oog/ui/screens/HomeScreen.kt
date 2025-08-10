@@ -67,6 +67,7 @@ fun HomeScreen(
                 onLoadGameClick()
             },
             showSavedGame = viewModel.hasSavedGame.collectAsState().value,
+            onNavigateToLibrary = onNavigateToLibrary,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -76,6 +77,7 @@ fun HomeScreen(
 fun HomeScreenContent(
     onLoadCustomGameClick: () -> Unit,
     onLoadSavedClicked: () -> Unit,
+    onNavigateToLibrary: () -> Unit,
     showSavedGame: Boolean,
     modifier: Modifier = Modifier
 ){
@@ -108,7 +110,9 @@ fun HomeScreenContent(
             }
             else{
                 Button(
-                    onClick = { },
+                    onClick = {
+                        onNavigateToLibrary()
+                    },
                     modifier = Modifier.height(56.dp),
                     content = {
                         Icon(
