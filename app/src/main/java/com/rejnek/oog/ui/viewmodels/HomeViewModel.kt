@@ -1,9 +1,9 @@
 package com.rejnek.oog.ui.viewmodels
 
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rejnek.oog.data.model.GameType
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,14 +30,19 @@ class HomeViewModel(
         }
     }
 
-    fun onLoadAssetGameClicked() {
+    fun onLoadCustomGameFile(gameCode: String) {
         viewModelScope.launch {
             if (!jsInitialized) {
                 Log.e(TAG, "JavaScript engine not ready")
                 return@launch
             }
 
-            gameRepository.initializeGame()
+            try {
+                gameRepository.initializeGameWithCode(gameCode)
+                Log.d(TAG, "Custom game loaded successfully")
+            } catch (e: Exception) {
+                Log.e(TAG, "Error loading custom game file", e)
+            }
         }
     }
 

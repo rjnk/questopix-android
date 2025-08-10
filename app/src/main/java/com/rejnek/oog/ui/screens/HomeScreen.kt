@@ -3,9 +3,7 @@ package com.rejnek.oog.ui.screens
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
@@ -15,31 +13,23 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SegmentedButtonDefaults.Icon
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import android.widget.Toast
 import com.rejnek.oog.ui.components.BottomNavigationBar
 import com.rejnek.oog.ui.components.OOGLogo
 import com.rejnek.oog.ui.navigation.Routes
@@ -54,6 +44,31 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel()
 ) {
+    val context = LocalContext.current
+
+    val filePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            try {
+                val gameCode = context.contentResolver.openInputStream(it)?.use { inputStream ->
+                    inputStream.bufferedReader().use { reader ->
+                        reader.readText()
+                    }
+                } ?: return@let
+
+                viewModel.onLoadCustomGameFile(gameCode)
+                onLoadGameClick()
+            } catch (e: Exception) {
+                Toast.makeText(
+                    context,
+                    "Error loading game file: ${e.message}",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
@@ -70,9 +85,8 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         HomeScreenContent(
-            onLoadAssetGameClick = {
-                viewModel.onLoadAssetGameClicked()
-                onLoadGameClick()
+            onLoadCustomGameClick = {
+                filePickerLauncher.launch("*/*")
             },
             onLoadSavedClicked = {
                 viewModel.onLoadSavedClicked()
@@ -86,7 +100,7 @@ fun HomeScreen(
 
 @Composable
 fun HomeScreenContent(
-    onLoadAssetGameClick: () -> Unit,
+    onLoadCustomGameClick: () -> Unit,
     onLoadSavedClicked: () -> Unit,
     showSavedGame: Boolean,
     modifier: Modifier = Modifier
@@ -135,7 +149,7 @@ fun HomeScreenContent(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
-                    onClick = onLoadAssetGameClick,
+                    onClick = onLoadCustomGameClick,
                     content = {
                         Icon(
                             imageVector = Icons.Default.Download,

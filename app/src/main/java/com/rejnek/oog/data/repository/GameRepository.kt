@@ -63,8 +63,8 @@ class GameRepository(
     private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
     val uiElements: StateFlow<List<@Composable () -> Unit>> = _uiElements.asStateFlow()
 
-    suspend fun initializeGame() = withContext(Dispatchers.IO) {
-        jsEngine.evaluateJs(demoGame) // Load the demo js code
+    suspend fun initializeGameWithCode(gameCode: String) = withContext(Dispatchers.IO) {
+        jsEngine.evaluateJs(gameCode) // Load the custom game code
         selectTask("start")
         startLocationMonitoring()
     }
