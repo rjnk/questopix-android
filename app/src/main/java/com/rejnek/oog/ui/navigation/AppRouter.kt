@@ -12,6 +12,7 @@ import com.rejnek.oog.ui.screens.GameMenuScreen
 import com.rejnek.oog.ui.screens.GameTaskScreen
 import com.rejnek.oog.ui.screens.HomeScreen
 import com.rejnek.oog.ui.screens.LibraryScreen
+import com.rejnek.oog.ui.screens.SettingsScreen
 
 @Composable
 fun AppRouter() {
@@ -28,7 +29,16 @@ fun AppRouter() {
                     navController.navigate(Routes.GameTaskScreen.route)
                 },
                 onNavigateToLibrary = {
-                    navController.navigate(Routes.LibraryScreen.route)
+                    navController.navigate(Routes.LibraryScreen.route) {
+                        popUpTo(Routes.HomeScreen.route) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Routes.SettingsScreen.route)
                 }
             )
         }
@@ -36,7 +46,23 @@ fun AppRouter() {
         composable(Routes.LibraryScreen.route) {
             LibraryScreen(
                 onNavigateToHome = {
-                    navController.navigate(Routes.HomeScreen.route)
+                    navController.navigate(Routes.HomeScreen.route) {
+                        popUpTo(Routes.HomeScreen.route) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                },
+                onNavigateToSettings = {
+                    navController.navigate(Routes.SettingsScreen.route)
+                }
+            )
+        }
+
+        composable(Routes.SettingsScreen.route) {
+            SettingsScreen(
+                onNavigateBack = {
+                    navController.popBackStack()
                 }
             )
         }

@@ -21,4 +21,7 @@ sealed class Routes(val route: String) {
 
     @Serializable
     data object LibraryScreen : Routes("LibraryScreen")
+
+    @Serializable
+    data object SettingsScreen : Routes("SettingsScreen")
 }
