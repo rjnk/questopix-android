@@ -22,7 +22,6 @@ import com.rejnek.oog.data.gameItems.direct.factory.ImageFactory
 import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
 import com.rejnek.oog.data.gameItems.direct.factory.map.MapFactory
 import com.rejnek.oog.data.model.GamePackage
-import com.rejnek.oog.data.model.GameType
 import com.rejnek.oog.services.LocationService
 import com.rejnek.oog.data.storage.GameStorage
 import kotlinx.coroutines.CoroutineScope
@@ -188,11 +187,6 @@ class GameRepository(
 
     suspend fun getSecondaryTabElementId() : String {
         return getJsValue("_secondaryTask") ?: ""
-    }
-
-    suspend fun getGameType(): GameType {
-        val typeString = getJsValue("_gameType") ?: return GameType.UNKNOWN
-        return GameType.valueOf(typeString.uppercase())
     }
 
     suspend fun getVisibleElements(): List<GameTask> {

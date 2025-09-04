@@ -46,14 +46,6 @@ class GameTask(
     }
 }
 
-// TODO remove, we want only branching
-enum class GameType {
-    LINEAR,
-    BRANCHING,
-    OPEN,
-    UNKNOWN
-}
-
 // TODO also remove, the Task should be good enough. For the transitions, we can rethink this
 enum class GameElementType {
     ERROR,
