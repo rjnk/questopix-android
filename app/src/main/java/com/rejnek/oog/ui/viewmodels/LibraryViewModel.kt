@@ -25,13 +25,6 @@ class LibraryViewModel(
         }
     }
 
-    fun onGameSelected(gameId: String, onGameStarted: () -> Unit) {
-        viewModelScope.launch {
-            gameRepository.initializeGameFromLibrary(gameId)
-            onGameStarted()
-        }
-    }
-
     fun onAddGameFromFile(gamePackage: GamePackage) {
         viewModelScope.launch {
             // Add to library

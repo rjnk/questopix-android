@@ -4,10 +4,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Download
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsEsports
-import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -21,15 +20,13 @@ import com.rejnek.oog.ui.components.rememberGameFilePicker
 import com.rejnek.oog.ui.navigation.Routes
 import com.rejnek.oog.ui.viewmodels.LibraryViewModel
 import org.koin.androidx.compose.koinViewModel
-import java.text.SimpleDateFormat
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreen(
     onNavigateToHome: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
-    onGameStarted: () -> Unit = {},
+    onNavigateToGameInfo: (String) -> Unit = {},
     viewModel: LibraryViewModel = koinViewModel()
 ) {
     val libraryGames = viewModel.libraryGames.collectAsState().value
@@ -79,7 +76,7 @@ fun LibraryScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Default.UploadFile,
+                        imageVector = Icons.Default.Add,
                         contentDescription = "Add game",
                         modifier = Modifier.size(20.dp)
                     )
@@ -92,7 +89,7 @@ fun LibraryScreen(
         LibraryScreenContent(
             games = libraryGames,
             onGameSelected = { gameId ->
-                viewModel.onGameSelected(gameId, onGameStarted)
+                onNavigateToGameInfo(gameId)
             },
             modifier = Modifier.padding(innerPadding)
         )

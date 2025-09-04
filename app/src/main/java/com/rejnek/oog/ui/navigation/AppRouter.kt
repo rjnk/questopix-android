@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rejnek.oog.ui.screens.GameFinishScreen
+import com.rejnek.oog.ui.screens.GameInfoScreen
 import com.rejnek.oog.ui.screens.SecondaryTabScreen
 import com.rejnek.oog.ui.screens.GameMenuScreen
 import com.rejnek.oog.ui.screens.GameTaskScreen
@@ -55,6 +56,19 @@ fun AppRouter() {
                 },
                 onNavigateToSettings = {
                     navController.navigate(Routes.SettingsScreen.route)
+                },
+                onNavigateToGameInfo = { gameId ->
+                    navController.navigate("GameInfoScreen/$gameId")
+                }
+            )
+        }
+
+        composable("GameInfoScreen/{gameId}") { backStackEntry ->
+            val gameId = backStackEntry.arguments?.getString("gameId") ?: ""
+            GameInfoScreen(
+                gameId = gameId,
+                onNavigateBack = {
+                    navController.popBackStack()
                 },
                 onGameStarted = {
                     navController.navigate(Routes.GameTaskScreen.route)
