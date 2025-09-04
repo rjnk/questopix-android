@@ -4,6 +4,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,7 +31,7 @@ class HomeViewModel(
         }
     }
 
-    fun onLoadCustomGameFile(gameCode: String) {
+    fun onLoadCustomGameFile(gamePackage: GamePackage) {
         viewModelScope.launch {
             if (!jsInitialized) {
                 Log.e(TAG, "JavaScript engine not ready")
@@ -38,37 +39,16 @@ class HomeViewModel(
             }
 
             try {
-                // Extract game name from the JavaScript code (look for a game title or use timestamp)
-                val gameName = extractGameName(gameCode) ?: "Imported Game ${System.currentTimeMillis()}"
-
                 // Add to library first
-                val gameId = gameRepository.addGameToLibrary(gameName, gameCode)
+                gameRepository.addGameToLibrary(gamePackage)
 
                 // Then initialize and start the game
-                gameRepository.initializeGameFromLibrary(gameId)
-                Log.d(TAG, "Custom game '$gameName' added to library and loaded successfully")
+                gameRepository.initializeGameFromLibrary(gamePackage.getId())
+                Log.d(TAG, "Custom game '${gamePackage.getName()}' added to library and loaded successfully")
             } catch (e: Exception) {
                 Log.e(TAG, "Error loading custom game file", e)
             }
         }
-    }
-
-    private fun extractGameName(gameCode: String): String? {
-        // Try to extract game name from common patterns in JavaScript
-        val patterns = listOf(
-            Regex("""name\s*[:=]\s*["']([^"']+)["']"""),
-            Regex("""title\s*[:=]\s*["']([^"']+)["']"""),
-            Regex("""gameName\s*[:=]\s*["']([^"']+)["']"""),
-            Regex("""gameTitle\s*[:=]\s*["']([^"']+)["']""")
-        )
-
-        for (pattern in patterns) {
-            val match = pattern.find(gameCode)
-            if (match != null) {
-                return match.groupValues[1]
-            }
-        }
-        return null
     }
 
     fun onLoadSavedClicked() {

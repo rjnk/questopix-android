@@ -21,6 +21,7 @@ import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
 import com.rejnek.oog.data.gameItems.direct.factory.ImageFactory
 import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
 import com.rejnek.oog.data.gameItems.direct.factory.map.MapFactory
+import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.data.model.GameType
 import com.rejnek.oog.services.LocationService
 import com.rejnek.oog.data.storage.GameStorage
@@ -52,6 +53,9 @@ class GameRepository(
     // Game storage for saving/loading
     private val gameStorage = GameStorage(context)
 
+    // Current Game Package
+    var currentGamePackage: GamePackage? = null
+
     // User location
     private val locationService = LocationService(context)
     val currentLocation = locationService.currentLocation
@@ -65,23 +69,19 @@ class GameRepository(
     private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
     val uiElements: StateFlow<List<@Composable () -> Unit>> = _uiElements.asStateFlow()
 
-    suspend fun initializeGameWithCode(gameCode: String) = withContext(Dispatchers.IO) {
-        jsEngine.evaluateJs(gameCode) // Load the custom game code
-        selectTask("start")
-        startLocationMonitoring()
-    }
-
     suspend fun initializeGameFromLibrary(gameId: String) = withContext(Dispatchers.IO) {
         val game = gameStorage.getGameById(gameId)
         if (game != null) {
+            currentGamePackage = game
+
             jsEngine.evaluateJs(game.gameCode)
             selectTask("start")
             startLocationMonitoring()
         }
     }
 
-    fun addGameToLibrary(gameName: String, gameCode: String): String {
-        return gameStorage.addGameToLibrary(gameName, gameCode)
+    fun addGameToLibrary(gamePackage: GamePackage) {
+        gameStorage.addGameToLibrary(gamePackage)
     }
 
     fun getLibraryGames() = gameStorage.getLibraryGames()
@@ -208,6 +208,7 @@ class GameRepository(
 
     fun cleanup() {
         jsEngine.cleanup()
+        currentGamePackage = null
         _uiElements.value = emptyList()
 
         // Clear saved game state when cleaning up

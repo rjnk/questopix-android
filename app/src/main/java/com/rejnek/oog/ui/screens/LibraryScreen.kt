@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.ui.components.BottomNavigationBar
 import com.rejnek.oog.ui.components.rememberGameFilePicker
 import com.rejnek.oog.ui.navigation.Routes
@@ -32,8 +34,8 @@ fun LibraryScreen(
 ) {
     val libraryGames = viewModel.libraryGames.collectAsState().value
 
-    val launchFilePicker = rememberGameFilePicker { gameCode ->
-        viewModel.onAddGameFromFile(gameCode)
+    val launchFilePicker = rememberGameFilePicker { gamePackage ->
+        viewModel.onAddGameFromFile(gamePackage)
     }
 
     Scaffold(
@@ -77,7 +79,7 @@ fun LibraryScreen(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Download,
+                        imageVector = Icons.Default.UploadFile,
                         contentDescription = "Add game",
                         modifier = Modifier.size(20.dp)
                     )
@@ -141,7 +143,7 @@ fun LibraryScreenContent(
                 items(games) { game ->
                     GameCard(
                         game = game,
-                        onGameSelected = { onGameSelected(game.id) }
+                        onGameSelected = { onGameSelected(game.getId()) }
                     )
                 }
             }
@@ -151,7 +153,7 @@ fun LibraryScreenContent(
 
 @Composable
 fun GameCard(
-    game: com.rejnek.oog.data.model.GamePackage,
+    game: GamePackage,
     onGameSelected: () -> Unit
 ) {
     Card(
@@ -164,17 +166,13 @@ fun GameCard(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Game name placeholder",
+                text = game.getName(),
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )
-
             Spacer(modifier = Modifier.height(4.dp))
-
-            // Show import date
-            val dateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.getDefault())
             Text(
-                text = "Imported ${dateFormat.format(Date(game.importedAt))}",
+                text = game.info("description"),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

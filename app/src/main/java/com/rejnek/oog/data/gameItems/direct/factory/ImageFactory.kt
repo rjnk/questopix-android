@@ -14,17 +14,23 @@ class ImageFactory : GenericDirectFactory() {
 
     override suspend fun create(data: String, callbackId: String) {
         Log.d("ImageFactory", "Creating image with data: $data")
-        gameRepository?.addUIElement { MyImage(data).Show() }
+        gameRepository?.addUIElement {
+            MyImage(
+                gameId = gameRepository?.currentGamePackage?.getId() ?: throw Exception("Game ID not found"),
+                filename = data
+            ).Show()
+        }
     }
 }
 
 class MyImage(
+    private val gameId: String,
     private val filename: String
 ) {
     @Composable
     fun Show() {
         val context = LocalContext.current
-        val imageFile = File(context.filesDir, "game_images/hra/$filename") // TODO read gameId from js
+        val imageFile = File(context.filesDir, "game_images/$gameId/$filename")
 
         if (imageFile.exists()) {
             val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)

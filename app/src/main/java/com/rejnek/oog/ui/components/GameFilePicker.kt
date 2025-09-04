@@ -6,13 +6,17 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
+import com.rejnek.oog.data.model.GamePackage
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import java.util.zip.ZipInputStream
 import java.io.File
 import java.io.FileOutputStream
 
 @Composable
 fun rememberGameFilePicker(
-    onGameFileSelected: (String) -> Unit
+    onGameFileSelected: (GamePackage) -> Unit
 ): () -> Unit {
     val context = LocalContext.current
 
@@ -44,28 +48,56 @@ fun rememberGameFilePicker(
     return { filePickerLauncher.launch("application/zip") }
 }
 
-private fun extractGameFromZip(baseDir: File, inputStream: java.io.InputStream): String {
-    val gameId = "hra" //TODO read from js
-    val gameImagesDir = File(baseDir, "game_images/$gameId").apply { mkdirs() }
+private fun extractGameFromZip(baseDir: File, inputStream: java.io.InputStream): GamePackage {
+    var gameCode = ""
+    var gameInfo = JsonObject(emptyMap())
     val imageExtensions = setOf("png", "jpg", "jpeg", "gif")
 
-    return ZipInputStream(inputStream.buffered()).use { zipStream ->
-        var gameCode = ""
+    // Create temporary directory
+    val tempDir = File(baseDir, "temp_${System.currentTimeMillis()}").apply { mkdirs() }
 
-        generateSequence { zipStream.nextEntry }
-            .filterNot { it.isDirectory }
-            .forEach { entry ->
-                when {
-                    entry.name.endsWith("game.js") -> {
-                        gameCode = zipStream.bufferedReader().readText()
-                    }
-                    File(entry.name).extension.lowercase() in imageExtensions -> {
-                        val imageFile = File(gameImagesDir, File(entry.name).name)
-                        FileOutputStream(imageFile).use { zipStream.copyTo(it) }
+    try {
+        // Extract everything to temp folder
+        ZipInputStream(inputStream.buffered()).use { zipStream ->
+            generateSequence { zipStream.nextEntry }
+                .filterNot { it.isDirectory }
+                .forEach { entry ->
+                    when {
+                        entry.name.endsWith("game.js") -> {
+                            gameCode = zipStream.bufferedReader().readText()
+                        }
+                        entry.name.endsWith("info.json") -> {
+                            gameInfo = Json.decodeFromString(
+                                JsonObject.serializer(),
+                                zipStream.bufferedReader().readText()
+                            )
+                        }
+                        File(entry.name).extension.lowercase() in imageExtensions -> {
+                            val imageFile = File(tempDir, File(entry.name).name)
+                            FileOutputStream(imageFile).use { zipStream.copyTo(it) }
+                        }
                     }
                 }
-            }
+        }
 
-        gameCode
+        // Get game ID and create final directory
+        val gameId = gameInfo["id"]?.jsonPrimitive?.content ?: throw IllegalStateException("Game ID missing in info.json")
+        val gameImagesDir = File(baseDir, "game_images/$gameId").apply {
+            if (exists()) deleteRecursively()
+            mkdirs()
+        }
+
+        // Move images from temp to final location
+        tempDir.listFiles()?.forEach { tempFile ->
+            if (tempFile.isFile) {
+                tempFile.renameTo(File(gameImagesDir, tempFile.name))
+            }
+        }
+
+        return GamePackage(gameInfo, gameCode, System.currentTimeMillis())
+
+    } finally {
+        // Clean up temp directory
+        tempDir.deleteRecursively()
     }
 }

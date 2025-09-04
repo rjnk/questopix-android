@@ -13,6 +13,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -40,8 +41,8 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel()
 ) {
-    val launchFilePicker = rememberGameFilePicker { gameCode ->
-        viewModel.onLoadCustomGameFile(gameCode)
+    val launchFilePicker = rememberGameFilePicker { gamePackage ->
+        viewModel.onLoadCustomGameFile(gamePackage)
         onLoadGameClick()
     }
 
@@ -130,7 +131,7 @@ fun HomeScreenContent(
                     onClick = onLoadCustomGameClick,
                     content = {
                         Icon(
-                            imageVector = Icons.Default.Download,
+                            imageVector = Icons.Default.UploadFile,
                             contentDescription = null,
                             modifier = Modifier
                                 .size(24.dp)

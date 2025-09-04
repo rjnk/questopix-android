@@ -5,7 +5,6 @@ import android.content.SharedPreferences
 import androidx.core.content.edit
 import com.rejnek.oog.data.model.GamePackage
 import kotlinx.serialization.json.Json
-import java.util.UUID
 
 class GameStorage(context: Context) {
     private val sharedPreferences: SharedPreferences =
@@ -16,7 +15,6 @@ class GameStorage(context: Context) {
     companion object {
         private const val GAME_STATE_KEY = "game_state"
         private const val SAVE_TIMESTAMP_KEY = "save_timestamp"
-        private const val CURRENT_GAME_ID_KEY = "current_game_id"
         private const val LIBRARY_GAMES_KEY = "library_games"
     }
 
@@ -58,19 +56,12 @@ class GameStorage(context: Context) {
     /**
      * Add a new game to the library
      */
-    fun addGameToLibrary(gameName: String, gameCode: String): String {
-        val gameId = UUID.randomUUID().toString()
-        val newGame = GamePackage(
-            id = gameId,
-            gameCode = gameCode,
-            importedAt = System.currentTimeMillis()
-        )
-
+    fun addGameToLibrary(gamePackage: GamePackage): String {
         val currentGames = getLibraryGames().toMutableList()
-        currentGames.add(newGame)
+        currentGames.add(gamePackage)
         saveLibraryGames(currentGames)
 
-        return gameId
+        return gamePackage.getId()
     }
 
     /**
@@ -81,7 +72,7 @@ class GameStorage(context: Context) {
         return if (gamesJson != null) {
             try {
                 json.decodeFromString<List<GamePackage>>(gamesJson)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 emptyList()
             }
         } else {
@@ -93,7 +84,7 @@ class GameStorage(context: Context) {
      * Get a specific game by ID
      */
     fun getGameById(gameId: String): GamePackage? {
-        return getLibraryGames().find { it.id == gameId }
+        return getLibraryGames().find { it.getId() == gameId }
     }
 
     /**
@@ -101,7 +92,7 @@ class GameStorage(context: Context) {
      */
     fun removeGameFromLibrary(gameId: String) {
         val games = getLibraryGames().toMutableList()
-        games.removeAll { it.id == gameId }
+        games.removeAll { it.getId() == gameId }
         saveLibraryGames(games)
     }
 
