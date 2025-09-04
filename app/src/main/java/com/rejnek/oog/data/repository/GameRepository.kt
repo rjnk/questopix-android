@@ -84,6 +84,10 @@ class GameRepository(
         gameStorage.addGameToLibrary(gamePackage)
     }
 
+    fun removeGameFromLibrary(gameId: String) {
+        gameStorage.removeGameFromLibrary(gameId)
+    }
+
     fun getLibraryGames() = gameStorage.getLibraryGames()
 
     private fun startLocationMonitoring() {

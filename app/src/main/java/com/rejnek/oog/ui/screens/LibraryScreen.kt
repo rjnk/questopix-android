@@ -1,5 +1,7 @@
 package com.rejnek.oog.ui.screens
 
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -7,9 +9,15 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.SelectAll
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -30,9 +38,70 @@ fun LibraryScreen(
     viewModel: LibraryViewModel = koinViewModel()
 ) {
     val libraryGames = viewModel.libraryGames.collectAsState().value
+    val selectedGameIds = viewModel.selectedGameIds.collectAsState().value
+    val isSelectionMode = viewModel.isSelectionMode.collectAsState().value
+    val showDuplicateDialog = viewModel.showDuplicateDialog.collectAsState().value
+    val pendingGamePackage = viewModel.pendingGamePackage.collectAsState().value
+
+    // Local UI state for delete dialog
+    val (showDeleteDialog, setShowDeleteDialog) = remember { mutableStateOf(false) }
 
     val launchFilePicker = rememberGameFilePicker { gamePackage ->
         viewModel.onAddGameFromFile(gamePackage)
+    }
+
+    // Duplicate confirmation dialog
+    if (showDuplicateDialog && pendingGamePackage != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onCancelDuplicateReplace() },
+            title = { Text("Game Already Exists") },
+            text = {
+                Text("A game with the name '${pendingGamePackage.getName()}' already exists in your library. Do you want to replace it with the new version?")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.onConfirmDuplicateReplace() }
+                ) {
+                    Text("Replace")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { viewModel.onCancelDuplicateReplace() }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
+
+    // Delete confirmation dialog
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { setShowDeleteDialog(false) },
+            title = { Text("Delete Games") },
+            text = {
+                val count = selectedGameIds.size
+                Text("Are you sure you want to delete $count game${if (count == 1) "" else "s"}? This action cannot be undone.")
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.deleteSelectedGames()
+                        setShowDeleteDialog(false)
+                    }
+                ) {
+                    Text("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { setShowDeleteDialog(false) }
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     Scaffold(
@@ -40,17 +109,56 @@ fun LibraryScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Game Library",
+                        text = if (isSelectionMode) "${selectedGameIds.size} selected" else "Game Library",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                     )
                 },
+                navigationIcon = if (isSelectionMode) {
+                    {
+                        IconButton(onClick = { viewModel.toggleSelectionMode() }) {
+                            Icon(
+                                imageVector = Icons.Default.Close,
+                                contentDescription = "Exit selection mode"
+                            )
+                        }
+                    }
+                } else {
+                    {}
+                },
                 actions = {
-                    IconButton(onClick = onNavigateToSettings) {
-                        Icon(
-                            imageVector = Icons.Default.Settings,
-                            contentDescription = "Settings"
-                        )
+                    if (isSelectionMode) {
+                        if (selectedGameIds.size < libraryGames.size) {
+                            IconButton(onClick = { viewModel.selectAllGames() }) {
+                                Icon(
+                                    imageVector = Icons.Default.SelectAll,
+                                    contentDescription = "Select all"
+                                )
+                            }
+                        }
+                        if (selectedGameIds.isNotEmpty()) {
+                            IconButton(onClick = { setShowDeleteDialog(true) }) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete selected"
+                                )
+                            }
+                        }
+                    } else {
+                        if (libraryGames.isNotEmpty()) {
+                            IconButton(onClick = { viewModel.toggleSelectionMode() }) {
+                                Icon(
+                                    imageVector = Icons.Default.CheckCircle,
+                                    contentDescription = "Select games"
+                                )
+                            }
+                        }
+                        IconButton(onClick = onNavigateToSettings) {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "Settings"
+                            )
+                        }
                     }
                 }
             )
@@ -68,28 +176,42 @@ fun LibraryScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = launchFilePicker
-            ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 16.dp),
-                    verticalAlignment = Alignment.CenterVertically
+            if (!isSelectionMode) {
+                FloatingActionButton(
+                    onClick = launchFilePicker
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Add,
-                        contentDescription = "Add game",
-                        modifier = Modifier.size(20.dp)
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Add")
+                    Row(
+                        modifier = Modifier.padding(horizontal = 16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Add game",
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Add")
+                    }
                 }
             }
         }
     ) { innerPadding ->
         LibraryScreenContent(
             games = libraryGames,
+            selectedGameIds = selectedGameIds,
+            isSelectionMode = isSelectionMode,
             onGameSelected = { gameId ->
-                onNavigateToGameInfo(gameId)
+                if (isSelectionMode) {
+                    viewModel.toggleGameSelection(gameId)
+                } else {
+                    onNavigateToGameInfo(gameId)
+                }
+            },
+            onGameLongPress = { gameId ->
+                if (!isSelectionMode) {
+                    viewModel.toggleSelectionMode()
+                    viewModel.toggleGameSelection(gameId)
+                }
             },
             modifier = Modifier.padding(innerPadding)
         )
@@ -99,7 +221,10 @@ fun LibraryScreen(
 @Composable
 fun LibraryScreenContent(
     games: List<com.rejnek.oog.data.model.GamePackage>,
+    selectedGameIds: Set<String>,
+    isSelectionMode: Boolean,
     onGameSelected: (String) -> Unit,
+    onGameLongPress: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(
@@ -140,7 +265,10 @@ fun LibraryScreenContent(
                 items(games) { game ->
                     GameCard(
                         game = game,
-                        onGameSelected = { onGameSelected(game.getId()) }
+                        isSelected = game.getId() in selectedGameIds,
+                        isSelectionMode = isSelectionMode,
+                        onGameSelected = { onGameSelected(game.getId()) },
+                        onGameLongPress = { onGameLongPress(game.getId()) }
                     )
                 }
             }
@@ -148,14 +276,25 @@ fun LibraryScreenContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun GameCard(
     game: GamePackage,
-    onGameSelected: () -> Unit
+    isSelected: Boolean,
+    isSelectionMode: Boolean,
+    onGameSelected: () -> Unit,
+    onGameLongPress: () -> Unit
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
-        onClick = onGameSelected
+        modifier = Modifier
+            .fillMaxWidth()
+            .combinedClickable(
+                onClick = onGameSelected,
+                onLongClick = onGameLongPress
+            ),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
+        )
     ) {
         Column(
             modifier = Modifier

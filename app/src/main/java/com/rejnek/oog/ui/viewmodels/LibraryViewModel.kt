@@ -15,6 +15,18 @@ class LibraryViewModel(
     private val gamesPackage = MutableStateFlow<List<GamePackage>>(emptyList())
     val libraryGames = gamesPackage.asStateFlow()
 
+    private val _selectedGameIds = MutableStateFlow<Set<String>>(emptySet())
+    val selectedGameIds = _selectedGameIds.asStateFlow()
+
+    private val _isSelectionMode = MutableStateFlow(false)
+    val isSelectionMode = _isSelectionMode.asStateFlow()
+
+    private val _showDuplicateDialog = MutableStateFlow(false)
+    val showDuplicateDialog = _showDuplicateDialog.asStateFlow()
+
+    private val _pendingGamePackage = MutableStateFlow<GamePackage?>(null)
+    val pendingGamePackage = _pendingGamePackage.asStateFlow()
+
     init {
         loadLibraryGames()
     }
@@ -27,12 +39,72 @@ class LibraryViewModel(
 
     fun onAddGameFromFile(gamePackage: GamePackage) {
         viewModelScope.launch {
-            // Add to library
-            gameRepository.addGameToLibrary(gamePackage)
+            // Check if game with this ID already exists
+            val existingGame = gamesPackage.value.find { it.getId() == gamePackage.getId() }
+            if (existingGame != null) {
+                // Show duplicate confirmation dialog
+                _pendingGamePackage.value = gamePackage
+                _showDuplicateDialog.value = true
+            } else {
+                // Add directly to library
+                gameRepository.addGameToLibrary(gamePackage)
+                loadLibraryGames()
+            }
+        }
+    }
 
-            // Refresh the library list
+    fun onConfirmDuplicateReplace() {
+        viewModelScope.launch {
+            _pendingGamePackage.value?.let { gamePackage ->
+                // Remove existing game and add new one
+                gameRepository.removeGameFromLibrary(gamePackage.getId())
+                gameRepository.addGameToLibrary(gamePackage)
+                loadLibraryGames()
+            }
+            _showDuplicateDialog.value = false
+            _pendingGamePackage.value = null
+        }
+    }
+
+    fun onCancelDuplicateReplace() {
+        _showDuplicateDialog.value = false
+        _pendingGamePackage.value = null
+    }
+
+    fun toggleSelectionMode() {
+        _isSelectionMode.value = !_isSelectionMode.value
+        if (!_isSelectionMode.value) {
+            _selectedGameIds.value = emptySet()
+        }
+    }
+
+    fun toggleGameSelection(gameId: String) {
+        val currentSelected = _selectedGameIds.value.toMutableSet()
+        if (currentSelected.contains(gameId)) {
+            currentSelected.remove(gameId)
+        } else {
+            currentSelected.add(gameId)
+        }
+        _selectedGameIds.value = currentSelected
+    }
+
+    fun deleteSelectedGames() {
+        viewModelScope.launch {
+            _selectedGameIds.value.forEach { gameId ->
+                gameRepository.removeGameFromLibrary(gameId)
+            }
+            _selectedGameIds.value = emptySet()
+            _isSelectionMode.value = false
             loadLibraryGames()
         }
+    }
+
+    fun selectAllGames() {
+        _selectedGameIds.value = gamesPackage.value.map { it.getId() }.toSet()
+    }
+
+    fun clearSelection() {
+        _selectedGameIds.value = emptySet()
     }
 
     fun refreshLibrary() {
