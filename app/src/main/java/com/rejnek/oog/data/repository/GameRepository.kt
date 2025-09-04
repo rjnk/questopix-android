@@ -18,6 +18,7 @@ import com.rejnek.oog.data.gameItems.callback.QuestionFactory
 import com.rejnek.oog.data.gameItems.direct.commands.Refresh
 import com.rejnek.oog.data.gameItems.direct.commands.Save
 import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
+import com.rejnek.oog.data.gameItems.direct.factory.ImageFactory
 import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
 import com.rejnek.oog.data.gameItems.direct.factory.map.MapFactory
 import com.rejnek.oog.data.model.GameType
@@ -39,6 +40,7 @@ class GameRepository(
         TextFactory(),
         HeadingFactory(),
         DistanceFactory(),
+        ImageFactory(),
         MapFactory(),
         Refresh(),
         Save()
@@ -236,7 +238,7 @@ class GameRepository(
         val savedState = gameStorage.loadGameState()
         if (savedState != null) {
             // Initialize the game first
-            jsEngine.evaluateJs(demoGame)
+            jsEngine.evaluateJs(demoGame) // TODO total blunder
 
             // Restore the saved state by evaluating JavaScript that reconstructs the variables
             jsEngine.evaluateJs("""

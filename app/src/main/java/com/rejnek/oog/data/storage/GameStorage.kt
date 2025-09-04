@@ -3,9 +3,7 @@ package com.rejnek.oog.data.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
-import com.rejnek.oog.data.model.LibraryGame
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.decodeFromString
+import com.rejnek.oog.data.model.GamePackage
 import kotlinx.serialization.json.Json
 import java.util.UUID
 
@@ -62,9 +60,8 @@ class GameStorage(context: Context) {
      */
     fun addGameToLibrary(gameName: String, gameCode: String): String {
         val gameId = UUID.randomUUID().toString()
-        val newGame = LibraryGame(
+        val newGame = GamePackage(
             id = gameId,
-            name = gameName,
             gameCode = gameCode,
             importedAt = System.currentTimeMillis()
         )
@@ -79,11 +76,11 @@ class GameStorage(context: Context) {
     /**
      * Get all games in the library
      */
-    fun getLibraryGames(): List<LibraryGame> {
+    fun getLibraryGames(): List<GamePackage> {
         val gamesJson = sharedPreferences.getString(LIBRARY_GAMES_KEY, null)
         return if (gamesJson != null) {
             try {
-                json.decodeFromString<List<LibraryGame>>(gamesJson)
+                json.decodeFromString<List<GamePackage>>(gamesJson)
             } catch (e: Exception) {
                 emptyList()
             }
@@ -95,7 +92,7 @@ class GameStorage(context: Context) {
     /**
      * Get a specific game by ID
      */
-    fun getGameById(gameId: String): LibraryGame? {
+    fun getGameById(gameId: String): GamePackage? {
         return getLibraryGames().find { it.id == gameId }
     }
 
@@ -108,7 +105,7 @@ class GameStorage(context: Context) {
         saveLibraryGames(games)
     }
 
-    private fun saveLibraryGames(games: List<LibraryGame>) {
+    private fun saveLibraryGames(games: List<GamePackage>) {
         val gamesJson = json.encodeToString(games)
         sharedPreferences.edit(commit = true) {
             putString(LIBRARY_GAMES_KEY, gamesJson)

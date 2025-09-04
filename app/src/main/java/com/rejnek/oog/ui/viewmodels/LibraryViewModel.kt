@@ -2,7 +2,7 @@ package com.rejnek.oog.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.rejnek.oog.data.model.LibraryGame
+import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,8 +12,8 @@ class LibraryViewModel(
     private val gameRepository: GameRepository
 ) : ViewModel() {
 
-    private val _libraryGames = MutableStateFlow<List<LibraryGame>>(emptyList())
-    val libraryGames = _libraryGames.asStateFlow()
+    private val _GamesPackage = MutableStateFlow<List<GamePackage>>(emptyList())
+    val libraryGames = _GamesPackage.asStateFlow()
 
     init {
         loadLibraryGames()
@@ -21,7 +21,7 @@ class LibraryViewModel(
 
     private fun loadLibraryGames() {
         viewModelScope.launch {
-            _libraryGames.value = gameRepository.getLibraryGames()
+            _GamesPackage.value = gameRepository.getLibraryGames()
         }
     }
 

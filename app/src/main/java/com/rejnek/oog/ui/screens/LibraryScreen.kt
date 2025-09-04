@@ -1,7 +1,5 @@
 package com.rejnek.oog.ui.screens
 
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -101,7 +99,7 @@ fun LibraryScreen(
 
 @Composable
 fun LibraryScreenContent(
-    games: List<com.rejnek.oog.data.model.LibraryGame>,
+    games: List<com.rejnek.oog.data.model.GamePackage>,
     onGameSelected: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -153,7 +151,7 @@ fun LibraryScreenContent(
 
 @Composable
 fun GameCard(
-    game: com.rejnek.oog.data.model.LibraryGame,
+    game: com.rejnek.oog.data.model.GamePackage,
     onGameSelected: () -> Unit
 ) {
     Card(
@@ -166,7 +164,7 @@ fun GameCard(
                 .padding(16.dp)
         ) {
             Text(
-                text = game.name,
+                text = "Game name placeholder",
                 style = MaterialTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Medium
             )

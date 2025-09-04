@@ -3,9 +3,8 @@ package com.rejnek.oog.data.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class LibraryGame(
+data class GamePackage(
     val id: String,
-    val name: String,
     val gameCode: String,
-    val importedAt: Long
+    val importedAt: Long,
 )
