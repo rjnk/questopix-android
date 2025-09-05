@@ -10,8 +10,8 @@ import com.rejnek.oog.data.gameItems.direct.commands.Save
 import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
 import com.rejnek.oog.data.gameItems.direct.factory.FinishGameButtonFactory
 import com.rejnek.oog.data.gameItems.direct.factory.ImageFactory
+import com.rejnek.oog.data.gameItems.direct.factory.SimpleMapFactory
 import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
-import com.rejnek.oog.data.gameItems.direct.factory.map.MapFactory
 
 /**
  * Repository responsible for managing game item factories
@@ -27,7 +27,7 @@ class GameItemRepository {
         DistanceFactory(),
         ImageFactory(),
         FinishGameButtonFactory(),
-        MapFactory(),
+        SimpleMapFactory(),
         Refresh(),
         Save()
     )
