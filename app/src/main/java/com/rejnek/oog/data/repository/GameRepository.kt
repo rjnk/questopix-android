@@ -5,11 +5,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import android.util.Log
 import androidx.compose.runtime.Composable
+import com.rejnek.oog.data.model.Area
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.data.model.GameState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 
 /**
@@ -29,6 +32,9 @@ class GameRepository(
     // Current Game Package & task
     private val _currentGamePackage = MutableStateFlow<GamePackage?>(null)
     val currentGamePackage = _currentGamePackage.asStateFlow()
+
+    // Mutex
+    private val executeOnStartMutex = Mutex()
 
     // Initialize method for JS engine setup
     suspend fun initialize(): Result<Unit> = withContext(Dispatchers.IO) {
@@ -64,9 +70,23 @@ class GameRepository(
                     });
                 """.trimIndent())
         }
+        // Start location monitoring
+        val areasToMonitor = generateAreasForMonitoring(gamePackage)
+        gameLocationRepository.startLocationMonitoring(areasToMonitor) { areaId -> setCurrentTask(areaId) }
 
         // Start with the current task from the game package, it will be "start" if new game
         setCurrentTask(gamePackage.currentTaskId)
+    }
+
+    suspend fun generateAreasForMonitoring(gamePackage: GamePackage): List<Area> {
+        val areasToMonitor = ArrayList<Area>()
+
+        for (taskId in gamePackage.getTaskIds()) {
+            val area = gameEngineRepository.getArea(taskId) ?: continue
+            areasToMonitor.add(area)
+        }
+
+        return areasToMonitor
     }
 
     // Game state management
@@ -79,30 +99,21 @@ class GameRepository(
         setCurrentTask(currentTask)
     }
 
+
+
     suspend fun setCurrentTask(elementId: String) {
         _currentGamePackage.value?.currentTaskId = elementId
         gameUIRepository.clearUIElements()
-        val area = gameEngineRepository.getArea(elementId)
+        executeOnStart()
 
-        Log.d("GameRepository", "Selected element set to $elementId with area $area")
-        when {
-            area == null -> executeOnStart()
-            gameLocationRepository.checkLocation(area) -> executeOnEnter()
-            else -> {
-                executeOnStart()
-                gameLocationRepository.startLocationMonitoring(area) { executeOnEnter() }
-            }
-        }
+        Log.d("GameRepository", "Selected element set to $elementId")
     }
 
     suspend fun executeOnStart() {
-        val taskId = _currentGamePackage.value?.currentTaskId ?: throw IllegalStateException("Current task ID is null")
-        gameEngineRepository.executeOnStart(taskId)
-    }
-
-    suspend fun executeOnEnter() {
-        val taskId = _currentGamePackage.value?.currentTaskId ?: throw IllegalStateException("Current task ID is null")
-        gameEngineRepository.executeOnEnter(taskId)
+        executeOnStartMutex.withLock {
+            val taskId = _currentGamePackage.value?.currentTaskId ?: throw IllegalStateException("Current task ID is null")
+            gameEngineRepository.executeOnStart(taskId)
+        }
     }
 
     // UI Management

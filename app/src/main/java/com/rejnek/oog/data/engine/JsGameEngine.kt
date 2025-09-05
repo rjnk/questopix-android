@@ -130,26 +130,13 @@ class JsGameEngine(
 
     suspend fun executeOnStart(elementId: String) {
         val onStartActivated = getJsValue("_onStartActivated.includes('$elementId')").getOrNull().toBoolean()
-        if(onStartActivated){
-            evaluateJs("$elementId.onStart()")
-        }
-        else{
+
+        if (!onStartActivated) {
             evaluateJs("$elementId.onStartFirst()")
             evaluateJs("if (!_onStartActivated.includes($elementId)) { _onStartActivated.push('$elementId'); }")
-            evaluateJs("$elementId.onStart()")
-        }
-        evaluateJs("save()")
-    }
-
-    suspend fun executeOnEnter(elementId: String) {
-        val onEnterActivated = getJsValue("_onEnterActivated.includes('$elementId')").getOrNull().toBoolean()
-
-        if(! onEnterActivated) {
-            evaluateJs("$elementId.onEnterFirst()")
-            evaluateJs("if (!_onEnterActivated.includes($elementId)) { _onEnterActivated.push('$elementId'); }")
         }
 
-        evaluateJs("$elementId.onEnter()")
+        evaluateJs("$elementId.onStart()")
         evaluateJs("save()")
     }
 
@@ -252,6 +239,6 @@ class JsGameEngine(
             Coordinates(lat, lng)
         }
 
-        return Area(coordinates)
+        return Area(coordinates, elementId)
     }
 }

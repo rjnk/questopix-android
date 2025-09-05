@@ -1,10 +1,5 @@
 package com.rejnek.oog.data.model
 
-import android.util.Log
-import androidx.compose.runtime.Composable
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -25,6 +20,13 @@ data class GamePackage(
     fun info(key: String) : String{
         return gameInfo[key]?.jsonPrimitive?.content ?: throw IllegalStateException("Game info '$key' not found")
     }
+
+    fun getTaskIds(): List<String> {
+        val taskPattern = Regex("""const\s+(\w+)\s*=\s*\{""")
+        return taskPattern.findAll(gameCode)
+            .map { it.groupValues[1] }
+            .toList()
+    }
 }
 
 @Serializable
@@ -43,4 +45,5 @@ data class Coordinates(
 @Serializable
 data class Area(
     val points: List<Coordinates>,
+    val id: String? = null
 )

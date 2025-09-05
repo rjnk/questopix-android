@@ -26,10 +26,6 @@ class GameEngineRepository(
         jsEngine.executeOnStart(taskId)
     }
 
-    suspend fun executeOnEnter(taskId: String) = withContext(Dispatchers.IO) {
-        jsEngine.executeOnEnter(taskId)
-    }
-
     suspend fun getJsValue(id: String): String? = withContext(Dispatchers.IO) {
         jsEngine.getJsValue(id).getOrNull()
     }

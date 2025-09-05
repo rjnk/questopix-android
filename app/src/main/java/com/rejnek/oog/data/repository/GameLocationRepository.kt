@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.rejnek.oog.data.model.Area
 import com.rejnek.oog.data.model.Coordinates
+import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.services.LocationService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,18 +22,19 @@ class GameLocationRepository(
     val currentLocation = locationService.currentLocation
 
     fun startLocationMonitoring(
-        areaToCheck: Area,
-        onLocationMatch: suspend () -> Unit
+        areas: List<Area>,
+        onLocationMatch: suspend (String) -> Unit
     ) {
-        Log.d("GameLocationRepository", "Starting location monitoring for area: $areaToCheck")
+        Log.d("GameLocationRepository", "Starting location monitoring for areas: $areas")
 
         CoroutineScope(Dispatchers.Main).launch {
             currentLocation.collectLatest { location ->
                 Log.d("GameLocationRepository", "Location updated: $location")
-                if (checkLocation(location, areaToCheck)) {
-                    onLocationMatch()
+                areas.forEach { area ->
+                    if (checkLocation(location, area)) {
+                        onLocationMatch(area.id ?: throw IllegalStateException("Area ID is null"))
+                    }
                 }
-                delay(500)
             }
         }
     }
