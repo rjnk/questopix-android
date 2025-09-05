@@ -12,23 +12,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.rejnek.oog.data.gameItems.GenericItemFactory
+import com.rejnek.oog.data.gameItems.GenericCallbackFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.random.Random
 
-class ButtonFactory() : GenericItemFactory() {
+class ButtonFactory() : GenericCallbackFactory() {
     override val id: String = "button"
-    override val js: String = """
-        function ${id}(buttonText, callback) {
-            const callbackId = Android.registerCallback("$id", buttonText);
-            
-            window.callbackResolvers[callbackId] = () => {
-                callback();
-                return "";
-            };
-        }
-    """.trimIndent()
 
     override suspend fun create(data: String, callbackId: String) {
         val btn = Button(

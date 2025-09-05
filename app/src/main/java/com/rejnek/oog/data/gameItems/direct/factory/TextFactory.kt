@@ -1,7 +1,10 @@
 package com.rejnek.oog.data.gameItems.direct.factory
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 
 class TextFactory : GenericDirectFactory() {
@@ -17,6 +20,10 @@ class MyText(
 ) {
     @Composable
     fun Show() {
-        Text(text = text)
+        Text(
+            text = text,
+            textAlign = TextAlign.Start,
+            modifier = Modifier.fillMaxWidth()
+        )
     }
 }

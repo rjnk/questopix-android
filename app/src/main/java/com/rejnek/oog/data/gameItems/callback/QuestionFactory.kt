@@ -1,29 +1,23 @@
 package com.rejnek.oog.data.gameItems.callback
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Card
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.rejnek.oog.data.gameItems.GenericItemFactory
+import com.rejnek.oog.data.gameItems.GenericCallbackFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class QuestionFactory() : GenericItemFactory() {
+class QuestionFactory() : GenericCallbackFactory() {
     override val id: String = "question"
-    override val js: String = """
-        async function $id(questionText) {
-        return await createCallback("$id", questionText);
-        }
-    """.trimIndent()
 
     override suspend fun create(data: String, callbackId: String) {
         val question = Question(
@@ -61,31 +55,34 @@ class Question(
         val text by questionText.collectAsState()
         val onSubmit by this.onSubmit.collectAsState()
 
-        Text(
-            text = text,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        OutlinedTextField(
-            value = answerText,
-            onValueChange = onValueChange,
-            label = { Text("Your answer") },
-            modifier = Modifier
-                .fillMaxWidth(),
-            singleLine = true
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        Button(
-            onClick = {
-                if (answerText.isNotBlank()) {
-                    onSubmit(answerText)
-                }
-            },
+        Card(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 16.dp, bottom = 16.dp),
         ) {
-            Text("Submit")
+            Text(
+                text = text,
+                textAlign = TextAlign.Start,
+                modifier = Modifier.padding(16.dp)
+            )
+
+            OutlinedTextField(
+                value = answerText,
+                onValueChange = onValueChange,
+                label = { Text("Your answer") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            )
+
+            Button(
+                onClick = { onSubmit(answerText) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text("Submit")
+            }
         }
     }
 }
