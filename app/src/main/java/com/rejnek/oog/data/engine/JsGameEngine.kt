@@ -162,17 +162,6 @@ class JsGameEngine(
                 
                 // Additional custom functions
                 function showTask(newTask) {
-                    let previousTask = _currentTask; 
-    
-                    // visibleElements
-                    if (!_visibleTasks.includes(newTask)) { _visibleTasks.push(newTask); }
-                    _visibleTasks = _visibleTasks.filter(task => task !== previousTask);
-               
-                    // If the current element is the secondary tab, update it
-                    if(_secondaryTask === previousTask) {
-                        _secondaryTask = newTask;
-                    }
-                
                     _currentTask = newTask;
                     refresh();
                     save();

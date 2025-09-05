@@ -180,25 +180,6 @@ class GameRepository(
         return getJsValue("_currentTask") ?: ""
     }
 
-    suspend fun getSecondaryTabElementId() : String {
-        return getJsValue("_secondaryTask") ?: ""
-    }
-
-    suspend fun getVisibleElements(): List<GameTask> {
-        val ids = jsEngine
-            .getJsValue("_visibleTasks")
-            .getOrNull()
-            ?.removeSurrounding("[", "]")
-            ?.replace("\"", "")
-            ?.split(",")
-            ?.map { it.trim() }
-            ?: return emptyList()
-
-        Log.d("GameRepository", "Visible elements IDs: $ids")
-
-        return ids.map { id -> getTask(id) }
-    }
-
     fun finishGame() {
         _currentGamePackage.value?.let { currentPackage ->
             _currentGamePackage.value = currentPackage.copy(state = GameState.COMPLETED)

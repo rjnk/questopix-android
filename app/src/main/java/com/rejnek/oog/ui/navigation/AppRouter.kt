@@ -7,8 +7,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.rejnek.oog.ui.screens.GameInfoScreen
-import com.rejnek.oog.ui.screens.SecondaryTabScreen
-import com.rejnek.oog.ui.screens.GameMenuScreen
 import com.rejnek.oog.ui.screens.GameTaskScreen
 import com.rejnek.oog.ui.screens.HomeScreen
 import com.rejnek.oog.ui.screens.LibraryScreen
@@ -95,28 +93,6 @@ fun AppRouter() {
                 },
                 onFinishTask = {
                     navController.navigate(Routes.HomeScreen.route)
-                }
-            )
-        }
-
-        composable(Routes.GameMenuScreen.route) {
-            GameMenuScreen(
-                openTask = {
-                    navController.navigate(Routes.GameTaskScreen.route)
-                },
-                onNavigateToMap = {
-                    navController.navigate(Routes.GameMapScreen.route)
-                }
-            )
-        }
-
-        composable(Routes.GameMapScreen.route) {
-            SecondaryTabScreen(
-                onNavigateToMenu = {
-                    navController.navigate(Routes.GameMenuScreen.route)
-                },
-                onFinishTask = {
-                    navController.navigate(Routes.GameFinishScreen.route)
                 }
             )
         }
