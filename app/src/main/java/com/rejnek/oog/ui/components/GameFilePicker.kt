@@ -95,7 +95,7 @@ private fun extractGameFromZip(baseDir: File, inputStream: java.io.InputStream):
             }
         }
 
-        return GamePackage(gameInfo, gameCode, GameState.NOT_STARTED, System.currentTimeMillis())
+        return GamePackage(gameInfo, gameCode, GameState.NOT_STARTED,System.currentTimeMillis())
 
     } finally {
         // Clean up temp directory

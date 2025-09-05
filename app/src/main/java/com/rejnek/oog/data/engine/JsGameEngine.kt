@@ -6,12 +6,12 @@ import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.rejnek.oog.data.gameItems.GenericItemFactory
-import com.rejnek.oog.data.model.Coordinates
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import kotlin.coroutines.resume
+import kotlin.text.toBoolean
 
 class JsGameEngine(
     private val context: Context
@@ -123,6 +123,32 @@ class JsGameEngine(
             Result.success(cleanJsResult(result))
         }
 
+    suspend fun executeOnStart(elementId: String) {
+        val onStartActivated = getJsValue("_onStartActivated.includes('$elementId')").getOrNull().toBoolean();
+        if(onStartActivated){
+            evaluateJs("$elementId.onStart()")
+        }
+        else{
+            evaluateJs("$elementId.onStartFirst()")
+            evaluateJs("if (!_onStartActivated.includes($elementId)) { _onStartActivated.push('$elementId'); }")
+            evaluateJs("$elementId.onStart()")
+        }
+        evaluateJs("save()")
+    }
+
+    suspend fun executeOnEnter(elementId: String) {
+        val onEnterActivated = getJsValue("_onEnterActivated.includes('$elementId')").getOrNull().toBoolean();
+        if(onEnterActivated){
+            evaluateJs("$elementId.onEnter()")
+        }
+        else{
+            evaluateJs("$elementId.onEnterFirst()")
+            evaluateJs("if (!_onEnterActivated.includes($elementId)) { _onEnterActivated.push('$elementId'); }")
+        }
+
+        evaluateJs("save()")
+    }
+
     private fun htmlTemplate(gameItems: List<GenericItemFactory>) = """
         <!DOCTYPE html>
         <html>
@@ -207,21 +233,21 @@ class JsGameEngine(
         gameItems.clear()
     }
 
-    suspend fun getCoordinates(elementId: String): Coordinates? {
-        val lat = getJsValue("$elementId.coordinates.lat").getOrNull()
-        val lng = getJsValue("$elementId.coordinates.lng").getOrNull()
-        val radius = getJsValue("$elementId.coordinates.radius").getOrNull()
-
-        return if(lat != null && lat != "null" && lng != null && lng != "null" && radius != null && radius != "null") {
-            Coordinates(
-                lat = lat.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid latitude: $lat"),
-                lng = lng.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid longitude: $lng"),
-                radius = radius.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid radius: $radius")
-            )
-        } else{
-            null
-        }
-    }
+//    suspend fun getCoordinates(elementId: String): Coordinates? {
+//        val lat = getJsValue("$elementId.coordinates.lat").getOrNull()
+//        val lng = getJsValue("$elementId.coordinates.lng").getOrNull()
+//        val radius = getJsValue("$elementId.coordinates.radius").getOrNull()
+//
+//        return if(lat != null && lat != "null" && lng != null && lng != "null" && radius != null && radius != "null") {
+//            Coordinates(
+//                lat = lat.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid latitude: $lat"),
+//                lng = lng.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid longitude: $lng"),
+//                radius = radius.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid radius: $radius")
+//            )
+//        } else{
+//            null
+//        }
+//    }
 }
 
 

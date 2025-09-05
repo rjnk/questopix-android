@@ -1,9 +1,7 @@
 package com.rejnek.oog.data.repository
 
 import android.content.Context
-import com.rejnek.oog.data.model.GameTask
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import android.util.Log
 import androidx.compose.runtime.Composable
@@ -27,6 +25,7 @@ import com.rejnek.oog.services.LocationService
 import com.rejnek.oog.data.storage.GameStorage
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -54,7 +53,7 @@ class GameRepository(
     // Game storage for saving/loading
     private val gameStorage = GameStorage(context)
 
-    // Current Game Package
+    // Current Game Package & task
     private val _currentGamePackage = MutableStateFlow<GamePackage?>(null)
     val currentGamePackage = _currentGamePackage.asStateFlow()
 
@@ -62,12 +61,7 @@ class GameRepository(
     private val locationService = LocationService(context)
     val currentLocation = locationService.currentLocation
 
-    // Current task location monitoring scope
-    private val locationMonitoringScope = CoroutineScope(Dispatchers.IO)
-
-    private val _selectedElement: MutableStateFlow<GameTask?> = MutableStateFlow(null)
-    val selectedElement: StateFlow<GameTask?> = _selectedElement.asStateFlow()
-
+    // UI elements that are rendered for the current task
     private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
     val uiElements: StateFlow<List<@Composable () -> Unit>> = _uiElements.asStateFlow()
 
@@ -77,7 +71,7 @@ class GameRepository(
             _currentGamePackage.value = game
 
             jsEngine.evaluateJs(game.gameCode)
-            selectTask("start")
+            setCurrentTask("start")
             startLocationMonitoring()
         }
     }
@@ -93,7 +87,7 @@ class GameRepository(
     fun getLibraryGames() = gameStorage.getLibraryGames()
 
     private fun startLocationMonitoring() {
-        locationMonitoringScope.launch {
+        CoroutineScope(Dispatchers.IO).launch {
             currentLocation.collectLatest { location ->
                 Log.d("GameRepository", "Location updated: $location")
                 if( checkLocation() ){
@@ -104,69 +98,31 @@ class GameRepository(
     }
 
     suspend fun refresh(){
-        selectTask(getCurrentTaskId())
+        setCurrentTask(getJsValue("_currentTask") ?: "")
     }
 
-    suspend fun selectTask(elementId: String) {
-        _selectedElement.value = getTask(elementId)
+    suspend fun setCurrentTask(elementId: String) {
+        _currentGamePackage.value?.currentTaskId = elementId
         _uiElements.value = emptyList()
 
-        Log.d("GameRepository", "Selected element set to ${_selectedElement.value?.id}")
+        Log.d("GameRepository", "Selected element set to $elementId")
 
-        if( checkLocation() ) {
-            executeOnEnter()
-        }
-        else {
-            executeOnStart()
-        }
+        if( checkLocation() ) executeOnEnter()
+        else executeOnStart()
     }
 
-    suspend fun getTask(id: String): GameTask {
-        Log.d("GameRepository", "Getting game element with ID: $id")
-
-        val name = getJsValue("$id.name") ?: "Err"
-        val coordinates = jsEngine.getCoordinates(id)
-
-        return GameTask(
-            id = id,
-            name = name,
-            coordinates = coordinates,
-            visible = true
-        )
-    }
-
-    fun checkLocation(): Boolean {
-        return selectedElement.value?.isInside(currentLocation.value.first, currentLocation.value.second) == true
+    suspend fun checkLocation(): Boolean {
+        // val coordinates = jsEngine.getCoordinates(currentGamePackage.value?.currentTaskId ?: "start") // TODO
+        // TODO
+        return false
     }
 
     suspend fun executeOnStart() {
-        val elementId = selectedElement.value?.id
-
-        val onStartActivated = getJsValue("_onStartActivated.includes('$elementId')")?.toBoolean() == true;
-        if(onStartActivated){
-            jsEngine.evaluateJs("$elementId.onStart()")
-        }
-        else{
-            jsEngine.evaluateJs("$elementId.onStartFirst()")
-            jsEngine.evaluateJs("if (!_onStartActivated.includes($elementId)) { _onStartActivated.push('$elementId'); }")
-            jsEngine.evaluateJs("$elementId.onStart()")
-        }
-        jsEngine.evaluateJs("save()")
+        jsEngine.executeOnStart(_currentGamePackage.value?.currentTaskId ?: throw IllegalStateException("Current task ID is null"))
     }
 
     suspend fun executeOnEnter() {
-        val elementId = selectedElement.value?.id
-
-        val onEnterActivated = getJsValue("_onEnterActivated.includes('$elementId')")?.toBoolean() == true;
-        if(onEnterActivated){
-            jsEngine.evaluateJs("$elementId.onEnter()")
-        }
-        else{
-            jsEngine.evaluateJs("$elementId.onEnterFirst()")
-            jsEngine.evaluateJs("if (!_onEnterActivated.includes($elementId)) { _onEnterActivated.push('$elementId'); }")
-        }
-
-        jsEngine.evaluateJs("save()")
+        jsEngine.executeOnEnter(_currentGamePackage.value?.currentTaskId ?: throw IllegalStateException("Current task ID is null"))
     }
 
     /**
@@ -174,10 +130,6 @@ class GameRepository(
      */
     fun addUIElement(element: @Composable () -> Unit) {
         _uiElements.value = _uiElements.value + element
-    }
-
-    suspend fun getCurrentTaskId() : String {
-        return getJsValue("_currentTask") ?: ""
     }
 
     fun finishGame() {
@@ -234,7 +186,7 @@ class GameRepository(
 
             // Start with the current task from the restored state
             val currentTask = getJsValue("_currentTask") ?: "start"
-            selectTask(currentTask)
+            setCurrentTask(currentTask)
             startLocationMonitoring()
         }
     }

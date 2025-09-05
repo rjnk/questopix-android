@@ -24,15 +24,6 @@ class GameTaskViewModel(
 
 
     init {
-        // Observe current element changes in a separate coroutine
-        viewModelScope.launch {
-            gameRepository.selectedElement.collect { elem ->
-                if (elem == null) {
-                    _navigationEvents.emit(NavigationEvent.Menu)
-                }
-            }
-        }
-
         viewModelScope.launch {
             gameRepository.currentGamePackage.collect { pack ->
                 if (pack?.state == GameState.COMPLETED) {
