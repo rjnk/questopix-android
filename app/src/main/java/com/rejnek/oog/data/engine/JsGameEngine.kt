@@ -169,6 +169,12 @@ class JsGameEngine(
                 // Initialize callback resolvers storage
                 window.callbackResolvers = {};
                 
+                // mandatory game variables
+                var _onStartActivated = [];
+                var _onEnterActivated = [];
+
+                var _currentTask = "start";
+                
                 // Generic function to create a callback and wait for its result
                 async function createCallback(type, data) {
                     // Register the callback with Android
