@@ -33,7 +33,7 @@ class LibraryViewModel(
 
     private fun loadLibraryGames() {
         viewModelScope.launch {
-            gamesPackage.value = gameRepository.getLibraryGames()
+            gamesPackage.value = gameRepository.gameStorageRepository.getLibraryGames()
         }
     }
 

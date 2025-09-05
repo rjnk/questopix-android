@@ -6,6 +6,8 @@ import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.rejnek.oog.data.gameItems.GenericItemFactory
+import com.rejnek.oog.data.model.Area
+import com.rejnek.oog.data.model.Coordinates
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -92,7 +94,10 @@ class JsGameEngine(
      * @return Result containing the evaluation result as a string
      */
     suspend fun getJsValue(code: String): Result<String> {
-        return evaluateJs(code, expectResult = true)
+        val result = evaluateJs(code, expectResult = true)
+
+        return if(result.getOrNull() == "null") Result.failure(Exception("Value is null"))
+        else result
     }
 
     /**
@@ -124,7 +129,7 @@ class JsGameEngine(
         }
 
     suspend fun executeOnStart(elementId: String) {
-        val onStartActivated = getJsValue("_onStartActivated.includes('$elementId')").getOrNull().toBoolean();
+        val onStartActivated = getJsValue("_onStartActivated.includes('$elementId')").getOrNull().toBoolean()
         if(onStartActivated){
             evaluateJs("$elementId.onStart()")
         }
@@ -137,15 +142,14 @@ class JsGameEngine(
     }
 
     suspend fun executeOnEnter(elementId: String) {
-        val onEnterActivated = getJsValue("_onEnterActivated.includes('$elementId')").getOrNull().toBoolean();
-        if(onEnterActivated){
-            evaluateJs("$elementId.onEnter()")
-        }
-        else{
+        val onEnterActivated = getJsValue("_onEnterActivated.includes('$elementId')").getOrNull().toBoolean()
+
+        if(! onEnterActivated) {
             evaluateJs("$elementId.onEnterFirst()")
             evaluateJs("if (!_onEnterActivated.includes($elementId)) { _onEnterActivated.push('$elementId'); }")
         }
 
+        evaluateJs("$elementId.onEnter()")
         evaluateJs("save()")
     }
 
@@ -239,23 +243,15 @@ class JsGameEngine(
         gameItems.clear()
     }
 
-//    suspend fun getCoordinates(elementId: String): Coordinates? {
-//        val lat = getJsValue("$elementId.coordinates.lat").getOrNull()
-//        val lng = getJsValue("$elementId.coordinates.lng").getOrNull()
-//        val radius = getJsValue("$elementId.coordinates.radius").getOrNull()
-//
-//        return if(lat != null && lat != "null" && lng != null && lng != "null" && radius != null && radius != "null") {
-//            Coordinates(
-//                lat = lat.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid latitude: $lat"),
-//                lng = lng.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid longitude: $lng"),
-//                radius = radius.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid radius: $radius")
-//            )
-//        } else{
-//            null
-//        }
-//    }
+    suspend fun getArea(elementId: String): Area? {
+        val length = getJsValue("$elementId.loc.length").getOrNull()?.toInt() ?: return null
+
+        val coordinates = (0 until length).map { i ->
+            val lat = getJsValue("$elementId.loc[$i][0]").getOrNull()?.toDouble() ?: return null
+            val lng = getJsValue("$elementId.loc[$i][1]").getOrNull()?.toDouble() ?: return null
+            Coordinates(lat, lng)
+        }
+
+        return Area(coordinates)
+    }
 }
-
-
-
-

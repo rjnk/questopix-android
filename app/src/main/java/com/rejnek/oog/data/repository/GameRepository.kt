@@ -35,29 +35,43 @@ class GameRepository(
         return@withContext gameEngineRepository.initialize(this@GameRepository)
     }
 
-    // Game Library Operations
+    // Game Initialization
     suspend fun initializeGameFromLibrary(gameId: String) = withContext(Dispatchers.IO) {
         val game = gameStorageRepository.getGameById(gameId)
-        if (game != null) {
-            _currentGamePackage.value = game
-            gameEngineRepository.initializeGame(game.gameCode)
-            setCurrentTask("start")
-            startLocationMonitoring()
-        }
+        startGame(game ?: throw IllegalArgumentException("Game with ID $gameId not found in library"))
     }
 
-    fun getLibraryGames() = gameStorageRepository.getLibraryGames()
+    suspend fun loadSavedGame() = withContext(Dispatchers.IO) {
+        val savedGamePackage = gameStorageRepository.getSavedGamePackage()
+        startGame(savedGamePackage ?: throw IllegalStateException("No saved game found"))
+    }
+
+    suspend fun startGame(gamePackage: GamePackage) {
+        // Set the current game package
+        _currentGamePackage.value = gamePackage
+
+        // Initialize the game first with the game code
+        gameEngineRepository.initializeGame(gamePackage.gameCode)
+
+        // If there's saved game state, restore it
+        gamePackage.gameState?.let { gameStateJson ->
+            gameEngineRepository.evaluateJs("""
+                    const savedState = $gameStateJson;
+                    Object.keys(savedState).forEach(key => {
+                        if (key.startsWith('_')) {
+                            globalThis[key] = savedState[key];
+                        }
+                    });
+                """.trimIndent())
+        }
+
+        // Start with the current task from the game package, it will be "start" if new game
+        setCurrentTask(gamePackage.currentTaskId)
+    }
 
     // Game state management
-    fun updateCurrentGamePackage(gamePackage: GamePackage) {
+    fun setCurrentGamePackage(gamePackage: GamePackage) {
         _currentGamePackage.value = gamePackage
-    }
-
-    // Location and Game State Management
-    private fun startLocationMonitoring() {
-        gameLocationRepository.startLocationMonitoring {
-            executeOnEnter()
-        }
     }
 
     suspend fun refresh() {
@@ -68,11 +82,17 @@ class GameRepository(
     suspend fun setCurrentTask(elementId: String) {
         _currentGamePackage.value?.currentTaskId = elementId
         gameUIRepository.clearUIElements()
+        val area = gameEngineRepository.getArea(elementId)
 
-        Log.d("GameRepository", "Selected element set to $elementId")
-
-        if (gameLocationRepository.checkLocation()) executeOnEnter()
-        else executeOnStart()
+        Log.d("GameRepository", "Selected element set to $elementId with area $area")
+        when {
+            area == null -> executeOnStart()
+            gameLocationRepository.checkLocation(area) -> executeOnEnter()
+            else -> {
+                executeOnStart()
+                gameLocationRepository.startLocationMonitoring(area) { executeOnEnter() }
+            }
+        }
     }
 
     suspend fun executeOnStart() {
@@ -110,34 +130,6 @@ class GameRepository(
         // Clear saved game state when cleaning up
         CoroutineScope(Dispatchers.IO).launch {
             gameStorageRepository.clearSavedGame()
-        }
-    }
-
-    suspend fun loadSavedGame() = withContext(Dispatchers.IO) {
-        val savedGamePackage = gameStorageRepository.getSavedGamePackage()
-
-        if (savedGamePackage != null) {
-            // Set the current game package
-            _currentGamePackage.value = savedGamePackage
-
-            // Initialize the game first with the game code
-            gameEngineRepository.evaluateJs(savedGamePackage.gameCode)
-
-            // If there's saved game state, restore it
-            savedGamePackage.gameState?.let { gameStateJson ->
-                gameEngineRepository.evaluateJs("""
-                    const savedState = $gameStateJson;
-                    Object.keys(savedState).forEach(key => {
-                        if (key.startsWith('_')) {
-                            globalThis[key] = savedState[key];
-                        }
-                    });
-                """.trimIndent())
-            }
-
-            // Start with the current task from the saved package
-            setCurrentTask(savedGamePackage.currentTaskId)
-            startLocationMonitoring()
         }
     }
 }

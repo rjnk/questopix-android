@@ -41,7 +41,7 @@ class Save : GenericDirectFactory() {
                 )
 
                 // Update the current game package in the repository
-                repo.updateCurrentGamePackage(updatedGamePackage)
+                repo.setCurrentGamePackage(updatedGamePackage)
 
                 // Save to storage (this automatically updates library and marks as current saved game)
                 repo.gameStorageRepository.saveGame(updatedGamePackage)

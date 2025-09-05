@@ -2,6 +2,7 @@ package com.rejnek.oog.data.repository
 
 import android.content.Context
 import com.rejnek.oog.data.engine.JsGameEngine
+import com.rejnek.oog.data.model.Area
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -35,6 +36,10 @@ class GameEngineRepository(
 
     suspend fun evaluateJs(code: String) = withContext(Dispatchers.IO) {
         jsEngine.evaluateJs(code)
+    }
+
+    suspend fun getArea(id: String) : Area? = withContext(Dispatchers.IO) {
+        return@withContext jsEngine.getArea(id)
     }
 
     fun cleanup() {

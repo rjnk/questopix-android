@@ -22,7 +22,7 @@ class GameInfoViewModel(
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val games = gameRepository.getLibraryGames()
+                val games = gameRepository.gameStorageRepository.getLibraryGames()
                 _gamePackage.value = games.find { it.getId() == gameId }
             } finally {
                 _isLoading.value = false

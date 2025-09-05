@@ -12,12 +12,12 @@ class DistanceFactory : GenericDirectFactory() {
     override val id = "distance"
 
     override suspend fun create(data: String, callbackId: String) {
-        gameRepository?.addUIElement {
-            Distance(
-                gameRepository?.gameLocationRepository?.currentLocation?.collectAsState(),
-                gameRepository?.gameLocationRepository?.currentLocation?.collectAsState() // TODO
-            ).Show()
-        }
+//        gameRepository?.addUIElement {
+//            Distance(
+//                gameRepository?.gameLocationRepository?.currentLocation?.collectAsState(),
+//                gameRepository?.gameLocationRepository?.currentLocation?.collectAsState() // TODO
+//            ).Show()
+//        }
     }
 }
 
@@ -25,23 +25,23 @@ class Distance(
     private val currentLocation: State<Pair<Double, Double>>?,
     private val currentElement: State<Pair<Double, Double>>?
 ) {
-    @Composable
-    fun Show() {
-        val location = currentLocation?.value
-        if (location == null) {
-            Text("Location unavailable")
-            return
-        }
-
-        val lastDistance = remember { mutableStateOf<Int?>(null) }
-        val distance = 10 // TODO: Calculate distance based on location and currentElement
-
-        if (distance != null) {
-            lastDistance.value = distance
-        }
-
-        lastDistance.value?.let {
-            Text("Zbyva: ${it}m")
-        } ?: Text("Distance unavailable")
-    }
+//    @Composable
+//    fun Show() {
+//        val location = currentLocation?.value
+//        if (location == null) {
+//            Text("Location unavailable")
+//            return
+//        }
+//
+//        val lastDistance = remember { mutableStateOf<Int?>(null) }
+//        val distance = 10 // TODO: Calculate distance based on location and currentElement
+//
+//        if (distance != null) {
+//            lastDistance.value = distance
+//        }
+//
+//        lastDistance.value?.let {
+//            Text("Zbyva: ${it}m")
+//        } ?: Text("Distance unavailable")
+//    }
 }

@@ -33,3 +33,14 @@ enum class GameState {
     IN_PROGRESS,
     COMPLETED
 }
+
+@Serializable
+data class Coordinates(
+    val lat: Double,
+    val lng: Double
+)
+
+@Serializable
+data class Area(
+    val points: List<Coordinates>,
+)
