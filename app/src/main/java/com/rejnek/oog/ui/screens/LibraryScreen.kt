@@ -259,10 +259,15 @@ fun LibraryScreenContent(
                 )
             }
         } else {
+            // Separate games by completion status
+            val unfinishedGames = games.filter { it.state != com.rejnek.oog.data.model.GameState.COMPLETED }
+            val completedGames = games.filter { it.state == com.rejnek.oog.data.model.GameState.COMPLETED }
+
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(games) { game ->
+                // Show unfinished games first
+                items(unfinishedGames) { game ->
                     GameCard(
                         game = game,
                         isSelected = game.getId() in selectedGameIds,
@@ -270,6 +275,30 @@ fun LibraryScreenContent(
                         onGameSelected = { onGameSelected(game.getId()) },
                         onGameLongPress = { onGameLongPress(game.getId()) }
                     )
+                }
+
+                // Show completed games section if there are any
+                if (completedGames.isNotEmpty()) {
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = "Completed Games",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+
+                    items(completedGames) { game ->
+                        GameCard(
+                            game = game,
+                            isSelected = game.getId() in selectedGameIds,
+                            isSelectionMode = isSelectionMode,
+                            onGameSelected = { onGameSelected(game.getId()) },
+                            onGameLongPress = { onGameLongPress(game.getId()) }
+                        )
+                    }
                 }
             }
         }
