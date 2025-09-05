@@ -1,12 +1,15 @@
 package com.rejnek.oog.data.gameItems.direct.factory
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.layout.ContentScale
 import android.graphics.BitmapFactory
 import android.util.Log
-import androidx.compose.runtime.collectAsState
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import java.io.File
 
@@ -36,12 +39,18 @@ class MyImage(
         if (imageFile.exists()) {
             val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
             bitmap?.let {
+                val isPortrait = it.height > it.width
                 Image(
                     bitmap = it.asImageBitmap(),
-                    contentDescription = filename
+                    contentDescription = filename,
+                    modifier = if (isPortrait) {
+                        Modifier.width(250.dp)
+                    } else {
+                        Modifier
+                    },
+                    contentScale = ContentScale.Fit
                 )
             }
         }
     }
 }
-
