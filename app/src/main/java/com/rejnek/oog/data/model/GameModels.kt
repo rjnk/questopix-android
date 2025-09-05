@@ -18,7 +18,6 @@ data class Coordinates(
 class GameTask(
     val id: String,
     val name: String,
-    val elementType: GameElementType,
     val coordinates: Coordinates? = null,
     var visible: Boolean = false,
 ){
@@ -44,13 +43,4 @@ class GameTask(
         val distance = calculateDistance(userLat, userLng)
         return distance <= coordinates.radius
     }
-}
-
-// TODO also remove, the Task should be good enough. For the transitions, we can rethink this
-enum class GameElementType {
-    ERROR,
-    UNKNOWN,
-    START,
-    TASK,
-    FINISH,
 }

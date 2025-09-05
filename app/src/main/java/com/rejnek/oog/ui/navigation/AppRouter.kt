@@ -6,7 +6,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.rejnek.oog.ui.screens.GameFinishScreen
 import com.rejnek.oog.ui.screens.GameInfoScreen
 import com.rejnek.oog.ui.screens.SecondaryTabScreen
 import com.rejnek.oog.ui.screens.GameMenuScreen
@@ -95,16 +94,6 @@ fun AppRouter() {
                     navController.navigate(Routes.GameMenuScreen.route)
                 },
                 onFinishTask = {
-                    navController.navigate(Routes.GameFinishScreen.route)
-                }
-            )
-        }
-
-        composable(Routes.GameFinishScreen.route) {
-            BackHandler {  }
-
-            GameFinishScreen(
-                onBackToHomeClick = {
                     navController.navigate(Routes.HomeScreen.route)
                 }
             )

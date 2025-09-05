@@ -2,7 +2,6 @@ package com.rejnek.oog.data.repository
 
 import android.content.Context
 import com.rejnek.oog.data.model.GameTask
-import com.rejnek.oog.data.model.GameElementType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,10 +17,12 @@ import com.rejnek.oog.data.gameItems.callback.QuestionFactory
 import com.rejnek.oog.data.gameItems.direct.commands.Refresh
 import com.rejnek.oog.data.gameItems.direct.commands.Save
 import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
+import com.rejnek.oog.data.gameItems.direct.factory.FinishGameButtonFactory
 import com.rejnek.oog.data.gameItems.direct.factory.ImageFactory
 import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
 import com.rejnek.oog.data.gameItems.direct.factory.map.MapFactory
 import com.rejnek.oog.data.model.GamePackage
+import com.rejnek.oog.data.model.GameState
 import com.rejnek.oog.services.LocationService
 import com.rejnek.oog.data.storage.GameStorage
 import kotlinx.coroutines.CoroutineScope
@@ -41,6 +42,7 @@ class GameRepository(
         HeadingFactory(),
         DistanceFactory(),
         ImageFactory(),
+        FinishGameButtonFactory(),
         MapFactory(),
         Refresh(),
         Save()
@@ -53,7 +55,8 @@ class GameRepository(
     private val gameStorage = GameStorage(context)
 
     // Current Game Package
-    var currentGamePackage: GamePackage? = null
+    private val _currentGamePackage = MutableStateFlow<GamePackage?>(null)
+    val currentGamePackage = _currentGamePackage.asStateFlow()
 
     // User location
     private val locationService = LocationService(context)
@@ -71,7 +74,7 @@ class GameRepository(
     suspend fun initializeGameFromLibrary(gameId: String) = withContext(Dispatchers.IO) {
         val game = gameStorage.getGameById(gameId)
         if (game != null) {
-            currentGamePackage = game
+            _currentGamePackage.value = game
 
             jsEngine.evaluateJs(game.gameCode)
             selectTask("start")
@@ -106,11 +109,7 @@ class GameRepository(
 
     suspend fun selectTask(elementId: String) {
         _selectedElement.value = getTask(elementId)
-
-        val elementType = _selectedElement.value?.elementType
-        if( elementType != GameElementType.FINISH && elementType != GameElementType.START ) {
-            _uiElements.value = emptyList()
-        }
+        _uiElements.value = emptyList()
 
         Log.d("GameRepository", "Selected element set to ${_selectedElement.value?.id}")
 
@@ -126,15 +125,11 @@ class GameRepository(
         Log.d("GameRepository", "Getting game element with ID: $id")
 
         val name = getJsValue("$id.name") ?: "Err"
-        val elementType = getJsValue("$id.type")?.let {
-            GameElementType.valueOf(it.toString().uppercase())
-        } ?: GameElementType.UNKNOWN
         val coordinates = jsEngine.getCoordinates(id)
 
         return GameTask(
             id = id,
             name = name,
-            elementType = elementType,
             coordinates = coordinates,
             visible = true
         )
@@ -204,9 +199,16 @@ class GameRepository(
         return ids.map { id -> getTask(id) }
     }
 
+    fun finishGame() {
+        _currentGamePackage.value?.let { currentPackage ->
+            _currentGamePackage.value = currentPackage.copy(state = GameState.COMPLETED)
+        }
+        cleanup()
+    }
+
     fun cleanup() {
         jsEngine.cleanup()
-        currentGamePackage = null
+        _currentGamePackage.value = null
         _uiElements.value = emptyList()
 
         // Clear saved game state when cleaning up

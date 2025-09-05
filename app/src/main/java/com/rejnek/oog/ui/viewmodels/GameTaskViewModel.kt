@@ -2,11 +2,11 @@ package com.rejnek.oog.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rejnek.oog.data.model.GameState
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.rejnek.oog.data.model.GameElementType
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
@@ -27,14 +27,16 @@ class GameTaskViewModel(
         // Observe current element changes in a separate coroutine
         viewModelScope.launch {
             gameRepository.selectedElement.collect { elem ->
-                if(elem == null){
+                if (elem == null) {
                     _navigationEvents.emit(NavigationEvent.Menu)
-                    return@collect
                 }
+            }
+        }
 
-                if(elem.elementType == GameElementType.FINISH) {
+        viewModelScope.launch {
+            gameRepository.currentGamePackage.collect { pack ->
+                if (pack?.state == GameState.COMPLETED) {
                     _navigationEvents.emit(NavigationEvent.Finish)
-                    return@collect
                 }
             }
         }

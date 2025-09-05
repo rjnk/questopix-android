@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import android.widget.Toast
 import com.rejnek.oog.data.model.GamePackage
+import com.rejnek.oog.data.model.GameState
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -94,7 +95,7 @@ private fun extractGameFromZip(baseDir: File, inputStream: java.io.InputStream):
             }
         }
 
-        return GamePackage(gameInfo, gameCode, System.currentTimeMillis())
+        return GamePackage(gameInfo, gameCode, GameState.NOT_STARTED, System.currentTimeMillis())
 
     } finally {
         // Clean up temp directory

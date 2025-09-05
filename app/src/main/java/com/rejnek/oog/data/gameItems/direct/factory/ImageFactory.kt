@@ -6,6 +6,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import java.io.File
 
@@ -16,7 +17,7 @@ class ImageFactory : GenericDirectFactory() {
         Log.d("ImageFactory", "Creating image with data: $data")
         gameRepository?.addUIElement {
             MyImage(
-                gameId = gameRepository?.currentGamePackage?.getId() ?: throw Exception("Game ID not found"),
+                gameId = gameRepository?.currentGamePackage?.value?.getId() ?: throw Exception("Game ID not found"),
                 filename = data
             ).Show()
         }

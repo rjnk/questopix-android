@@ -5,9 +5,10 @@ import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 @Serializable
-class GamePackage(
+data class GamePackage(
     val gameInfo: JsonObject,
     val gameCode: String,
+    var state: GameState,
     val importedAt: Long,
 ) {
     fun getId() = gameInfo["id"]?.jsonPrimitive?.content ?: "ERROR"
@@ -16,4 +17,11 @@ class GamePackage(
     fun info(key: String) : String{
         return gameInfo[key]?.jsonPrimitive?.content ?: "ERROR"
     }
+}
+
+@Serializable
+enum class GameState {
+    NOT_STARTED,
+    IN_PROGRESS,
+    COMPLETED
 }
