@@ -20,7 +20,7 @@ class GameTaskViewModel(
     val navigationEvents = _navigationEvents.asSharedFlow()
 
     // Expose UI elements from the repository
-    val uiElements = gameRepository.uiElements
+    val uiElements = gameRepository.gameUIRepository.uiElements
 
 
     init {

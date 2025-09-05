@@ -47,7 +47,7 @@ class LibraryViewModel(
                 _showDuplicateDialog.value = true
             } else {
                 // Add directly to library
-                gameRepository.addGameToLibrary(gamePackage)
+                gameRepository.gameStorageRepository.addGameToLibrary(gamePackage)
                 loadLibraryGames()
             }
         }
@@ -57,8 +57,8 @@ class LibraryViewModel(
         viewModelScope.launch {
             _pendingGamePackage.value?.let { gamePackage ->
                 // Remove existing game and add new one
-                gameRepository.removeGameFromLibrary(gamePackage.getId())
-                gameRepository.addGameToLibrary(gamePackage)
+                gameRepository.gameStorageRepository.removeGameFromLibrary(gamePackage.getId())
+                gameRepository.gameStorageRepository.addGameToLibrary(gamePackage)
                 loadLibraryGames()
             }
             _showDuplicateDialog.value = false
@@ -91,7 +91,7 @@ class LibraryViewModel(
     fun deleteSelectedGames() {
         viewModelScope.launch {
             _selectedGameIds.value.forEach { gameId ->
-                gameRepository.removeGameFromLibrary(gameId)
+                gameRepository.gameStorageRepository.removeGameFromLibrary(gameId)
             }
             _selectedGameIds.value = emptySet()
             _isSelectionMode.value = false

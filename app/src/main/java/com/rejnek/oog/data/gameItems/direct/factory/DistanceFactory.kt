@@ -14,8 +14,8 @@ class DistanceFactory : GenericDirectFactory() {
     override suspend fun create(data: String, callbackId: String) {
         gameRepository?.addUIElement {
             Distance(
-                gameRepository?.currentLocation?.collectAsState(),
-                gameRepository?.currentLocation?.collectAsState() // TODO
+                gameRepository?.gameLocationRepository?.currentLocation?.collectAsState(),
+                gameRepository?.gameLocationRepository?.currentLocation?.collectAsState() // TODO
             ).Show()
         }
     }

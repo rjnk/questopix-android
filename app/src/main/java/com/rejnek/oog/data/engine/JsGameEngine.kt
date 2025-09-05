@@ -40,7 +40,7 @@ class JsGameEngine(
         }
 
         repository = gameRepository
-        repository?.gameItems?.let { items ->
+        repository?.gameItemRepository?.getGameItemFactories()?.let { items ->
             gameItems.addAll(items.toList())
         }
 

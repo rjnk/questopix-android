@@ -14,19 +14,18 @@ class HomeViewModel(
     private val gameRepository: GameRepository
 ) : ViewModel() {
     private var jsInitialized = false
-    private val TAG = "HomeViewModel"
 
     private val _hasSavedGame = MutableStateFlow<Boolean>(false)
     val hasSavedGame = _hasSavedGame.asStateFlow()
 
     init {
         viewModelScope.launch {
-            gameRepository.jsEngine.initialize(gameRepository)
+            gameRepository.initialize()
                 .onSuccess {
                     jsInitialized = true
-                    Log.d(TAG, "JS engine initialized successfully")
+                    Log.d("HomeViewModel", "JS engine initialized successfully")
 
-                    _hasSavedGame.value = gameRepository.hasSavedGame()
+                    _hasSavedGame.value = gameRepository.gameStorageRepository.hasSavedGame()
                 }
         }
     }
@@ -34,19 +33,19 @@ class HomeViewModel(
     fun onLoadCustomGameFile(gamePackage: GamePackage) {
         viewModelScope.launch {
             if (!jsInitialized) {
-                Log.e(TAG, "JavaScript engine not ready")
+                Log.e("HomeViewModel", "JavaScript engine not ready")
                 return@launch
             }
 
             try {
                 // Add to library first
-                gameRepository.addGameToLibrary(gamePackage)
+                gameRepository.gameStorageRepository.addGameToLibrary(gamePackage)
 
                 // Then initialize and start the game
                 gameRepository.initializeGameFromLibrary(gamePackage.getId())
-                Log.d(TAG, "Custom game '${gamePackage.getName()}' added to library and loaded successfully")
+                Log.d("HomeViewModel", "Custom game '${gamePackage.getName()}' added to library and loaded successfully")
             } catch (e: Exception) {
-                Log.e(TAG, "Error loading custom game file", e)
+                Log.e("HomeViewModel", "Error loading custom game file", e)
             }
         }
     }

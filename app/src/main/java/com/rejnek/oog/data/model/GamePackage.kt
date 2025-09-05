@@ -16,6 +16,7 @@ data class GamePackage(
     var state: GameState,
     val importedAt: Long,
     var currentTaskId: String = "start",
+    val gameState: JsonObject? = null
     ) {
     fun getId() = gameInfo["id"]?.jsonPrimitive?.content ?: throw IllegalStateException("Game ID not found")
 
