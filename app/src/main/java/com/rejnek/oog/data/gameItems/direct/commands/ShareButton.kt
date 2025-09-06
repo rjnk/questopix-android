@@ -24,13 +24,14 @@ class ShareButtonFactory() : GenericDirectFactory() {
     override val id: String = "shareButton"
 
     override suspend fun create(data: String) {
-
-        gameRepository?.addUIElement {
-            ShareButton( {
-                // take screenshot of the whole screen (INCLUDING scrolling)\
-                // open share dialog with the screenshot
-            } ).Show()
-        }
+//        gameRepository?.addUIElement {
+//            ShareButton( {
+//                // TODO
+//                // take screenshot of all content on the screen - the screen is scrollable - so include also the elements that are not on the screen
+//                // the screen will be GameTaskScreen composable
+//                // open share dialog with the screenshot
+//            } ).Show()
+//        }
     }
 }
 
@@ -77,14 +78,3 @@ class ShareButton(
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
