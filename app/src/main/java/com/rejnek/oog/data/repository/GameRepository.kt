@@ -102,6 +102,8 @@ class GameRepository(
 
 
     suspend fun setCurrentTask(elementId: String) {
+        // if(_currentGamePackage.value?.currentTaskId == elementId) return // prevent double execution
+
         _currentGamePackage.value?.currentTaskId = elementId
         gameUIRepository.clearUIElements()
         executeOnStart()

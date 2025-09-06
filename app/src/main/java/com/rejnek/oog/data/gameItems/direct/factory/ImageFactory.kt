@@ -13,6 +13,7 @@ import android.util.Log
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import java.io.File
 
+// usage: image("example.png");
 class ImageFactory : GenericDirectFactory() {
     override val id = "image"
 

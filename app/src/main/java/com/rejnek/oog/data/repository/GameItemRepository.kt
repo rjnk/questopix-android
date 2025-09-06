@@ -12,6 +12,7 @@ import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
 import com.rejnek.oog.data.gameItems.direct.factory.FinishGameButtonFactory
 import com.rejnek.oog.data.gameItems.direct.factory.ImageFactory
 import com.rejnek.oog.data.gameItems.direct.factory.SimpleMapFactory
+import com.rejnek.oog.data.gameItems.direct.factory.TakePictureFactory
 import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
 
 /**
@@ -28,6 +29,7 @@ class GameItemRepository {
         HeadingFactory(),
         DistanceFactory(),
         ImageFactory(),
+        TakePictureFactory(),
         FinishGameButtonFactory(),
         SimpleMapFactory(),
         Refresh(),
