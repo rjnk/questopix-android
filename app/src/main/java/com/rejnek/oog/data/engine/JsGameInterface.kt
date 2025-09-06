@@ -21,17 +21,17 @@ class JsGameInterface(
     /**
      * Generic method for handling direct actions from JavaScript that don't need to wait for callbacks
      * @param actionType The type of action to perform (corresponds to game item ID)
-     * @param data Additional data needed for the action
+     * @param args Additional arguments needed for the action
      * @return An immediate result string, if any (empty string for void actions)
      */
     @JavascriptInterface
-    fun directAction(actionType: String, data: String): Unit {
-        Log.d("JsGameEngine", "Direct action: $actionType with data: $data")
+    fun directAction(actionType: String, vararg args: String): Unit {
+        Log.d("JsGameEngine", "Direct action: $actionType with args: ${args.joinToString(", ")}")
 
         val gameItem = gameItems.find { it.id == actionType }
 
         CoroutineScope(Dispatchers.Main).launch {
-            gameItem?.create(data, "blank")
+            gameItem?.createWithArgs(args.toList(), "blank")
         }
     }
 

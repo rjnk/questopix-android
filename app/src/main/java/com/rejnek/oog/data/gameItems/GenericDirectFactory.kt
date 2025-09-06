@@ -4,8 +4,8 @@ abstract class GenericDirectFactory : GenericItemFactory() {
     override val js: String
         get() =
             """
-            function ${id}(data) {
-                directAction("$id", data);
+            function ${id}(...args) {
+                directAction("$id", ...args);
             }
             """.trimIndent()
 }

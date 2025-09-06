@@ -16,4 +16,8 @@ abstract class GenericItemFactory(
     }
 
     abstract suspend fun create(data: String, callbackId: String)
+    open suspend fun createWithArgs(args: List<Any>, callbackId: String) {
+        val stringArgs = args.map { it.toString() }
+        create(stringArgs.joinToString("\n"), callbackId)
+    }
 }
