@@ -16,6 +16,20 @@ import com.rejnek.oog.data.gameItems.GenericCallbackFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
+/**
+ * Usage:
+ * question("Jak se jmenovala první zastávka po Hradčasnké 😜?", (answer) => {
+ *             if (answer === "Ronalda Reagana") {
+ *                 debugPrint("Správně!");
+ *                 _score += 20;
+ *                 showTask("internacional");
+ *             }
+ *             else {
+ *                 debugPrint("Špatně.");
+ *                 showTask("internacional");
+ *             }
+ *         });
+ */
 class QuestionFactory() : GenericCallbackFactory() {
     override val id: String = "question"
 

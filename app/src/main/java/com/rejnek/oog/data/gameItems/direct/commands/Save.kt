@@ -26,7 +26,7 @@ class Save : GenericDirectFactory() {
 
             function save() {
                 const gameState = captureAllVariables();
-                directAction('save', JSON.stringify(gameState));
+                Android.directAction("$id", [JSON.stringify(gameState)]);
             }
             """.trimIndent()
 

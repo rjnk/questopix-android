@@ -3,8 +3,8 @@ package com.rejnek.oog.data.gameItems
 abstract class GenericCallbackFactory : GenericItemFactory() {
     override val js: String
         get() = """
-            function ${id}(data, callback) {
-                const callbackId = Android.registerCallback("$id", data);
+            function ${id}(data, callback, ...args) {
+                const callbackId = Android.registerCallback("$id", [data, ...args.map(arg => String(arg))]);
                 
                 window.callbackResolvers[callbackId] = (result) => {
                     callback(result);

@@ -166,23 +166,6 @@ class JsGameEngine(
 
                 var _currentTask = "start";
                 
-                // Generic function to create a callback and wait for its result
-                async function createCallback(type, data) {
-                    // Register the callback with Android
-                    const callbackId = Android.registerCallback(type, data);
-                    
-                    // Return a promise that will be resolved when the callback is triggered
-                    return new Promise((resolve) => {
-                        // Store the resolver function that will be called when the callback is triggered
-                        window.callbackResolvers[callbackId] = resolve;
-                    });
-                }
-                
-                // Function for direct actions that don't need to wait for user input
-                function directAction(type, ...args) {
-                    Android.directAction(type, args.map(arg => String(arg)));
-                }
-                
                 // Additional custom functions
                 function showTask(newTask) {
                     _currentTask = newTask;

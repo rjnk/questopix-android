@@ -40,17 +40,18 @@ class JsGameInterface(
     /**
      * Generic method to register a callback from JavaScript
      * @param callbackType The type of callback
-     * @param data Additional data needed for the callback
+     * @param args Additional arguments needed for the callback
      * @return A callback ID that JavaScript can use to resolve the callback
      */
     @JavascriptInterface
-    fun registerCallback(callbackType: String, data: String): String {
+    fun registerCallback(callbackType: String, vararg args: String): String {
         val callbackId = "callback_${callbackType}_${callbackIdCounter++}_${System.currentTimeMillis()}"
-        Log.d("JsGameEngine", "Registering $callbackType callback: $callbackId with data: $data")
+        Log.d("JsGameEngine", "Registering $callbackType callback: $callbackId with args: ${args.joinToString(", ")}")
+
+        val gameItem = gameItems.find { it.id == callbackType } as GenericCallbackFactory
 
         CoroutineScope(Dispatchers.Main).launch {
-            val gameItem = gameItems.find { it.id == callbackType } as GenericCallbackFactory
-            gameItem.create(data, callbackId)
+            gameItem.createWithArgs(args.toList(), callbackId)
         }
 
         return callbackId

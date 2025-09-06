@@ -5,7 +5,7 @@ abstract class GenericDirectFactory : GenericItemFactory() {
         get() =
             """
             function ${id}(...args) {
-                directAction("$id", ...args);
+                Android.directAction("$id", args.map(arg => String(arg)));
             }
             """.trimIndent()
 

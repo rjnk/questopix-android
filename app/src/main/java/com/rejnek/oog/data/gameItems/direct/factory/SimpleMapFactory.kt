@@ -34,7 +34,7 @@ data class SimpleMapData(
     val bottomRightLng: Double
 )
 
-// usage: simpleMap('{"backgroundImage":"map1.png","topLeftLat":50.114283,"topLeftLng":14.388549,"bottomRightLat":50.107761,"bottomRightLng":14.399235}');
+// usage: simpleMap("map2.png", 50.114903, 14.390008, 50.108091, 14.397186);
 class SimpleMapFactory : GenericDirectFactory() {
     override val id = "simpleMap"
 

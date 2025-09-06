@@ -2,6 +2,7 @@ package com.rejnek.oog.data.repository
 
 import com.rejnek.oog.data.gameItems.GenericItemFactory
 import com.rejnek.oog.data.gameItems.callback.ButtonFactory
+import com.rejnek.oog.data.gameItems.callback.MultiChoiceFactory
 import com.rejnek.oog.data.gameItems.direct.commands.DebugPrint
 import com.rejnek.oog.data.gameItems.direct.factory.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
@@ -21,6 +22,7 @@ class GameItemRepository {
     val gameItems = arrayListOf<GenericItemFactory>(
         DebugPrint(),
         QuestionFactory(),
+        MultiChoiceFactory(),
         ButtonFactory(),
         TextFactory(),
         HeadingFactory(),
