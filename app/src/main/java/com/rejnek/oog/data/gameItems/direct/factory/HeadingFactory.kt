@@ -12,13 +12,21 @@ import com.rejnek.oog.data.gameItems.GenericDirectFactory
 class HeadingFactory : GenericDirectFactory() {
     override val id = "heading"
 
-    override suspend fun create(data: String) {
-        gameRepository?.addUIElement { MyHeading(data).Show() }
+    override suspend fun createWithArgs(args: List<String>) {
+        val text = args.getOrNull(0) ?: ""
+        val alignment = when (args.getOrNull(1)?.lowercase()) {
+            "center" -> TextAlign.Center
+            "end" -> TextAlign.End
+            else -> TextAlign.Start
+        }
+
+        gameRepository?.addUIElement { MyHeading(text, alignment).Show() }
     }
 }
 
 class MyHeading(
-    private val text: String
+    private val text: String,
+    private val alignment: TextAlign = TextAlign.Start
 ) {
     @Composable
     fun Show() {
@@ -26,7 +34,7 @@ class MyHeading(
             text = text,
             style = MaterialTheme.typography.headlineLarge,
             fontSize = 32.sp,
-            textAlign = TextAlign.Start,
+            textAlign = alignment,
             modifier = Modifier.fillMaxWidth()
         )
     }
