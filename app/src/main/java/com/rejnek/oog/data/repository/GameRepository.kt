@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import android.util.Log
 import androidx.compose.runtime.Composable
+import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.model.Area
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.data.model.GameState
@@ -23,7 +24,7 @@ class GameRepository(
     context: Context
 ) {
     // Specialized repositories
-    val gameEngineRepository = GameEngineRepository(context)
+    private val jsEngine = JsGameEngine(context)
     val gameStorageRepository = GameStorageRepository(context)
     val gameLocationRepository = GameLocationRepository(context)
     val gameUIRepository = GameUIRepository()
@@ -37,8 +38,8 @@ class GameRepository(
     private val executeOnStartMutex = Mutex()
 
     // Initialize method for JS engine setup
-    suspend fun initialize(): Result<Unit> = withContext(Dispatchers.IO) {
-        return@withContext gameEngineRepository.initialize(this@GameRepository)
+    suspend fun initialize(): Result<Unit> {
+        return jsEngine.initialize(this@GameRepository).map { }
     }
 
     // Game Initialization
@@ -57,18 +58,18 @@ class GameRepository(
         _currentGamePackage.value = gamePackage
 
         // Initialize the game first with the game code
-        gameEngineRepository.initializeGame(gamePackage.gameCode)
+        jsEngine.evaluateJs(gamePackage.gameCode)
 
         // If there's saved game state, restore it
         gamePackage.gameState?.let { gameStateJson ->
-            gameEngineRepository.evaluateJs("""
-                    const savedState = $gameStateJson;
-                    Object.keys(savedState).forEach(key => {
-                        if (key.startsWith('_')) {
-                            globalThis[key] = savedState[key];
-                        }
-                    });
-                """.trimIndent())
+            jsEngine.evaluateJs("""
+                const savedState = $gameStateJson;
+                Object.keys(savedState).forEach(key => {
+                    if (key.startsWith('_')) {
+                        globalThis[key] = savedState[key];
+                    }
+                });
+            """.trimIndent())
         }
         // Start location monitoring
         val areasToMonitor = generateAreasForMonitoring(gamePackage)
@@ -82,8 +83,8 @@ class GameRepository(
         val areasToMonitor = ArrayList<Area>()
 
         for (taskId in gamePackage.getTaskIds()) {
-            val area = gameEngineRepository.getArea(taskId) ?: continue
-            areasToMonitor.add(area)
+            val area = jsEngine.getArea(taskId)
+            area?.let { areasToMonitor.add(it) }
         }
 
         return areasToMonitor
@@ -95,7 +96,7 @@ class GameRepository(
     }
 
     suspend fun refresh() {
-        val currentTask = gameEngineRepository.getJsValue("_currentTask") ?: ""
+        val currentTask = jsEngine.getJsValue("_currentTask").getOrNull() ?: ""
         setCurrentTask(currentTask)
     }
 
@@ -114,7 +115,7 @@ class GameRepository(
     suspend fun executeOnStart() {
         executeOnStartMutex.withLock {
             val taskId = _currentGamePackage.value?.currentTaskId ?: throw IllegalStateException("Current task ID is null")
-            gameEngineRepository.executeOnStart(taskId)
+            jsEngine.executeOnStart(taskId)
         }
     }
 
@@ -136,7 +137,7 @@ class GameRepository(
     }
 
     fun cleanup() {
-        gameEngineRepository.cleanup()
+        jsEngine.cleanup()
         _currentGamePackage.value = null
         gameUIRepository.clearUIElements()
 
