@@ -12,6 +12,7 @@ import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonObject
 import kotlin.coroutines.resume
 import kotlin.text.toBoolean
 
@@ -138,6 +139,17 @@ class JsGameEngine(
 
         evaluateJs("$elementId.onStart()")
         evaluateJs("save()")
+    }
+
+    suspend fun restoreState(gameState: JsonObject) {
+        evaluateJs("""
+                const savedState = $gameState;
+                Object.keys(savedState).forEach(key => {
+                    if (key.startsWith('_')) {
+                        globalThis[key] = savedState[key];
+                    }
+                });
+            """.trimIndent())
     }
 
     private fun htmlTemplate(gameItems: List<GenericItemFactory>) = """

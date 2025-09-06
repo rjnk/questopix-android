@@ -62,15 +62,9 @@ class GameRepository(
 
         // If there's saved game state, restore it
         gamePackage.gameState?.let { gameStateJson ->
-            jsEngine.evaluateJs("""
-                const savedState = $gameStateJson;
-                Object.keys(savedState).forEach(key => {
-                    if (key.startsWith('_')) {
-                        globalThis[key] = savedState[key];
-                    }
-                });
-            """.trimIndent())
+            jsEngine.restoreState(gameStateJson)
         }
+
         // Start location monitoring
         val areasToMonitor = generateAreasForMonitoring(gamePackage)
         gameLocationRepository.startLocationMonitoring(areasToMonitor) { areaId -> setCurrentTask(areaId) }
