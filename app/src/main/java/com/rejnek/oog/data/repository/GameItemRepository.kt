@@ -8,6 +8,7 @@ import com.rejnek.oog.data.gameItems.direct.factory.HeadingFactory
 import com.rejnek.oog.data.gameItems.callback.QuestionFactory
 import com.rejnek.oog.data.gameItems.direct.commands.Refresh
 import com.rejnek.oog.data.gameItems.direct.commands.Save
+import com.rejnek.oog.data.gameItems.direct.factory.ShowAllImagesFactory
 import com.rejnek.oog.data.gameItems.direct.factory.BoardFactory
 import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
 import com.rejnek.oog.data.gameItems.direct.factory.FinishGameButtonFactory
@@ -36,6 +37,7 @@ class GameItemRepository {
         FinishGameButtonFactory(),
         SimpleMapFactory(),
         BoardFactory(),
+        ShowAllImagesFactory(),
         Refresh(),
         Save()
     )
