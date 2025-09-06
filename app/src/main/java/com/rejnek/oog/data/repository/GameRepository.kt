@@ -100,7 +100,9 @@ class GameRepository(
         setCurrentTask(currentTask)
     }
 
-
+     fun evaluateJs(code: String) = CoroutineScope(Dispatchers.IO).launch {
+        jsEngine.evaluateJs(code)
+    }
 
     suspend fun setCurrentTask(elementId: String) {
         // if(_currentGamePackage.value?.currentTaskId == elementId) return // prevent double execution

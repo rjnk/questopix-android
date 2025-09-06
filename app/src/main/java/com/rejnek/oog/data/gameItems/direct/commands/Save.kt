@@ -1,6 +1,7 @@
 package com.rejnek.oog.data.gameItems.direct.commands
 
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
+import com.rejnek.oog.data.model.GameState
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 
@@ -37,7 +38,7 @@ class Save : GenericDirectFactory() {
                 // Create a copy of the game package with updated game state
                 val updatedGamePackage = currentGamePackage.copy(
                     gameState = Json.parseToJsonElement(data).jsonObject,
-                    state = com.rejnek.oog.data.model.GameState.IN_PROGRESS
+                    state = GameState.IN_PROGRESS
                 )
 
                 // Update the current game package in the repository

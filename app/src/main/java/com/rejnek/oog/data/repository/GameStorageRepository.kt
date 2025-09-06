@@ -1,6 +1,7 @@
 package com.rejnek.oog.data.repository
 
 import android.content.Context
+import android.util.Log
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.data.storage.GameStorage
 import kotlinx.coroutines.Dispatchers
@@ -31,6 +32,8 @@ class GameStorageRepository(
         gameStorage.addGameToLibrary(gamePackage)
         // Mark this game as the currently saved one
         gameStorage.setSavedGameId(gamePackage.getId())
+
+        Log.d("GameStorageRepository", "Game ${gamePackage.getId()} saved with ${gamePackage.currentTaskId}")
     }
 
     suspend fun getGameById(gameId: String): GamePackage? = withContext(Dispatchers.IO) {
