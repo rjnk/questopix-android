@@ -3,6 +3,8 @@ package com.rejnek.oog.data.engine
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import com.rejnek.oog.data.gameItems.GenericCallbackFactory
+import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import com.rejnek.oog.data.gameItems.GenericItemFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,10 +30,10 @@ class JsGameInterface(
     fun directAction(actionType: String, vararg args: String): Unit {
         Log.d("JsGameEngine", "Direct action: $actionType with args: ${args.joinToString(", ")}")
 
-        val gameItem = gameItems.find { it.id == actionType }
+        val gameItem = gameItems.find { it.id == actionType } as GenericDirectFactory
 
         CoroutineScope(Dispatchers.Main).launch {
-            gameItem?.createWithArgs(args.toList(), "blank")
+            gameItem.createWithArgs(args.toList())
         }
     }
 
@@ -47,8 +49,8 @@ class JsGameInterface(
         Log.d("JsGameEngine", "Registering $callbackType callback: $callbackId with data: $data")
 
         CoroutineScope(Dispatchers.Main).launch {
-            val gameItem = gameItems.find { it.id == callbackType }
-            gameItem?.create(data, callbackId) ?: Log.e("JsGameEngine", "No game item found with ID: $callbackType")
+            val gameItem = gameItems.find { it.id == callbackType } as GenericCallbackFactory
+            gameItem.create(data, callbackId)
         }
 
         return callbackId

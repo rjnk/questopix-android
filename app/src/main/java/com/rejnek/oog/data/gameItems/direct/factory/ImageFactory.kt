@@ -16,7 +16,7 @@ import java.io.File
 class ImageFactory : GenericDirectFactory() {
     override val id = "image"
 
-    override suspend fun create(data: String, callbackId: String) {
+    override suspend fun create(data: String) {
         Log.d("ImageFactory", "Creating image with data: $data")
         gameRepository?.addUIElement {
             MyImage(

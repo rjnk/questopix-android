@@ -12,7 +12,7 @@ import com.rejnek.oog.data.gameItems.GenericDirectFactory
 class HeadingFactory : GenericDirectFactory() {
     override val id = "heading"
 
-    override suspend fun create(data: String, callbackId: String) {
+    override suspend fun create(data: String) {
         gameRepository?.addUIElement { MyHeading(data).Show() }
     }
 }

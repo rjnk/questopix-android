@@ -16,8 +16,8 @@ import kotlin.math.*
 class DistanceFactory : GenericDirectFactory() {
     override val id = "distance"
 
-    override suspend fun create(data: String, callbackId: String) {
-        val targetLocation = parseCoordinates(data)
+    override suspend fun createWithArgs(args: List<String>) {
+        val targetLocation = Coordinates(args[0].toDouble(), args[1].toDouble())
 
         gameRepository?.addUIElement {
             DistanceCard(
@@ -63,23 +63,6 @@ fun DistanceCard(
 }
 
 // Helper distance functions
-private fun parseCoordinates(data: String): Coordinates {
-    val parts = data.split(",").map { it.trim() }
-    val lat = parseCoordinatePart(parts[0])
-    val lng = parseCoordinatePart(parts[1])
-
-    return  Coordinates(lat = lat, lng = lng)
-}
-
-private fun parseCoordinatePart(part: String): Double {
-    val direction = part.last()
-    val value = part.dropLast(1).toDouble()
-    return when (direction.uppercaseChar()) {
-        'S', 'W' -> -value
-        else -> value
-    }
-}
-
 private fun calculateDistance(from: Coordinates, to: Coordinates): Double {
     val earthRadius = 6371000.0
     val latDistance = Math.toRadians(to.lat - from.lat)

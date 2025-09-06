@@ -180,7 +180,7 @@ class JsGameEngine(
                 
                 // Function for direct actions that don't need to wait for user input
                 function directAction(type, ...args) {
-                    Android.directAction(type, [...args]);
+                    Android.directAction(type, args.map(arg => String(arg)));
                 }
                 
                 // Additional custom functions

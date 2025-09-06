@@ -16,7 +16,7 @@ import kotlinx.coroutines.launch
 class FinishGameButtonFactory : GenericDirectFactory() {
     override val id = "finishGameButton"
 
-    override suspend fun create(data: String, callbackId: String) {
+    override suspend fun create(data: String) {
         gameRepository?.addUIElement {
             FinishGameButton(
                 text = data,

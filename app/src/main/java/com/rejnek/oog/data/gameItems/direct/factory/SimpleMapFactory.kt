@@ -38,8 +38,8 @@ data class SimpleMapData(
 class SimpleMapFactory : GenericDirectFactory() {
     override val id = "simpleMap"
 
-    override suspend fun create(data: String, callbackId: String) {
-        val mapData = Json.decodeFromString<SimpleMapData>(data)
+    override suspend fun createWithArgs(args: List<String>) {
+        val mapData = SimpleMapData(args[0], args[1].toDouble(), args[2].toDouble(), args[3].toDouble(), args[4].toDouble())
         val simpleMap = SimpleMap(
             gameId = gameRepository?.currentGamePackage?.value?.getId() ?: "",
             mapData = mapData,

@@ -10,7 +10,7 @@ import com.rejnek.oog.data.gameItems.GenericDirectFactory
 class TextFactory : GenericDirectFactory() {
     override val id = "text"
 
-    override suspend fun create(data: String, callbackId: String) {
+    override suspend fun create(data: String) {
         gameRepository?.addUIElement { MyText(data).Show() }
     }
 }

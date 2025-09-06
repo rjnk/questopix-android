@@ -12,4 +12,10 @@ abstract class GenericCallbackFactory : GenericItemFactory() {
                 };
             }
         """.trimIndent()
+
+    open suspend fun create(data: String, callbackId: String) { }
+
+    open suspend fun createWithArgs(args: List<String>, callbackId: String) {
+        create(args.joinToString("\n"), callbackId)
+    }
 }

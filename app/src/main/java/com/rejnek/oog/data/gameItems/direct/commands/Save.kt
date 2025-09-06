@@ -30,7 +30,7 @@ class Save : GenericDirectFactory() {
             }
             """.trimIndent()
 
-    override suspend fun create(data: String, callbackId: String) {
+    override suspend fun create(data: String) {
         gameRepository?.let { repo ->
             val currentGamePackage = repo.currentGamePackage.value
             if (currentGamePackage != null) {

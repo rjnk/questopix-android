@@ -8,6 +8,12 @@ abstract class GenericDirectFactory : GenericItemFactory() {
                 directAction("$id", ...args);
             }
             """.trimIndent()
+
+    open suspend fun create(data: String) {}
+
+    open suspend fun createWithArgs(args: List<String>) {
+        create(args.joinToString("\n"))
+    }
 }
 
 
