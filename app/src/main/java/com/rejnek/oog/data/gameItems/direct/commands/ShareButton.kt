@@ -17,7 +17,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -38,11 +37,9 @@ import androidx.core.view.doOnPreDraw
 import com.rejnek.oog.ui.theme.AppTheme
 import android.view.View
 import androidx.compose.foundation.background
-import android.os.Handler
-import android.os.Looper
 import java.io.File
 import java.io.FileOutputStream
-import androidx.compose.foundation.layout.Box
+import java.util.concurrent.atomic.AtomicBoolean
 import androidx.core.graphics.createBitmap
 
 class ShareButtonFactory() : GenericDirectFactory() {
@@ -52,86 +49,69 @@ class ShareButtonFactory() : GenericDirectFactory() {
         val repo = gameRepository ?: return
         repo.addUIElement {
             val context = LocalContext.current
-            ShareButton({
-                captureAndShareFullContent(context, repo.gameUIRepository.uiElements.value)
-            }).Show()
+            ShareButton({ captureAndShare(context, repo.gameUIRepository.uiElements.value) }).Show()
         }
     }
 
-    private var isCapturing = false
+    private val capturing = AtomicBoolean(false)
 
-    private fun captureAndShareFullContent(
+    private fun captureAndShare(
         context: Context,
         uiElements: List<@Composable () -> Unit>
     ) {
-        if (isCapturing) return
-        val activity = context as? Activity ?: return
-        isCapturing = true
-        try {
-            val root = activity.window?.decorView?.findViewById<ViewGroup>(android.R.id.content) ?: return
-            val composeView = ComposeView(context).apply {
-                visibility = View.INVISIBLE
-                setContent {
-                    AppTheme {
-                        val bg = MaterialTheme.colorScheme.background
-                        Surface(
-                            modifier = androidx.compose.ui.Modifier
+        if (!capturing.compareAndSet(false, true)) return
+        val activity = context as? Activity ?: run { capturing.set(false); return }
+        val root = activity.window?.decorView?.findViewById<ViewGroup>(android.R.id.content) ?: run { capturing.set(false); return }
+
+        val composeView = ComposeView(context).apply {
+            // Invisible but participates in layout
+            visibility = View.INVISIBLE
+            setContent {
+                AppTheme {
+                    val bg = MaterialTheme.colorScheme.background
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(bg),
+                        color = bg
+                    ) {
+                        Column(
+                            modifier = Modifier
                                 .fillMaxWidth()
-                                .background(bg),
-                            color = bg
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Column(
-                                modifier = androidx.compose.ui.Modifier
-                                    .fillMaxWidth()
-                                    .padding(16.dp),
-                                horizontalAlignment = Alignment.CenterHorizontally
-                            ) {
-                                uiElements.forEach { element ->
-                                    Box(
-                                        modifier = androidx.compose.ui.Modifier.fillMaxWidth(),
-                                        contentAlignment = Alignment.Center
-                                    ) { element() }
-                                    Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
+                            uiElements.forEachIndexed { index, element ->
+                                element()
+                                if (index != uiElements.lastIndex) {
+                                    Spacer(modifier = Modifier.height(8.dp))
                                 }
                             }
                         }
                     }
                 }
             }
-            // Add to hierarchy so it has a WindowRecomposer
-            root.addView(
-                composeView,
-                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-            )
+        }
 
-            // After it's measured & laid out capture bitmap
-            composeView.doOnPreDraw {
-                // Delay a bit to allow async font (Google Fonts) loading & recomposition
-                Handler(Looper.getMainLooper()).postDelayed({
-                    composeView.post {
-                        try {
-                            val w = composeView.width
-                            val h = composeView.height
-                            if (w > 0 && h > 0) {
-                                val safeHeight = h.coerceAtMost(16000)
-                                val bitmap = createBitmap(w, safeHeight)
-                                val canvas = Canvas(bitmap)
-                                // Background already drawn by Surface in composition
-                                composeView.draw(canvas)
-                                shareBitmap(context, bitmap)
-                            }
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                        } finally {
-                            root.removeView(composeView)
-                            isCapturing = false
-                        }
-                    }
-                }, 180L)
+        root.addView(
+            composeView,
+            ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        )
+
+        composeView.doOnPreDraw {
+            composeView.post {
+                val w = composeView.width
+                val h = composeView.height
+                if (w > 0 && h > 0) {
+                    val safeHeight = h.coerceAtMost(16000)
+                    val bitmap = createBitmap(w, safeHeight)
+                    val canvas = Canvas(bitmap)
+                    composeView.draw(canvas)
+                    shareBitmap(context, bitmap)
+                }
+                root.removeView(composeView)
+                capturing.set(false)
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-            isCapturing = false
         }
     }
 
