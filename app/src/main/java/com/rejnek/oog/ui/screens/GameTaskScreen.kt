@@ -30,31 +30,34 @@ fun GameTaskScreen(
     val gameState by viewModel.gameState.collectAsState()
     val uiElements by viewModel.uiElements.collectAsState()
 
-    BackHandler {  }
+    BackHandler { }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-    ) {
-
-        if(gameState != GameState.ARCHIVED) {
-            TopBar(gameName) { onOpenSettings() }
+    Column(Modifier.fillMaxSize()) {
+        if (gameState != GameState.ARCHIVED) {
+            TopBar(gameName, onOpenSettings)
         }
 
-        // Content
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
+        Box(
             modifier = Modifier
-                .fillMaxSize()
                 .weight(1f)
-                .background(MaterialTheme .colorScheme.background)
-                .padding(start = 16.dp, end = 16.dp, bottom = 16.dp)
+                .fillMaxWidth()
         ) {
-            uiElements.forEach { element ->
-                element()
-                Spacer(modifier = Modifier.height(8.dp))
+            val scrollState = rememberScrollState()
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .verticalScroll(scrollState)
+                    .background(MaterialTheme.colorScheme.background)
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                uiElements.forEachIndexed { index, element ->
+                    element()
+                    if (index != uiElements.lastIndex) {
+                        Spacer(Modifier.height(8.dp))
+                    }
+                }
             }
         }
     }
@@ -77,9 +80,7 @@ fun TopBar(
             style = MaterialTheme.typography.titleLarge,
             modifier = Modifier.weight(1f)
         )
-        IconButton(
-            onClick = onClick,
-        ) {
+        IconButton(onClick = onClick) {
             Icon(
                 imageVector = Icons.Filled.Settings,
                 contentDescription = "Settings"
