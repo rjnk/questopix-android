@@ -40,7 +40,7 @@ fun GameCard(
             containerColor = when {
                 isSelected -> MaterialTheme.colorScheme.tertiaryContainer
                 game.state == GameState.IN_PROGRESS -> MaterialTheme.colorScheme.primaryContainer
-                game.state == GameState.COMPLETED -> MaterialTheme.colorScheme.surfaceContainer
+                game.state == GameState.ARCHIVED -> MaterialTheme.colorScheme.surfaceContainer
                 else -> MaterialTheme.colorScheme.secondaryContainer
             }
         )

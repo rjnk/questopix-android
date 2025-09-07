@@ -7,7 +7,6 @@ import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
 class GameTaskViewModel(
@@ -28,7 +27,7 @@ class GameTaskViewModel(
             gameRepository.currentGamePackage.collect { pack ->
                 _gameName.value = pack?.getName() ?: ""
 
-                if (pack?.state == GameState.COMPLETED) {
+                if (pack?.state == GameState.FINISHED) {
                     _finishGame.emit(true)
                 }
             }

@@ -35,7 +35,7 @@ fun LibraryScreenContent(
         } else {
             val inProgressGames = games.filter { it.state == GameState.IN_PROGRESS }
             val newGames = games.filter { it.state == GameState.NOT_STARTED }
-            val completedGames = games.filter { it.state == GameState.COMPLETED }
+            val ARCHIVEDGames = games.filter { it.state == GameState.ARCHIVED }
             val disableOtherStates = inProgressGames.isNotEmpty()
 
             LazyColumn(
@@ -66,9 +66,9 @@ fun LibraryScreenContent(
                         )
                     }
                 }
-                if (completedGames.isNotEmpty()) {
+                if (ARCHIVEDGames.isNotEmpty()) {
                     item{ SectionHeading("Completed Games") }
-                    items(completedGames) { game ->
+                    items(ARCHIVEDGames) { game ->
                         GameCard(
                             game = game,
                             isSelected = game.getId() in selectedGameIds,

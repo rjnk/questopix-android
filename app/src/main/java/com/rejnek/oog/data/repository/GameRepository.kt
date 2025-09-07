@@ -123,7 +123,10 @@ class GameRepository(
     // Game Lifecycle
     fun finishGame() {
         _currentGamePackage.value?.let { currentPackage ->
-            _currentGamePackage.value = currentPackage.copy(state = GameState.COMPLETED)
+            _currentGamePackage.value = currentPackage.copy(state = GameState.FINISHED)
+        }
+        _currentGamePackage.value?.let { currentPackage ->
+            _currentGamePackage.value = currentPackage.copy(state = GameState.ARCHIVED)
         }
         CoroutineScope(Dispatchers.IO).launch {
             gameStorageRepository.saveGame(_currentGamePackage.value ?: throw IllegalStateException("No current game package"))

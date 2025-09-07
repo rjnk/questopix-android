@@ -34,7 +34,7 @@ class Save : GenericDirectFactory() {
     override suspend fun create(data: String) {
         gameRepository?.let { repo ->
             val currentGamePackage = repo.currentGamePackage.value
-            if (currentGamePackage != null) {
+            if (currentGamePackage != null && currentGamePackage.state != GameState.ARCHIVED) {
                 // Create a copy of the game package with updated game state
                 val updatedGamePackage = currentGamePackage.copy(
                     gameState = Json.parseToJsonElement(data).jsonObject,

@@ -33,7 +33,8 @@ data class GamePackage(
 enum class GameState {
     NOT_STARTED,
     IN_PROGRESS,
-    COMPLETED
+    FINISHED,
+    ARCHIVED
 }
 
 @Serializable
