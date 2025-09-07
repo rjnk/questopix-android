@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.data.model.GamePackage
+import com.rejnek.oog.data.model.GameState
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
@@ -24,17 +25,24 @@ fun GameCard(
     game: GamePackage,
     isSelected: Boolean,
     onGameSelected: () -> Unit,
-    onGameLongPress: () -> Unit
+    onGameLongPress: () -> Unit,
+    isEnabled: Boolean = true
 ) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .combinedClickable(
+                enabled = isEnabled,
                 onClick = onGameSelected,
                 onLongClick = onGameLongPress
             ),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.secondaryContainer
+            containerColor = when {
+                isSelected -> MaterialTheme.colorScheme.tertiaryContainer
+                game.state == GameState.IN_PROGRESS -> MaterialTheme.colorScheme.primaryContainer
+                game.state == GameState.COMPLETED -> MaterialTheme.colorScheme.surfaceContainer
+                else -> MaterialTheme.colorScheme.secondaryContainer
+            }
         )
     ) {
         Column(
@@ -45,15 +53,15 @@ fun GameCard(
             Text(
                 text = game.getName(),
                 style = MaterialTheme.typography.bodyLarge,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                color = if (isEnabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = game.info("description"),
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             )
         }
     }
 }
-

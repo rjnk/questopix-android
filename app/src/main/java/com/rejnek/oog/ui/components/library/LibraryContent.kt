@@ -12,6 +12,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.SportsEsports
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.data.model.GameState
@@ -32,44 +33,66 @@ fun LibraryScreenContent(
         if (games.isEmpty()) {
             EmptyLibraryState()
         } else {
-            val unfinishedGames = games.filter { it.state != GameState.COMPLETED }
+            val inProgressGames = games.filter { it.state == GameState.IN_PROGRESS }
+            val newGames = games.filter { it.state == GameState.NOT_STARTED }
             val completedGames = games.filter { it.state == GameState.COMPLETED }
+            val disableOtherStates = inProgressGames.isNotEmpty()
 
             LazyColumn(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(unfinishedGames) { game ->
-                    GameCard(
-                        game = game,
-                        isSelected = game.getId() in selectedGameIds,
-                        onGameSelected = { onGameSelected(game.getId()) },
-                        onGameLongPress = { onGameLongPress(game.getId()) }
-                    )
-                }
-
-                if (completedGames.isNotEmpty()) {
-                    item {
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = "Completed Games",
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(vertical = 8.dp)
+                if(inProgressGames.isNotEmpty()) {
+                    item{ SectionHeading("In Progress") }
+                    items(inProgressGames) { game ->
+                        GameCard(
+                            game = game,
+                            isSelected = game.getId() in selectedGameIds,
+                            onGameSelected = { onGameSelected(game.getId()) },
+                            onGameLongPress = { onGameLongPress(game.getId()) },
+                            isEnabled = true
                         )
                     }
+                    item{ HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp)) }
+                }
+                if(newGames.isNotEmpty()){
+                    item{ SectionHeading("Games to Play") }
+                    items(newGames) { game ->
+                        GameCard(
+                            game = game,
+                            isSelected = game.getId() in selectedGameIds,
+                            onGameSelected = { onGameSelected(game.getId()) },
+                            onGameLongPress = { onGameLongPress(game.getId()) },
+                            isEnabled = !disableOtherStates
+                        )
+                    }
+                }
+                if (completedGames.isNotEmpty()) {
+                    item{ SectionHeading("Completed Games") }
                     items(completedGames) { game ->
                         GameCard(
                             game = game,
                             isSelected = game.getId() in selectedGameIds,
                             onGameSelected = { onGameSelected(game.getId()) },
-                            onGameLongPress = { onGameLongPress(game.getId()) }
+                            onGameLongPress = { onGameLongPress(game.getId()) },
+                            isEnabled = !disableOtherStates
                         )
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+private fun SectionHeading(
+    title: String
+){
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.Medium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 @Composable
@@ -99,4 +122,3 @@ private fun EmptyLibraryState() {
         )
     }
 }
-
