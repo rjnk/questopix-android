@@ -9,29 +9,145 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.random.Random
+import android.app.Activity
+import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.view.ViewGroup
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
+import androidx.compose.ui.platform.ComposeView
+import androidx.core.content.FileProvider
+import androidx.core.view.doOnPreDraw
+import com.rejnek.oog.ui.theme.AppTheme
+import android.view.View
+import androidx.compose.foundation.background
+import android.os.Handler
+import android.os.Looper
+import java.io.File
+import java.io.FileOutputStream
+import androidx.compose.foundation.layout.Box
+import androidx.core.graphics.createBitmap
 
 class ShareButtonFactory() : GenericDirectFactory() {
     override val id: String = "shareButton"
 
     override suspend fun create(data: String) {
-//        gameRepository?.addUIElement {
-//            ShareButton( {
-//                // TODO
-//                // take screenshot of all content on the screen - the screen is scrollable - so include also the elements that are not on the screen
-//                // the screen will be GameTaskScreen composable
-//                // open share dialog with the screenshot
-//            } ).Show()
-//        }
+        val repo = gameRepository ?: return
+        repo.addUIElement {
+            val context = LocalContext.current
+            ShareButton({
+                captureAndShareFullContent(context, repo.gameUIRepository.uiElements.value)
+            }).Show()
+        }
+    }
+
+    private var isCapturing = false
+
+    private fun captureAndShareFullContent(
+        context: Context,
+        uiElements: List<@Composable () -> Unit>
+    ) {
+        if (isCapturing) return
+        val activity = context as? Activity ?: return
+        isCapturing = true
+        try {
+            val root = activity.window?.decorView?.findViewById<ViewGroup>(android.R.id.content) ?: return
+            val composeView = ComposeView(context).apply {
+                visibility = View.INVISIBLE
+                setContent {
+                    AppTheme {
+                        val bg = MaterialTheme.colorScheme.background
+                        Surface(
+                            modifier = androidx.compose.ui.Modifier
+                                .fillMaxWidth()
+                                .background(bg),
+                            color = bg
+                        ) {
+                            Column(
+                                modifier = androidx.compose.ui.Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                uiElements.forEach { element ->
+                                    Box(
+                                        modifier = androidx.compose.ui.Modifier.fillMaxWidth(),
+                                        contentAlignment = Alignment.Center
+                                    ) { element() }
+                                    Spacer(modifier = androidx.compose.ui.Modifier.height(8.dp))
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            // Add to hierarchy so it has a WindowRecomposer
+            root.addView(
+                composeView,
+                ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+            )
+
+            // After it's measured & laid out capture bitmap
+            composeView.doOnPreDraw {
+                // Delay a bit to allow async font (Google Fonts) loading & recomposition
+                Handler(Looper.getMainLooper()).postDelayed({
+                    composeView.post {
+                        try {
+                            val w = composeView.width
+                            val h = composeView.height
+                            if (w > 0 && h > 0) {
+                                val safeHeight = h.coerceAtMost(16000)
+                                val bitmap = createBitmap(w, safeHeight)
+                                val canvas = Canvas(bitmap)
+                                // Background already drawn by Surface in composition
+                                composeView.draw(canvas)
+                                shareBitmap(context, bitmap)
+                            }
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                        } finally {
+                            root.removeView(composeView)
+                            isCapturing = false
+                        }
+                    }
+                }, 180L)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            isCapturing = false
+        }
+    }
+
+    private fun shareBitmap(context: Context, bitmap: Bitmap) {
+        val cacheDir = File(context.cacheDir, "shares").apply { mkdirs() }
+        val file = File(cacheDir, "game_share_${System.currentTimeMillis()}.png")
+        FileOutputStream(file).use { out ->
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
+        }
+        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+        val shareIntent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/png"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        context.startActivity(Intent.createChooser(shareIntent, "Share results"))
     }
 }
 
@@ -48,11 +164,7 @@ class ShareButton(
         val text = "Share the results!"
         val onClick by onButtonClick.collectAsState()
 
-        // Generate a random color from 3 Material theme colors that look good on light green
-        val randomColorIndex = remember {
-            Random.nextInt(3)
-        }
-
+        val randomColorIndex = remember { Random.nextInt(3) }
         val selectedColor = when (randomColorIndex) {
             0 -> MaterialTheme.colorScheme.primary
             1 -> MaterialTheme.colorScheme.secondary
@@ -61,8 +173,7 @@ class ShareButton(
 
         Button(
             onClick = onClick,
-            modifier = modifier
-                .fillMaxWidth(),
+            modifier = modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = selectedColor,
                 contentColor = MaterialTheme.colorScheme.onPrimary
@@ -71,8 +182,7 @@ class ShareButton(
             Icon(
                 imageVector = Icons.Default.Share,
                 contentDescription = "Share Icon",
-                modifier = Modifier
-                    .padding(end = 8.dp)
+                modifier = Modifier.padding(end = 8.dp)
             )
             Text(text = text)
         }
