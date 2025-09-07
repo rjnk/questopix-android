@@ -15,8 +15,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -38,22 +40,22 @@ fun LibraryScreen(
     onNavigateToGameInfo: (String) -> Unit = {},
     viewModel: LibraryViewModel = koinViewModel()
 ) {
+    // library games
     val libraryGames = viewModel.libraryGames.collectAsState().value
+    // selecting
     val selectedGameIds = viewModel.selectedGameIds.collectAsState().value
     val isSelectionMode = viewModel.isSelectionMode.collectAsState().value
+    var showDeleteDialog by remember { mutableStateOf(false) }
+    // file picker
+    val launchFilePicker = rememberGameFilePicker { viewModel.onAddGameFromFile(it, onNavigateToGameInfo) }
+    // dialog for duplicity import
     val showDuplicateDialog = viewModel.showDuplicateDialog.collectAsState().value
     val pendingGamePackage = viewModel.pendingGamePackage.collectAsState().value
-
-    val (showDeleteDialog, setShowDeleteDialog) = remember { mutableStateOf(false) }
-
-    val launchFilePicker = rememberGameFilePicker { gamePackage ->
-        viewModel.onAddGameFromFile(gamePackage)
-    }
 
     DuplicateGameDialog(
         show = showDuplicateDialog,
         gameName = pendingGamePackage?.getName() ?: "",
-        onConfirm = { viewModel.onConfirmDuplicateReplace() },
+        onConfirm = { viewModel.onConfirmDuplicateReplace(onNavigateToGameInfo) },
         onCancel = { viewModel.onCancelDuplicateReplace() }
     )
 
@@ -62,9 +64,9 @@ fun LibraryScreen(
         count = selectedGameIds.size,
         onConfirm = {
             viewModel.deleteSelectedGames()
-            setShowDeleteDialog(false)
+            showDeleteDialog = false
         },
-        onDismiss = { setShowDeleteDialog(false) }
+        onDismiss = { showDeleteDialog = false }
     )
 
     Scaffold(
@@ -76,7 +78,7 @@ fun LibraryScreen(
                 onExitSelectionMode = { viewModel.toggleSelectionMode() },
                 onEnterSelectionMode = { viewModel.toggleSelectionMode() },
                 onSelectAll = { viewModel.selectAllGames() },
-                onDeleteSelected = { setShowDeleteDialog(true) },
+                onDeleteSelected = { showDeleteDialog = true },
                 onNavigateToSettings = onNavigateToSettings
             )
         },
