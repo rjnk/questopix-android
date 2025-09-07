@@ -18,6 +18,7 @@ val appModule = module {
     viewModel { LibraryViewModel(get()) }
     viewModel { GameInfoViewModel(get()) }
     viewModel { GameTaskViewModel(get()) }
+    viewModel { SettingsViewModel(get()) }
     // Shared events ViewModel (activity scoped)
     viewModel { SharedEventsViewModel() }
 }

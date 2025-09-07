@@ -21,11 +21,12 @@ import kotlinx.coroutines.withContext
  * Maintains the same public API for backward compatibility
  */
 class GameRepository(
-    context: Context
+    private val context: Context
 ) {
     // Specialized repositories
     private val jsEngine = JsGameEngine(context)
     val gameStorageRepository = GameStorageRepository(context)
+    val gameImageRepository = GameImageRepository()
     val gameLocationRepository = GameLocationRepository(context)
     val gameUIRepository = GameUIRepository()
     val gameItemRepository = GameItemRepository()
@@ -132,6 +133,31 @@ class GameRepository(
             gameStorageRepository.saveGame(_currentGamePackage.value ?: throw IllegalStateException("No current game package"))
             gameStorageRepository.clearSavedGame()
         }
+        cleanup()
+    }
+
+    fun pauseCurrentGame() {
+        CoroutineScope(Dispatchers.IO).launch {
+            gameStorageRepository.saveGame(_currentGamePackage.value ?: throw IllegalStateException("No current game package"))
+        }
+        cleanup()
+    }
+
+    fun quitCurrentGame() {
+        // Save the game state with reseted values
+        val clearPackage = GamePackage(
+            gameInfo = _currentGamePackage.value?.gameInfo ?: throw IllegalStateException("No current game package"),
+            gameCode = _currentGamePackage.value?.gameCode ?: throw IllegalStateException("No current game package"),
+            state = GameState.NOT_STARTED,
+            importedAt = _currentGamePackage.value?.importedAt ?: throw IllegalStateException("No current game package"),
+            currentTaskId = "start",
+            gameState = null // Clear the saved state
+        )
+        CoroutineScope(Dispatchers.IO).launch {
+            gameStorageRepository.saveGame(clearPackage)
+            gameStorageRepository.clearSavedGame()
+        }
+        gameImageRepository.deleteAllImages(context, clearPackage.getId())
         cleanup()
     }
 

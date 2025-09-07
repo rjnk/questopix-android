@@ -89,6 +89,9 @@ fun AppRouter() {
 
         composable(Routes.SettingsScreen.route) {
             SettingsScreen(
+                onGoToMenu = {
+                    navController.navigate(Routes.HomeScreen.route)
+                },
                 onNavigateBack = {
                     navController.popBackStack()
                 }

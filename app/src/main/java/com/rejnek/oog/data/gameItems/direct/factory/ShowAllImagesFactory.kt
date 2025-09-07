@@ -45,7 +45,7 @@ class MyImageGallery(
     fun Show() {
         val context = LocalContext.current
         val captureMode = LocalCaptureMode.current
-        val gameImagesDir = File(context.filesDir, "game_images/$gameId")
+        val gameImagesDir = File(context.filesDir, "user_images/$gameId")
 
         val imageFiles = remember {
             if (gameImagesDir.exists()) {

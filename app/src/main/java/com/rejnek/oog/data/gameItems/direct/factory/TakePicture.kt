@@ -51,7 +51,7 @@ class MyTakePicture(
 
         val fileName = "taken-image-$currentTask.jpg"
 
-        val imageFile = File(context.filesDir, "game_images/$gameId/$fileName")
+        val imageFile = File(context.filesDir, "user_images/$gameId/$fileName")
         var capturedImagePath by remember { mutableStateOf(if (imageFile.exists()) imageFile.absolutePath else null) }
         var tempImageUri by remember { mutableStateOf<Uri?>(null) }
 
@@ -60,7 +60,7 @@ class MyTakePicture(
             contract = ActivityResultContracts.TakePicture()
         ) { success ->
             if (success && tempImageUri != null) {
-                val gameImagesDir = File(context.filesDir, "game_images/$gameId")
+                val gameImagesDir = File(context.filesDir, "user_images/$gameId")
                 if (!gameImagesDir.exists()) {
                     gameImagesDir.mkdirs()
                 }
