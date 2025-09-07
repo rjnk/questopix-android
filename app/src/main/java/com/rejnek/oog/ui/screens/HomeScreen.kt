@@ -38,6 +38,7 @@ fun HomeScreen(
     onLoadGameClick: () -> Unit,
     onNavigateToLibrary: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
+    onLoadGameFromFileViaLibrary: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel()
 ) {
     val launchFilePicker = rememberGameFilePicker { gamePackage ->
@@ -68,6 +69,7 @@ fun HomeScreen(
             },
             showSavedGame = viewModel.hasSavedGame.collectAsState().value,
             onNavigateToLibrary = onNavigateToLibrary,
+            onImportGameViaLibrary = onLoadGameFromFileViaLibrary,
             modifier = Modifier.padding(innerPadding)
         )
     }
@@ -78,6 +80,7 @@ fun HomeScreenContent(
     onLoadCustomGameClick: () -> Unit,
     onLoadSavedClicked: () -> Unit,
     onNavigateToLibrary: () -> Unit,
+    onImportGameViaLibrary: () -> Unit,
     showSavedGame: Boolean,
     modifier: Modifier = Modifier
 ){
@@ -127,7 +130,9 @@ fun HomeScreenContent(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Button(
-                    onClick = onLoadCustomGameClick,
+                    onClick = {
+                        onImportGameViaLibrary()
+                    },
                     content = {
                         Icon(
                             imageVector = Icons.Default.UploadFile,

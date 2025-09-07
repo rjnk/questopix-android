@@ -30,7 +30,9 @@ import com.rejnek.oog.ui.components.library.LibraryTopBar
 import com.rejnek.oog.ui.components.library.rememberGameFilePicker
 import com.rejnek.oog.ui.navigation.Routes
 import com.rejnek.oog.ui.viewmodels.LibraryViewModel
+import com.rejnek.oog.ui.viewmodels.SharedEventsViewModel
 import org.koin.androidx.compose.koinViewModel
+import androidx.compose.runtime.LaunchedEffect
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,6 +40,7 @@ fun LibraryScreen(
     onNavigateToHome: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     onNavigateToGameInfo: (String) -> Unit = {},
+    sharedEvents: SharedEventsViewModel? = null,
     viewModel: LibraryViewModel = koinViewModel()
 ) {
     // library games
@@ -51,6 +54,16 @@ fun LibraryScreen(
     // dialog for duplicity import
     val showDuplicateDialog = viewModel.showDuplicateDialog.collectAsState().value
     val pendingGamePackage = viewModel.pendingGamePackage.collectAsState().value
+
+    // Observe shared import event
+    val requestImport = sharedEvents?.requestImportGame?.collectAsState()?.value
+    LaunchedEffect(requestImport) {
+        if (requestImport == true) {
+            // consume then launch picker (avoid double triggers)
+            sharedEvents.consumeImportGame()
+            launchFilePicker()
+        }
+    }
 
     DuplicateGameDialog(
         show = showDuplicateDialog,

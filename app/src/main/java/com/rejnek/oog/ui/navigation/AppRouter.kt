@@ -11,10 +11,13 @@ import com.rejnek.oog.ui.screens.GameTaskScreen
 import com.rejnek.oog.ui.screens.HomeScreen
 import com.rejnek.oog.ui.screens.LibraryScreen
 import com.rejnek.oog.ui.screens.SettingsScreen
+import com.rejnek.oog.ui.viewmodels.SharedEventsViewModel
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun AppRouter() {
     val navController: NavHostController = rememberNavController()
+    val sharedEvents: SharedEventsViewModel = koinViewModel()
 
     NavHost(
         navController = navController,
@@ -37,6 +40,17 @@ fun AppRouter() {
                 },
                 onNavigateToSettings = {
                     navController.navigate(Routes.SettingsScreen.route)
+                },
+                onLoadGameFromFileViaLibrary = {
+                    // set flag then navigate; LibraryScreen will consume and launch picker
+                    sharedEvents.triggerImportGame()
+                    navController.navigate(Routes.LibraryScreen.route) {
+                        popUpTo(Routes.HomeScreen.route) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
                 }
             )
         }
@@ -56,7 +70,8 @@ fun AppRouter() {
                 },
                 onNavigateToGameInfo = { gameId ->
                     navController.navigate("GameInfoScreen/$gameId")
-                }
+                },
+                sharedEvents = sharedEvents
             )
         }
 
