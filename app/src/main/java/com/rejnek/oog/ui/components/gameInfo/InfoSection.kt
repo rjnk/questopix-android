@@ -1,4 +1,4 @@
-package com.rejnek.oog.ui.components
+package com.rejnek.oog.ui.components.gameInfo
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*

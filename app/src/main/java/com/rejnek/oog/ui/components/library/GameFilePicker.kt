@@ -1,4 +1,4 @@
-package com.rejnek.oog.ui.components
+package com.rejnek.oog.ui.components.library
 
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -14,6 +14,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import java.util.zip.ZipInputStream
 import java.io.File
 import java.io.FileOutputStream
+import java.io.InputStream
 
 @Composable
 fun rememberGameFilePicker(
@@ -49,7 +50,7 @@ fun rememberGameFilePicker(
     return { filePickerLauncher.launch("application/zip") }
 }
 
-private fun extractGameFromZip(baseDir: File, inputStream: java.io.InputStream): GamePackage {
+private fun extractGameFromZip(baseDir: File, inputStream: InputStream): GamePackage {
     var gameCode = ""
     var gameInfo = JsonObject(emptyMap())
     val imageExtensions = setOf("png", "jpg", "jpeg", "gif")

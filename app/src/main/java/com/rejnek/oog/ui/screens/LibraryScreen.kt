@@ -24,7 +24,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.ui.components.BottomNavigationBar
-import com.rejnek.oog.ui.components.rememberGameFilePicker
+import com.rejnek.oog.ui.components.library.rememberGameFilePicker
 import com.rejnek.oog.ui.navigation.Routes
 import com.rejnek.oog.ui.viewmodels.LibraryViewModel
 import org.koin.androidx.compose.koinViewModel

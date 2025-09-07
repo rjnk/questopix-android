@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Download
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.UploadFile
 import androidx.compose.material3.Button
@@ -27,8 +26,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.ui.components.BottomNavigationBar
-import com.rejnek.oog.ui.components.OOGLogo
-import com.rejnek.oog.ui.components.rememberGameFilePicker
+import com.rejnek.oog.ui.components.home.OOGLogo
+import com.rejnek.oog.ui.components.library.rememberGameFilePicker
 import com.rejnek.oog.ui.navigation.Routes
 import com.rejnek.oog.ui.viewmodels.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
