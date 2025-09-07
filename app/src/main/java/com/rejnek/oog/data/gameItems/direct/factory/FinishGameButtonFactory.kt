@@ -9,20 +9,21 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.rejnek.oog.data.repository.UiCaptureExclusions
 
 class FinishGameButtonFactory : GenericDirectFactory() {
     override val id = "finishGameButton"
 
     override suspend fun create(data: String) {
-        gameRepository?.addUIElement {
+        var elementRef: (@Composable () -> Unit)? = null
+        elementRef = {
             FinishGameButton(
                 text = data,
                 onClick = { gameRepository?.finishGame() }
             ).Show()
         }
+        UiCaptureExclusions.excluded.add(elementRef)
+        gameRepository?.addUIElement(elementRef)
     }
 }
 

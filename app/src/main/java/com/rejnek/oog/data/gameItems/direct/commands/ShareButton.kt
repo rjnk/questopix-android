@@ -40,17 +40,29 @@ import androidx.compose.foundation.background
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.atomic.AtomicBoolean
+import android.view.View.MeasureSpec
+import com.rejnek.oog.data.repository.UiCaptureExclusions
 import androidx.core.graphics.createBitmap
 
+// Note: this was heavily created by copilot
 class ShareButtonFactory() : GenericDirectFactory() {
     override val id: String = "shareButton"
 
     override suspend fun create(data: String) {
         val repo = gameRepository ?: return
-        repo.addUIElement {
+
+        var elementRef: (@Composable () -> Unit)? = null
+        elementRef = {
             val context = LocalContext.current
-            ShareButton({ captureAndShare(context, repo.gameUIRepository.uiElements.value) }).Show()
+            ShareButton {
+                val all = repo.gameUIRepository.uiElements.value
+                captureAndShare(context, all)
+            }.Show()
         }
+
+        // Register for exclusion
+        UiCaptureExclusions.excluded.add(elementRef)
+        repo.addUIElement(elementRef)
     }
 
     private val capturing = AtomicBoolean(false)
@@ -63,8 +75,10 @@ class ShareButtonFactory() : GenericDirectFactory() {
         val activity = context as? Activity ?: run { capturing.set(false); return }
         val root = activity.window?.decorView?.findViewById<ViewGroup>(android.R.id.content) ?: run { capturing.set(false); return }
 
+        // Filter out any composables registered in the exclusion set
+        val filtered = uiElements.filter { candidate -> UiCaptureExclusions.excluded.none { it === candidate } }
+
         val composeView = ComposeView(context).apply {
-            // Invisible but participates in layout
             visibility = View.INVISIBLE
             setContent {
                 AppTheme {
@@ -81,9 +95,9 @@ class ShareButtonFactory() : GenericDirectFactory() {
                                 .padding(16.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            uiElements.forEachIndexed { index, element ->
+                            filtered.forEachIndexed { index, element ->
                                 element()
-                                if (index != uiElements.lastIndex) {
+                                if (index != filtered.lastIndex) {
                                     Spacer(modifier = Modifier.height(8.dp))
                                 }
                             }
@@ -100,8 +114,15 @@ class ShareButtonFactory() : GenericDirectFactory() {
 
         composeView.doOnPreDraw {
             composeView.post {
-                val w = composeView.width
-                val h = composeView.height
+                val targetWidth = root.width.takeIf { it > 0 } ?: composeView.width
+                if (targetWidth > 0) {
+                    val wSpec = MeasureSpec.makeMeasureSpec(targetWidth, MeasureSpec.EXACTLY)
+                    val hSpec = MeasureSpec.makeMeasureSpec(0, MeasureSpec.UNSPECIFIED)
+                    composeView.measure(wSpec, hSpec)
+                    composeView.layout(0, 0, composeView.measuredWidth, composeView.measuredHeight)
+                }
+                val w = composeView.measuredWidth
+                val h = composeView.measuredHeight
                 if (w > 0 && h > 0) {
                     val safeHeight = h.coerceAtMost(16000)
                     val bitmap = createBitmap(w, safeHeight)

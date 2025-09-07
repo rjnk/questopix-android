@@ -26,5 +26,13 @@ class GameUIRepository {
      */
     fun clearUIElements() {
         _uiElements.value = emptyList()
+        UiCaptureExclusions.excluded.clear()
     }
+}
+
+/**
+ * Holds composable lambdas that should be excluded from off-screen capture (e.g., Share / Finish buttons).
+ */
+object UiCaptureExclusions {
+    val excluded = mutableSetOf<@Composable () -> Unit>()
 }
