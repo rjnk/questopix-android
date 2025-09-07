@@ -108,6 +108,9 @@ fun AppRouter() {
                 },
                 onFinishTask = {
                     navController.navigate(Routes.HomeScreen.route)
+                },
+                onOpenSettings = {
+                    navController.navigate(Routes.SettingsScreen.route)
                 }
             )
         }
