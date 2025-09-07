@@ -13,26 +13,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.ui.viewmodels.GameTaskViewModel
-import com.rejnek.oog.ui.viewmodels.GameTaskViewModel.NavigationEvent
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameTaskScreen(
-    onGoToMenu: () -> Unit,
     onFinishTask: () -> Unit,
     onOpenSettings: () -> Unit,
     viewModel: GameTaskViewModel = koinViewModel()
 ) {
-    LaunchedEffect(Unit) {
-        viewModel.navigationEvents.collect { event ->
-            when (event) {
-                is NavigationEvent.Menu -> onGoToMenu()
-                is NavigationEvent.Finish -> onFinishTask()
-            }
-        }
-    }
+    val finishGame by viewModel.finishGame.collectAsState(initial = false)
+    LaunchedEffect(finishGame) { if (finishGame) onFinishTask() }
 
+    val gameName by viewModel.gameName.collectAsState()
     val uiElements by viewModel.uiElements.collectAsState()
 
     BackHandler {  }
@@ -43,7 +36,7 @@ fun GameTaskScreen(
             .verticalScroll(rememberScrollState())
     ) {
 
-        TopBar("Hra") { onOpenSettings() }
+        TopBar(gameName) { onOpenSettings() }
 
         // Content
         Column(

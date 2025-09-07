@@ -13,11 +13,11 @@ import kotlinx.coroutines.flow.asSharedFlow
 class GameTaskViewModel(
     private val gameRepository: GameRepository
 ) : ViewModel() {
-    private val _name = MutableStateFlow("Loading...")
-    val name = _name.asStateFlow()
+    private val _finishGame = MutableStateFlow(false)
+    val finishGame = _finishGame.asSharedFlow()
 
-    private val _navigationEvents = MutableSharedFlow<NavigationEvent>()
-    val navigationEvents = _navigationEvents.asSharedFlow()
+    private val _gameName = MutableStateFlow("")
+    val gameName = _gameName.asStateFlow()
 
     // Expose UI elements from the repository
     val uiElements = gameRepository.gameUIRepository.uiElements
@@ -26,16 +26,13 @@ class GameTaskViewModel(
     init {
         viewModelScope.launch {
             gameRepository.currentGamePackage.collect { pack ->
+                _gameName.value = pack?.getName() ?: ""
+
                 if (pack?.state == GameState.COMPLETED) {
-                    _navigationEvents.emit(NavigationEvent.Finish)
+                    _finishGame.emit(true)
                 }
             }
         }
-    }
-
-    sealed class NavigationEvent {
-        object Menu: NavigationEvent()
-        object Finish : NavigationEvent()
     }
 }
 

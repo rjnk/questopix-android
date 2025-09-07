@@ -1,6 +1,5 @@
 package com.rejnek.oog.ui.navigation
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -98,14 +97,7 @@ fun AppRouter() {
 
         // Game screens without bottom navigation
         composable(Routes.GameTaskScreen.route) {
-            BackHandler {
-                navController.navigate(Routes.GameMenuScreen.route)
-            }
-
             GameTaskScreen(
-                onGoToMenu = {
-                    navController.navigate(Routes.GameMenuScreen.route)
-                },
                 onFinishTask = {
                     navController.navigate(Routes.HomeScreen.route)
                 },
