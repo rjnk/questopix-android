@@ -39,6 +39,8 @@ class GameLocationRepository(
         }
     }
 
+    // TODO stop location monitoring when game is paused or stopped
+
     fun checkLocation(areaToCheck: Area): Boolean {
         val location = currentLocation.value
         return checkLocation(location, areaToCheck)

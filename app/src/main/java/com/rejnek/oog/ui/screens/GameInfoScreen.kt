@@ -36,6 +36,8 @@ fun GameInfoScreen(
         viewModel.loadGameInfo(gameId, onGameStarted)
     }
 
+    // TODO make it so that you can start the game only in 75m radius around the start location
+
     Scaffold(
         topBar = {
             TopAppBar(

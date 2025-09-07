@@ -108,6 +108,7 @@ class GameStorage(context: Context) {
      * Check if there is a saved game
      */
     fun hasSavedGame(): Boolean {
+        // TODO the logic here needs to change, check this in library
         return getIdOfSavedGame() != null
     }
 

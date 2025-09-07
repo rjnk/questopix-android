@@ -38,6 +38,8 @@ class GameRepository(
     // Mutex
     private val executeOnStartMutex = Mutex()
 
+    // TODO we should get rid of all the exceptions and make it clear
+
     // Initialize method for JS engine setup
     suspend fun initialize(): Result<Unit> {
         return jsEngine.initialize(this@GameRepository).map { }
@@ -100,7 +102,7 @@ class GameRepository(
     }
 
     suspend fun setCurrentTask(elementId: String) {
-        // if(_currentGamePackage.value?.currentTaskId == elementId) return // prevent double execution
+        // if(_currentGamePackage.value?.currentTaskId == elementId) return // TODO think about the double execution bug
 
         _currentGamePackage.value?.currentTaskId = elementId
         gameUIRepository.clearUIElements()

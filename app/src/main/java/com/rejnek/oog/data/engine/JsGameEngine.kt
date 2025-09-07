@@ -125,6 +125,7 @@ class JsGameEngine(
                 }
             }
 
+            // TODO we need to improve logging and get rid of the fails for onStartFirst()...
             Log.d("JsGameEngine", "JavaScript executed. Evaluation result: $result")
             Result.success(cleanJsResult(result))
         }
