@@ -1,8 +1,7 @@
 package com.rejnek.oog.ui.screens
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.PlayArrow
@@ -90,7 +89,6 @@ fun GameInfoScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
                         .padding(16.dp)
-                        .verticalScroll(rememberScrollState())
                 )
             }
             else -> {
@@ -114,59 +112,68 @@ fun GameInfoContent(
     gamePackage: GamePackage,
     modifier: Modifier = Modifier
 ) {
-    Column(
+    LazyColumn(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(bottom = 96.dp) // space for FAB
     ) {
-        // Description
-        InfoSection(title = "Description") {
-            Text(
-                text = gamePackage.info("description"),
-                style = MaterialTheme.typography.bodyMedium
-            )
+        item {
+            // Description
+            InfoSection(title = "Description") {
+                Text(
+                    text = gamePackage.info("description"),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
 
-        // Locations
-        InfoSection(title = "Locations") {
-            val startLocation = gamePackage.gameInfo["startLocation"]?.jsonObject
-            val finishLocation = gamePackage.gameInfo["finishLocation"]?.jsonObject
+        item {
+            // Locations
+            InfoSection(title = "Locations") {
+                val startLocation = gamePackage.gameInfo["startLocation"]?.jsonObject
+                val finishLocation = gamePackage.gameInfo["finishLocation"]?.jsonObject
 
-            startLocation?.let {
-                LocationItem(
-                    title = "Start Location",
-                    locationText = it["text"]?.jsonPrimitive?.content ?: "Unknown"
-                )
-                if (finishLocation != null) {
-                    Spacer(modifier = Modifier.height(8.dp))
+                startLocation?.let {
+                    LocationItem(
+                        title = "Start Location",
+                        locationText = it["text"]?.jsonPrimitive?.content ?: "Unknown"
+                    )
+                    if (finishLocation != null) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
                 }
-            }
 
-            finishLocation?.let {
-                LocationItem(
-                    title = "Finish Location",
-                    locationText = it["text"]?.jsonPrimitive?.content ?: "Unknown"
-                )
+                finishLocation?.let {
+                    LocationItem(
+                        title = "Finish Location",
+                        locationText = it["text"]?.jsonPrimitive?.content ?: "Unknown"
+                    )
+                }
             }
         }
 
         // Cover image
         val coverPhoto = gamePackage.info("coverPhoto")
         if (coverPhoto != "ERROR" && coverPhoto.isNotEmpty()) {
-            GameCoverImage(
-                gameId = gamePackage.getId(),
-                filename = coverPhoto
-            )
+            item {
+                GameCoverImage(
+                    gameId = gamePackage.getId(),
+                    filename = coverPhoto
+                )
+            }
         }
 
         // Game attributes
         gamePackage.gameInfo["attributes"]?.jsonObject?.let { attributes ->
-            InfoSection(title = "Game Details") {
-                attributes.forEach { (key, value) ->
-                    AttributeItem(
-                        label = key,
-                        value = value.jsonPrimitive.content
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
+            item {
+                InfoSection(title = "Game Details") {
+                    attributes.forEach { (key, value) ->
+                        AttributeItem(
+                            label = key,
+                            value = value.jsonPrimitive.content
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                    }
                 }
             }
         }
