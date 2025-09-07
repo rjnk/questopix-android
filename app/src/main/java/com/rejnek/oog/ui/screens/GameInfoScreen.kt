@@ -32,10 +32,9 @@ fun GameInfoScreen(
     viewModel: GameInfoViewModel = koinViewModel()
 ) {
     val gamePackage = viewModel.gamePackage.collectAsState().value
-    val isLoading = viewModel.isLoading.collectAsState().value
 
     LaunchedEffect(gameId) {
-        viewModel.loadGameInfo(gameId)
+        viewModel.loadGameInfo(gameId, onGameStarted)
     }
 
     Scaffold(
@@ -59,7 +58,7 @@ fun GameInfoScreen(
             )
         },
         floatingActionButton = {
-            if (gamePackage != null && !isLoading) {
+            if (gamePackage != null) {
                 ExtendedFloatingActionButton(
                     onClick = { viewModel.startGame(onGameStarted) },
                     icon = {
@@ -73,36 +72,14 @@ fun GameInfoScreen(
             }
         }
     ) { innerPadding ->
-        when {
-            isLoading -> {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            }
-            gamePackage != null -> {
-                GameInfoContent(
-                    gamePackage = gamePackage,
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(innerPadding)
-                        .padding(16.dp)
-                )
-            }
-            else -> {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = "Game not found",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = MaterialTheme.colorScheme.error
-                    )
-                }
-            }
+        if(gamePackage != null) {
+            GameInfoContent(
+                gamePackage = gamePackage,
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(16.dp)
+            )
         }
     }
 }

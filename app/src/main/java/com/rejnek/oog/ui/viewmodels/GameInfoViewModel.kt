@@ -1,8 +1,10 @@
 package com.rejnek.oog.ui.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rejnek.oog.data.model.GamePackage
+import com.rejnek.oog.data.model.GameState
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -15,28 +17,31 @@ class GameInfoViewModel(
     private val _gamePackage = MutableStateFlow<GamePackage?>(null)
     val gamePackage = _gamePackage.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-
-    fun loadGameInfo(gameId: String) {
+    fun loadGameInfo(gameId: String, onGameStarted: () -> Unit) {
         viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                val games = gameRepository.gameStorageRepository.getLibraryGames()
-                _gamePackage.value = games.find { it.getId() == gameId }
-            } finally {
-                _isLoading.value = false
+            val games = gameRepository.gameStorageRepository.getLibraryGames()
+            val tempPackage = games.find { it.getId() == gameId }
+
+            if (tempPackage?.state != GameState.NOT_STARTED) {
+                startGame(onGameStarted, gameId)
+            } else {
+                _gamePackage.value = tempPackage
             }
+        }
+
+    }
+
+    fun startGame(onGameStarted: () -> Unit){
+        val gameId = gamePackage.value?.getId()
+        if (gameId != null) {
+            startGame(onGameStarted, gameId)
         }
     }
 
-    fun startGame(onGameStarted: () -> Unit) {
-        val gameId = gamePackage.value?.getId()
-        if (gameId != null) {
-            viewModelScope.launch {
-                gameRepository.initializeGameFromLibrary(gameId)
-                onGameStarted()
-            }
+    fun startGame(onGameStarted: () -> Unit, gameId: String) {
+        viewModelScope.launch {
+            gameRepository.initializeGameFromLibrary(gameId)
+            onGameStarted()
         }
     }
 }

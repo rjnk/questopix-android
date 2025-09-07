@@ -102,12 +102,4 @@ class LibraryViewModel(
     fun selectAllGames() {
         _selectedGameIds.value = gamesPackage.value.map { it.getId() }.toSet()
     }
-
-    fun clearSelection() {
-        _selectedGameIds.value = emptySet()
-    }
-
-    fun refreshLibrary() {
-        loadLibraryGames()
-    }
 }
