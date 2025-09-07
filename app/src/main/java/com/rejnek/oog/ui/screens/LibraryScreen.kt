@@ -54,6 +54,8 @@ fun LibraryScreen(
     // dialog for duplicity import
     val showDuplicateDialog = viewModel.showDuplicateDialog.collectAsState().value
     val pendingGamePackage = viewModel.pendingGamePackage.collectAsState().value
+    // game in progress state
+    val gameIsInProgress by viewModel.gameIsInProgress.collectAsState()
 
     // Observe shared import event
     val requestImport = sharedEvents?.requestImportGame?.collectAsState()?.value
@@ -108,7 +110,7 @@ fun LibraryScreen(
             )
         },
         floatingActionButton = {
-            if (!isSelectionMode) {
+            if (!isSelectionMode && !gameIsInProgress) {
                 FloatingActionButton(onClick = launchFilePicker) {
                     Row(
                         modifier = Modifier.padding(horizontal = 16.dp),

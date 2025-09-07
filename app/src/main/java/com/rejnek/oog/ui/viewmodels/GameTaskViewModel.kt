@@ -14,9 +14,10 @@ class GameTaskViewModel(
 ) : ViewModel() {
     private val _finishGame = MutableStateFlow(false)
     val finishGame = _finishGame.asSharedFlow()
-
     private val _gameName = MutableStateFlow("")
     val gameName = _gameName.asStateFlow()
+    private val _gameState = MutableStateFlow(GameState.IN_PROGRESS)
+    val gameState = _gameState.asStateFlow()
 
     // Expose UI elements from the repository
     val uiElements = gameRepository.gameUIRepository.uiElements
@@ -25,10 +26,13 @@ class GameTaskViewModel(
     init {
         viewModelScope.launch {
             gameRepository.currentGamePackage.collect { pack ->
-                _gameName.value = pack?.getName() ?: ""
+                if(pack != null) {
+                    _gameName.value = pack.getName()
+                    _gameState.value = pack.state
 
-                if (pack?.state == GameState.FINISHED) {
-                    _finishGame.emit(true)
+                    if(pack.state == GameState.FINISHED) {
+                        _finishGame.value = true
+                    }
                 }
             }
         }

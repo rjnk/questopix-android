@@ -99,7 +99,7 @@ fun AppRouter() {
         composable(Routes.GameTaskScreen.route) {
             GameTaskScreen(
                 onFinishTask = {
-                    navController.navigate(Routes.HomeScreen.route)
+                    navController.navigate(Routes.LibraryScreen.route)
                 },
                 onOpenSettings = {
                     navController.navigate(Routes.SettingsScreen.route)

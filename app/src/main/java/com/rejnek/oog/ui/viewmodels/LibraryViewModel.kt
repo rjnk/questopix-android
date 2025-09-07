@@ -3,6 +3,7 @@ package com.rejnek.oog.ui.viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rejnek.oog.data.model.GamePackage
+import com.rejnek.oog.data.model.GameState
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,6 +30,9 @@ class LibraryViewModel(
     private val _pendingGamePackage = MutableStateFlow<GamePackage?>(null)
     val pendingGamePackage = _pendingGamePackage.asStateFlow()
 
+    private val _gameIsInProgress = MutableStateFlow(false)
+    val gameIsInProgress = _gameIsInProgress.asStateFlow()
+
     init {
         loadLibraryGames()
     }
@@ -36,6 +40,9 @@ class LibraryViewModel(
     private fun loadLibraryGames() {
         viewModelScope.launch {
             gamePackages.value = gameRepository.gameStorageRepository.getLibraryGames()
+            _gameIsInProgress.value = gamePackages.value.any {
+                it.state == GameState.IN_PROGRESS
+            }
         }
     }
 

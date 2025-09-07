@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.data.model.GameState
 import com.rejnek.oog.ui.viewmodels.GameTaskViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -26,6 +27,7 @@ fun GameTaskScreen(
     LaunchedEffect(finishGame) { if (finishGame) onFinishTask() }
 
     val gameName by viewModel.gameName.collectAsState()
+    val gameState by viewModel.gameState.collectAsState()
     val uiElements by viewModel.uiElements.collectAsState()
 
     BackHandler {  }
@@ -36,7 +38,9 @@ fun GameTaskScreen(
             .verticalScroll(rememberScrollState())
     ) {
 
-        TopBar(gameName) { onOpenSettings() }
+        if(gameState != GameState.ARCHIVED) {
+            TopBar(gameName) { onOpenSettings() }
+        }
 
         // Content
         Column(
