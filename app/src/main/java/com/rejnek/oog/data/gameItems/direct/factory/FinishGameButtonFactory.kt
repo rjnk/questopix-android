@@ -16,12 +16,15 @@ class FinishGameButtonFactory : GenericDirectFactory() {
 
     override suspend fun create(data: String) {
         var elementRef: (@Composable () -> Unit)? = null
+
         elementRef = {
             FinishGameButton(
                 text = data,
                 onClick = { gameRepository?.finishGame() }
             ).Show()
         }
+
+        // Exclude from screenshot capture
         UiCaptureExclusions.excluded.add(elementRef)
         gameRepository?.addUIElement(elementRef)
     }

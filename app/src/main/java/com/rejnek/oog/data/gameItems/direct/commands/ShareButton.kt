@@ -42,6 +42,8 @@ import java.io.FileOutputStream
 import java.util.concurrent.atomic.AtomicBoolean
 import android.view.View.MeasureSpec
 import com.rejnek.oog.data.repository.UiCaptureExclusions
+import com.rejnek.oog.data.repository.LocalCaptureMode
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.graphics.createBitmap
 
 // Note: this was heavily created by copilot
@@ -81,24 +83,26 @@ class ShareButtonFactory() : GenericDirectFactory() {
         val composeView = ComposeView(context).apply {
             visibility = View.INVISIBLE
             setContent {
-                AppTheme {
-                    val bg = MaterialTheme.colorScheme.background
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(bg),
-                        color = bg
-                    ) {
-                        Column(
+                CompositionLocalProvider(LocalCaptureMode provides true) { // enable capture mode
+                    AppTheme {
+                        val bg = MaterialTheme.colorScheme.background
+                        Surface(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(16.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+                                .background(bg),
+                            color = bg
                         ) {
-                            filtered.forEachIndexed { index, element ->
-                                element()
-                                if (index != filtered.lastIndex) {
-                                    Spacer(modifier = Modifier.height(8.dp))
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                filtered.forEachIndexed { index, element ->
+                                    element()
+                                    if (index != filtered.lastIndex) {
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                    }
                                 }
                             }
                         }

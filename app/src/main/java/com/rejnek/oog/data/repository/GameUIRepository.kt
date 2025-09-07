@@ -4,6 +4,15 @@ import androidx.compose.runtime.Composable
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.compose.runtime.staticCompositionLocalOf
+
+// Centralized capture mode flag (true only during off-screen screenshot rendering)
+val LocalCaptureMode = staticCompositionLocalOf { false }
+
+// Registry of composables to exclude from capture (e.g., Share, Finish buttons)
+object UiCaptureExclusions {
+    val excluded = mutableSetOf<@Composable () -> Unit>()
+}
 
 /**
  * Repository responsible for managing UI state and elements
@@ -28,11 +37,4 @@ class GameUIRepository {
         _uiElements.value = emptyList()
         UiCaptureExclusions.excluded.clear()
     }
-}
-
-/**
- * Holds composable lambdas that should be excluded from off-screen capture (e.g., Share / Finish buttons).
- */
-object UiCaptureExclusions {
-    val excluded = mutableSetOf<@Composable () -> Unit>()
 }

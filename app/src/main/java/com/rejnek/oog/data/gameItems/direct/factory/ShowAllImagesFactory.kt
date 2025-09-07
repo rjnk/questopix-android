@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
+import com.rejnek.oog.data.repository.LocalCaptureMode
 import java.io.File
 
 class ShowAllImagesFactory : GenericDirectFactory() {
@@ -43,6 +44,7 @@ class MyImageGallery(
     @Composable
     fun Show() {
         val context = LocalContext.current
+        val captureMode = LocalCaptureMode.current
         val gameImagesDir = File(context.filesDir, "game_images/$gameId")
 
         val imageFiles = remember {
@@ -72,7 +74,7 @@ class MyImageGallery(
             return
         }
 
-        val pagerState = rememberPagerState(pageCount = { imageFiles.size })
+        val pagerState = if (!captureMode) rememberPagerState(pageCount = { imageFiles.size }) else null
 
         Card(
             modifier = Modifier
@@ -91,47 +93,64 @@ class MyImageGallery(
                     modifier = Modifier.padding(8.dp)
                 )
 
-                // Swipeable image gallery - full width
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxWidth()
-                ) { page ->
-                    val imageFile = imageFiles[page]
-                    val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
-
-                    bitmap?.let {
-                        Image(
-                            bitmap = it.asImageBitmap(),
-                            contentDescription = "Taken image ${page + 1}",
-                            modifier = Modifier.fillMaxWidth(),
-                            contentScale = ContentScale.FillWidth
-                        )
-                    }
-                }
-
-                // Page indicators
-                if (imageFiles.size > 1) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        repeat(imageFiles.size) { index ->
-                            Box(
+                if (captureMode) {
+                    // Show all images sequentially for full screenshot capture
+                    imageFiles.forEach { imageFile ->
+                        val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
+                        bitmap?.let {
+                            Image(
+                                bitmap = it.asImageBitmap(),
+                                contentDescription = imageFile.name,
                                 modifier = Modifier
-                                    .size(8.dp)
-                                    .padding(2.dp)
-                            ) {
-                                Card(
-                                    shape = RoundedCornerShape(50),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = if (index == pagerState.currentPage) {
-                                            MaterialTheme.colorScheme.primary
-                                        } else {
-                                            MaterialTheme.colorScheme.outline
-                                        }
-                                    ),
-                                    modifier = Modifier.size(4.dp)
-                                ) {}
+                                    .fillMaxWidth()
+                                    .padding(bottom = 12.dp),
+                                contentScale = ContentScale.FillWidth
+                            )
+                        }
+                    }
+                } else {
+                    // Swipeable image gallery - full width
+                    HorizontalPager(
+                        state = pagerState!!,
+                        modifier = Modifier.fillMaxWidth()
+                    ) { page ->
+                        val imageFile = imageFiles[page]
+                        val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
+
+                        bitmap?.let {
+                            Image(
+                                bitmap = it.asImageBitmap(),
+                                contentDescription = "Taken image ${page + 1}",
+                                modifier = Modifier.fillMaxWidth(),
+                                contentScale = ContentScale.FillWidth
+                            )
+                        }
+                    }
+
+                    // Page indicators
+                    if (imageFiles.size > 1) {
+                        Row(
+                            modifier = Modifier.padding(16.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            repeat(imageFiles.size) { index ->
+                                Box(
+                                    modifier = Modifier
+                                        .size(8.dp)
+                                        .padding(2.dp)
+                                ) {
+                                    Card(
+                                        shape = RoundedCornerShape(50),
+                                        colors = CardDefaults.cardColors(
+                                            containerColor = if (index == pagerState.currentPage) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                MaterialTheme.colorScheme.outline
+                                            }
+                                        ),
+                                        modifier = Modifier.size(4.dp)
+                                    ) {}
+                                }
                             }
                         }
                     }
