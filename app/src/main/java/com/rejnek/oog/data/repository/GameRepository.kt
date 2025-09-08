@@ -27,7 +27,6 @@ class GameRepository(
     // Specialized repositories
     private val jsEngine = JsGameEngine(context)
     val gameStorageRepository = GameStorageRepository(context)
-    val gameImageRepository = GameImageRepository()
     val gameLocationRepository = GameLocationRepository(context)
     val gameUIRepository = GameUIRepository()
     val gameItemRepository = GameItemRepository()
@@ -164,14 +163,14 @@ class GameRepository(
         CoroutineScope(Dispatchers.IO).launch {
             gameStorageRepository.saveGame(clearPackage)
         }
-        gameImageRepository.deleteAllImages(context, clearPackage.getId())
+        gameStorageRepository.deleteAllImages(clearPackage.getId())
         cleanup()
     }
 
     fun cleanup() {
         _currentGamePackage.value = null
         gameUIRepository.clearUIElements()
-        // jsEngine.cleanup() TODO: Think about this: this is problematic when we play another game or want to resume etc
+        // jsEngine.cleanup() Cleaning up the JS engine can cause issues as we might want to start another game
         gameLocationRepository.stopLocationMonitoring()
     }
 }

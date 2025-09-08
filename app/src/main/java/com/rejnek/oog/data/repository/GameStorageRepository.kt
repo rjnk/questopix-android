@@ -7,12 +7,13 @@ import com.rejnek.oog.data.model.GameState
 import com.rejnek.oog.data.storage.GameStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 
 /**
  * Repository responsible for game storage operations
  */
 class GameStorageRepository(
-    context: Context
+    private val context: Context
 ) {
     private val gameStorage = GameStorage(context)
 
@@ -23,6 +24,7 @@ class GameStorageRepository(
 
     fun removeGameFromLibrary(gameId: String) {
         gameStorage.removeGameFromLibrary(gameId)
+        deleteAllImages(gameId)
     }
 
     fun getLibraryGames() = gameStorage.getLibraryGames()
@@ -46,6 +48,14 @@ class GameStorageRepository(
             return@withContext getLibraryGames().first { it.state == GameState.IN_PROGRESS }
         } catch (e: NoSuchElementException) {
             return@withContext null
+        }
+    }
+
+    // Image Operations
+    fun deleteAllImages(packageId: String) {
+        val imagesDir = File(context.filesDir, "user_images/$packageId")
+        if (imagesDir.exists()) {
+            imagesDir.deleteRecursively()
         }
     }
 }
