@@ -14,6 +14,10 @@ var _timerStart = Date.now();
 // startovní úkol / first task
 const start = {
     onStart: () => {
+        // setup
+        disable("uhotelu"); // disabling affects only location tasks, task without coordinates is not affected
+        disable("kauflandQuestion");
+    
         heading("Hra začíná 🎉🎉", "Hurá!");
         text("Vítejte v demonstrační demo hře pro systém Open Outdoor Games. Vaším úkolem je projít významná stanoviště v okolí Dejvic a plnit po cestě úkoly. Myslete na to, že se počítá skóre a přeji plno zábavy.");
         text("Jak asi víte, tak se začíná na tramvajové zastávce Hradčanská. Měli byste tam stát. Děkuji.");
@@ -21,6 +25,7 @@ const start = {
             _timerStart = Date.now();
             showTask("vietnamec");
         });
+        takePicture("Bonusová fotka nadšení na začátku.");
     }
 }
 
@@ -59,6 +64,7 @@ const cestaNaZelenou = {
 const netrpelivostPoCeste = {
     onStart: () => {
         text("Přece se to změní automaticky, když dojedeš. Za netrpělivost odečítám 10 bodů.");
+        takePicture("Můžeš vyfotit svůj hloupý výraz z týhle informace 🤗.");
         button("Zpátky", () => {
             showTask("cestaNaZelenou");
         });
@@ -105,6 +111,7 @@ const internacional = {
         text("Jinak samozřejmě až tam dojdeš, tak se objeví nový úkol...");
         distance(50.1094158, 14.3933839);
         text("PS: můžeš se vzdát jestli na to nemáš");
+        enable("uhotelu");
     }
 }
 
@@ -123,6 +130,7 @@ const uhotelu = {
         text("Dostáváš dalších 5 bodů za nevzdání. Teď je potřeba se vyfotit s hotelem a pak se můžeš vydat za dalším úkolem, který je u kauflandu. Naviguj se podle mapy.");
         // '{"backgroundImage":"map2.png","topLeftLat":50.114903,"topLeftLng":14.390008,"bottomRightLat":50.108091,"bottomRightLng":14.397186}'
         simpleMap("map2.png", 50.114903, 14.390008, 50.108091, 14.397186);
+        enable("kauflandQuestion");
     }
 }
 
@@ -140,24 +148,31 @@ const kauflandQuestion = {
                 debugPrint("ok");
                 _score += 15;
                 popUp("Dobře! + 15b 🤖.", "finish");
-            }
-            button("Pokračovat do cíle", () => {
+            } else {
+                debugPrint("wrong");
                 popUp("Špatně! + 0b 😭.", "finish");
-            });
+            }
         }, "Jedno", "Dvě", "Tři");
     }
 }
 
 const finish = {
     onStart: () => {
+        // setup
+        disable("uhotelu");
+        disable("kauflandQuestion");
+    
         heading("Skvělá práce!", "center");
         image("trophy.png");
+        text("Blahopřeji k dokončení hry. Byla to fuška, ale zvládnul jsi to fakt perfektně.");
+        
         const elapsedMs = Date.now() - _timerStart;
         const elapsedMinutes = Math.floor(elapsedMs / (60 * 1000));
         
-        text("Skvělá práce! Hra končí a je hotovo.");
-        text("Skóre: " + _score);
-        text("Čas " + elapsedMinutes + "min.");
+        board("Výsledky", "Scóre", _score, "Čas", elapsedMinutes + "min.")
+            
+        shareButton();
+        showAllImages("Fotky ze hry:");
         finishGameButton("Do menu");
     }
 }

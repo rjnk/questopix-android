@@ -110,7 +110,7 @@ class JsGameEngine(
      */
     private suspend fun evaluateJs(code: String, expectResult: Boolean): Result<String> =
         withContext(Dispatchers.Main) {
-            val webViewInstance = webView ?: throw IllegalStateException("WebView is not initialized")
+            val webViewInstance = webView ?: throw IllegalStateException("WebView is not initialized") // TODO this crash
 
             val actualCode = if (expectResult) "sendResult($code);" else code
 

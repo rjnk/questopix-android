@@ -19,7 +19,7 @@ class GameInfoViewModel(
     val gamePackage = _gamePackage.asStateFlow()
     // Location permission state
     val locationPermissionGranted = gameRepository.gameLocationRepository.isPermissionGranted
-    private val _isTaskRequiringLocation = MutableStateFlow(true)
+    private val _isTaskRequiringLocation = MutableStateFlow(false)
     val isTaskRequiringLocation = _isTaskRequiringLocation.asStateFlow()
     // Toast
     private val _showNoLocationToast = MutableStateFlow(false)

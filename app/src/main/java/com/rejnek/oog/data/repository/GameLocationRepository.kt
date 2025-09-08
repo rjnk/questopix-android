@@ -48,7 +48,6 @@ class GameLocationRepository(
     ) {
         if(areas.isEmpty()) {
             Log.d("GameLocationRepository", "No areas to monitor.")
-            _permissionGranted.value = true
             return
         }
 

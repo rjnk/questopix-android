@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
 
 class GameTaskViewModel(
     private val gameRepository: GameRepository
@@ -18,7 +19,15 @@ class GameTaskViewModel(
     val gameName = _gameName.asStateFlow()
     private val _gameState = MutableStateFlow(GameState.IN_PROGRESS)
     val gameState = _gameState.asStateFlow()
-    val locationPermissionGranted = gameRepository.gameLocationRepository.isPermissionGranted
+
+    private val _packNeedsLocation = MutableStateFlow(false)
+    val locationPermissionNeeded = combine(
+        gameRepository.gameLocationRepository.isPermissionGranted,
+        _packNeedsLocation.asStateFlow()
+    ) { isGranted, needsLocation ->
+        if(!needsLocation) false
+        else isGranted
+    }
 
     // Expose UI elements from the repository
     val uiElements = gameRepository.gameUIRepository.uiElements
@@ -36,6 +45,7 @@ class GameTaskViewModel(
                 if(pack != null) {
                     _gameName.value = pack.getName()
                     _gameState.value = pack.state
+                    _packNeedsLocation.value = gameRepository.generateAreasForMonitoring(pack).isNotEmpty()
 
                     if(pack.state == GameState.FINISHED) {
                         _finishGame.value = true

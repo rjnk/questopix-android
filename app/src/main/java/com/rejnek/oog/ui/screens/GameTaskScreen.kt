@@ -13,7 +13,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.rejnek.oog.data.model.GameState
 import com.rejnek.oog.ui.viewmodels.GameTaskViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -25,7 +24,7 @@ fun GameTaskScreen(
     viewModel: GameTaskViewModel = koinViewModel()
 ) {
     val finishGame by viewModel.finishGame.collectAsState(initial = false)
-    val locationPermissionGranted = viewModel.locationPermissionGranted.collectAsState()
+    val locationPermissionGranted = viewModel.locationPermissionNeeded.collectAsState(true)
     val gameName by viewModel.gameName.collectAsState()
     val gameState by viewModel.gameState.collectAsState()
     val uiElements by viewModel.uiElements.collectAsState()
