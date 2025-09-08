@@ -25,7 +25,7 @@ class JsGameEngine(
 
     // WebView instance for JavaScript execution
     private var webView: WebView? = null
-    private var isInitialized = false
+    var isInitialized = false
 
     // Interface for JavaScript to call Kotlin functions
     private val jsInterface = JsGameInterface(gameItems)
@@ -110,7 +110,7 @@ class JsGameEngine(
      */
     private suspend fun evaluateJs(code: String, expectResult: Boolean): Result<String> =
         withContext(Dispatchers.Main) {
-            val webViewInstance = webView ?: throw IllegalStateException("WebView is not initialized") // TODO this crash
+            val webViewInstance = webView ?: return@withContext Result.failure(Exception("WebView not initialized"))
 
             val actualCode = if (expectResult) "sendResult($code);" else code
 

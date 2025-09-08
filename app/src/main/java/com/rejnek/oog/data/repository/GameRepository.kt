@@ -38,7 +38,9 @@ class GameRepository(
 
     // Initialize method for JS engine setup
     suspend fun initialize(): Result<Unit> {
-        return jsEngine.initialize(this@GameRepository).map { }
+        val res = jsEngine.initialize(this@GameRepository).map { }
+        Log.d("GameRepository", "JS engine initialized successfully")
+        return res
     }
 
     // Game Initialization
@@ -53,6 +55,10 @@ class GameRepository(
     }
 
     suspend fun startGame(gamePackage: GamePackage) {
+        if(jsEngine.isInitialized.not()) {
+            throw GameRepositoryException("JS Engine not initialized")
+        }
+
         // Set the current game package
         _currentGamePackage.value = gamePackage
 
@@ -166,10 +172,15 @@ class GameRepository(
     }
 
     fun cleanup() {
-        _currentGamePackage.value = null
-        gameUIRepository.clearUIElements()
-        // jsEngine.cleanup() Cleaning up the JS engine can cause issues as we might want to start another game
-        gameLocationRepository.stopLocationMonitoring()
+        CoroutineScope(Dispatchers.Main).launch {
+            _currentGamePackage.value = null
+            gameUIRepository.clearUIElements()
+            gameLocationRepository.stopLocationMonitoring()
+
+            // Re-initialize JS engine for next game
+            jsEngine.cleanup()
+            jsEngine.initialize(this@GameRepository)
+        }
     }
 }
 

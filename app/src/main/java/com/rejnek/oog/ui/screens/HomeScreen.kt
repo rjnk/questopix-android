@@ -41,10 +41,6 @@ fun HomeScreen(
     onLoadGameFromFileViaLibrary: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel()
 ) {
-    val launchFilePicker = rememberGameFilePicker { gamePackage ->
-        viewModel.onLoadCustomGameFile(gamePackage)
-        onLoadGameClick()
-    }
 
     // TODO put all strings to a resource file and add localization support for czech and english
 
@@ -64,7 +60,6 @@ fun HomeScreen(
         modifier = Modifier.fillMaxSize()
     ) { innerPadding ->
         HomeScreenContent(
-            onLoadCustomGameClick = launchFilePicker,
             onLoadSavedClicked = {
                 viewModel.onLoadSavedClicked()
                 onLoadGameClick()
@@ -79,7 +74,6 @@ fun HomeScreen(
 
 @Composable
 fun HomeScreenContent(
-    onLoadCustomGameClick: () -> Unit,
     onLoadSavedClicked: () -> Unit,
     onNavigateToLibrary: () -> Unit,
     onImportGameViaLibrary: () -> Unit,

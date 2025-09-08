@@ -13,40 +13,13 @@ import kotlinx.coroutines.launch
 class HomeViewModel(
     private val gameRepository: GameRepository
 ) : ViewModel() {
-    private var jsInitialized = false
-
-    private val _hasSavedGame = MutableStateFlow<Boolean>(false)
+    private val _hasSavedGame = MutableStateFlow(false)
     val hasSavedGame = _hasSavedGame.asStateFlow()
 
     init {
         viewModelScope.launch {
+            _hasSavedGame.value = gameRepository.gameStorageRepository.hasSavedGame()
             gameRepository.initialize()
-                .onSuccess {
-                    jsInitialized = true
-                    Log.d("HomeViewModel", "JS engine initialized successfully")
-
-                    _hasSavedGame.value = gameRepository.gameStorageRepository.hasSavedGame()
-                }
-        }
-    }
-
-    fun onLoadCustomGameFile(gamePackage: GamePackage) {
-        viewModelScope.launch {
-            if (!jsInitialized) {
-                Log.e("HomeViewModel", "JavaScript engine not ready")
-                return@launch
-            }
-
-            try {
-                // Add to library first
-                gameRepository.gameStorageRepository.addGameToLibrary(gamePackage)
-
-                // Then initialize and start the game
-                gameRepository.initializeGameFromLibrary(gamePackage.getId())
-                Log.d("HomeViewModel", "Custom game '${gamePackage.getName()}' added to library and loaded successfully")
-            } catch (e: Exception) {
-                Log.e("HomeViewModel", "Error loading custom game file", e)
-            }
         }
     }
 
