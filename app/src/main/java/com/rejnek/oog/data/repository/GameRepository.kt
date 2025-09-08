@@ -139,16 +139,19 @@ class GameRepository(
         }
         CoroutineScope(Dispatchers.IO).launch {
             gameStorageRepository.saveGame(_currentGamePackage.value ?: throw IllegalStateException("No current game package"))
-            gameStorageRepository.clearSavedGame()
+            withContext(Dispatchers.Main) {
+                cleanup()
+            }
         }
-        cleanup()
     }
 
     fun pauseCurrentGame() {
         CoroutineScope(Dispatchers.IO).launch {
             gameStorageRepository.saveGame(_currentGamePackage.value ?: throw IllegalStateException("No current game package"))
+            withContext(Dispatchers.Main) {
+                cleanup()
+            }
         }
-        cleanup()
     }
 
     fun quitCurrentGame() {
@@ -163,7 +166,6 @@ class GameRepository(
         )
         CoroutineScope(Dispatchers.IO).launch {
             gameStorageRepository.saveGame(clearPackage)
-            gameStorageRepository.clearSavedGame()
         }
         gameImageRepository.deleteAllImages(context, clearPackage.getId())
         cleanup()
@@ -174,10 +176,5 @@ class GameRepository(
         gameUIRepository.clearUIElements()
         jsEngine.cleanup()
         gameLocationRepository.stopLocationMonitoring()
-
-        // Clear saved game state when cleaning up
-        CoroutineScope(Dispatchers.IO).launch {
-            gameStorageRepository.clearSavedGame()
-        }
     }
 }

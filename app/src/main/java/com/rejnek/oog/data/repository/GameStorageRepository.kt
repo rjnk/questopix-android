@@ -3,6 +3,7 @@ package com.rejnek.oog.data.repository
 import android.content.Context
 import android.util.Log
 import com.rejnek.oog.data.model.GamePackage
+import com.rejnek.oog.data.model.GameState
 import com.rejnek.oog.data.storage.GameStorage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -28,11 +29,7 @@ class GameStorageRepository(
 
     // Game Operations
     suspend fun saveGame(gamePackage: GamePackage): Unit = withContext(Dispatchers.IO) {
-        // Update/add the game in the library with current state
         gameStorage.addGameToLibrary(gamePackage)
-        // Mark this game as the currently saved one
-        gameStorage.setSavedGameId(gamePackage.getId())
-
         Log.d("GameStorageRepository", "Game ${gamePackage.getId()} saved with ${gamePackage.currentTaskId}")
     }
 
@@ -40,19 +37,15 @@ class GameStorageRepository(
         return@withContext gameStorage.getGameById(gameId)
     }
 
-    suspend fun clearSavedGame(): Unit = withContext(Dispatchers.IO) {
-        gameStorage.clearSavedGame()
-    }
-
-    suspend fun getIdOfSavedGame(): String? = withContext(Dispatchers.IO) {
-        return@withContext gameStorage.getIdOfSavedGame()
-    }
-
     suspend fun hasSavedGame(): Boolean = withContext(Dispatchers.IO) {
-        return@withContext gameStorage.hasSavedGame()
+        return@withContext getSavedGamePackage() != null
     }
 
     suspend fun getSavedGamePackage(): GamePackage? = withContext(Dispatchers.IO) {
-        return@withContext gameStorage.getSavedGamePackage()
+        try{
+            return@withContext getLibraryGames().first { it.state == GameState.IN_PROGRESS }
+        } catch (e: NoSuchElementException) {
+            return@withContext null
+        }
     }
 }

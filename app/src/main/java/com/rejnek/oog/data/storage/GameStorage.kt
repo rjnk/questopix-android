@@ -14,7 +14,6 @@ class GameStorage(context: Context) {
 
     companion object {
         private const val LIBRARY_GAMES_KEY = "library_games"
-        private const val CURRENT_SAVED_GAME_ID_KEY = "current_saved_game_id"
     }
 
     // ========== LIBRARY OPERATIONS ==========
@@ -60,64 +59,12 @@ class GameStorage(context: Context) {
         val games = getLibraryGames().toMutableList()
         games.removeAll { it.getId() == gameId }
         saveLibraryGames(games)
-
-        // If we're removing the currently saved game, clear the saved game reference
-        if (getIdOfSavedGame() == gameId) {
-            clearSavedGame()
-        }
     }
 
     private fun saveLibraryGames(games: List<GamePackage>) {
         val gamesJson = json.encodeToString(games)
         sharedPreferences.edit(commit = true) {
             putString(LIBRARY_GAMES_KEY, gamesJson)
-        }
-    }
-
-    // ========== SAVED GAME OPERATIONS ==========
-
-    /**
-     * Set which game is currently being played/saved
-     */
-    fun setSavedGameId(gameId: String) {
-        sharedPreferences.edit(commit = true) {
-            putString(CURRENT_SAVED_GAME_ID_KEY, gameId)
-        }
-    }
-
-    /**
-     * Get the currently saved game package
-     */
-    fun getSavedGamePackage(): GamePackage? {
-        val savedGameId = getIdOfSavedGame()
-        return if (savedGameId != null) {
-            getGameById(savedGameId)
-        } else {
-            null
-        }
-    }
-
-    /**
-     * Get the ID of the currently saved game
-     */
-    fun getIdOfSavedGame(): String? {
-        return sharedPreferences.getString(CURRENT_SAVED_GAME_ID_KEY, null)
-    }
-
-    /**
-     * Check if there is a saved game
-     */
-    fun hasSavedGame(): Boolean {
-        // TODO the logic here needs to change, check this in library
-        return getIdOfSavedGame() != null
-    }
-
-    /**
-     * Clear the saved game reference
-     */
-    fun clearSavedGame() {
-        sharedPreferences.edit(commit = true) {
-            remove(CURRENT_SAVED_GAME_ID_KEY)
         }
     }
 }
