@@ -115,4 +115,8 @@
     <!-- Bottom Navigation Bar -->
     <string name="nav_home">Home</string>
     <string name="nav_library">Library</string>
+    <string name="change_app_language">Change App Language</string>
+
+    <!-- Error toasts -->
+    <string name="language_settings_unavailable">Language settings not available on this device</string>
 </resources>

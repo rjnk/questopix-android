@@ -1,6 +1,11 @@
 package com.rejnek.oog.ui.screens
 
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
+import android.provider.Settings
 import android.widget.Space
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -32,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.R
+import com.rejnek.oog.ui.components.settings.ChangeLanguageButton
 import com.rejnek.oog.ui.viewmodels.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -130,7 +136,7 @@ fun SettingsScreen(
             // About section
             Text(stringResource(R.string.about_oog_title), style = MaterialTheme.typography.headlineMedium)
             Text(stringResource(R.string.about_oog_description))
-
+            ChangeLanguageButton(context)
             // put the buttons side by side, making them take equal width
             Row(
                 modifier = Modifier

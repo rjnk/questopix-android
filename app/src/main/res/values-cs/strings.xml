@@ -100,4 +100,6 @@
     <string name="continue_label">Pokračovat</string>
     <string name="nav_home">Domů</string>
     <string name="nav_library">Knihovna</string>
+    <string name="change_app_language">Změnit jazyk aplikace</string>
+    <string name="language_settings_unavailable">Nastavení jazyka není na tomto zařízení k dispozici</string>
 </resources>

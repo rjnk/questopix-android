@@ -43,9 +43,6 @@ fun HomeScreen(
     onLoadGameFromFileViaLibrary: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel()
 ) {
-
-    // TODO put all strings to a resource file and add localization support for czech and english
-
     Scaffold(
         bottomBar = {
             BottomNavigationBar(
