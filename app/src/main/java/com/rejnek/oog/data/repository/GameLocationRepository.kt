@@ -1,14 +1,17 @@
 package com.rejnek.oog.data.repository
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.rejnek.oog.data.model.Area
 import com.rejnek.oog.data.model.Coordinates
-import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.services.LocationService
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -16,17 +19,32 @@ import kotlinx.coroutines.launch
  * Repository responsible for location-based game operations
  */
 class GameLocationRepository(
-    context: Context
+    private val context: Context
 ) {
     private val locationService = LocationService(context)
     val currentLocation = locationService.currentLocation
 
-    fun startLocationMonitoring(
+    private val _permissionGranted = MutableStateFlow(
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    )
+    val isPermissionGranted = _permissionGranted.asStateFlow()
+
+    fun setUpLocationMonitoring(
         areas: List<Area>,
         onLocationMatch: suspend (String) -> Unit
     ) {
         if(areas.isEmpty()) {
             Log.d("GameLocationRepository", "No areas to monitor.")
+            _permissionGranted.value = true
+            return
+        }
+
+        checkPermission()
+        if(!_permissionGranted.value) {
+            Log.d("GameLocationRepository", "Location permission not granted, cannot start monitoring.")
             return
         }
 
@@ -48,6 +66,14 @@ class GameLocationRepository(
                 }
             }
         }
+    }
+
+    fun checkPermission() {
+        _permissionGranted.value =
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
     }
 
     fun stopLocationMonitoring() {

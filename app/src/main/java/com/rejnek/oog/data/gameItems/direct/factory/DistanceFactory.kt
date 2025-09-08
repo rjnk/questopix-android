@@ -30,11 +30,12 @@ class DistanceFactory : GenericDirectFactory() {
 
 @Composable
 fun DistanceCard(
-    currentLocationState: State<Coordinates>?,
+    currentLocationState: State<Coordinates?>?,
     targetLocation: Coordinates,
     modifier: Modifier = Modifier
 ) {
     val currentLocation = currentLocationState?.value
+
     val distanceText = if (currentLocation != null) {
         val distance = calculateDistance(currentLocation, targetLocation)
         "Distance: " + formatDistance(distance)

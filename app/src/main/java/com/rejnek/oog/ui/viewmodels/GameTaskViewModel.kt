@@ -18,10 +18,18 @@ class GameTaskViewModel(
     val gameName = _gameName.asStateFlow()
     private val _gameState = MutableStateFlow(GameState.IN_PROGRESS)
     val gameState = _gameState.asStateFlow()
+    val locationPermissionGranted = gameRepository.gameLocationRepository.isPermissionGranted
 
     // Expose UI elements from the repository
     val uiElements = gameRepository.gameUIRepository.uiElements
 
+
+    fun refreshLocationPermission() {
+        gameRepository.gameLocationRepository.checkPermission()
+        viewModelScope.launch {
+            gameRepository.startLocationMonitoring()
+        }
+    }
 
     init {
         viewModelScope.launch {
@@ -38,5 +46,3 @@ class GameTaskViewModel(
         }
     }
 }
-
-

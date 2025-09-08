@@ -1,5 +1,6 @@
 package com.rejnek.oog.ui.screens
 
+import LocationPermissionRequest
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,13 +25,20 @@ fun GameTaskScreen(
     viewModel: GameTaskViewModel = koinViewModel()
 ) {
     val finishGame by viewModel.finishGame.collectAsState(initial = false)
-    LaunchedEffect(finishGame) { if (finishGame) onFinishTask() }
-
+    val locationPermissionGranted = viewModel.locationPermissionGranted.collectAsState()
     val gameName by viewModel.gameName.collectAsState()
     val gameState by viewModel.gameState.collectAsState()
     val uiElements by viewModel.uiElements.collectAsState()
 
+    LaunchedEffect(finishGame) { if (finishGame) onFinishTask() }
+
     BackHandler { }
+
+    LocationPermissionRequest(
+        locationPermissionGranted = locationPermissionGranted.value,
+        onGoToLibrary = onFinishTask,
+        onRefreshLocationPermission = { viewModel.refreshLocationPermission() }
+    )
 
     Column(Modifier.fillMaxSize()) {
         if (gameState != GameState.ARCHIVED) {

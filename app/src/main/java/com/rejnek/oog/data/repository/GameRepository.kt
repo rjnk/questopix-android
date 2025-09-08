@@ -68,12 +68,18 @@ class GameRepository(
             jsEngine.restoreState(gameStateJson)
         }
 
-        // Start location monitoring
-        val areasToMonitor = generateAreasForMonitoring(gamePackage)
-        gameLocationRepository.startLocationMonitoring(areasToMonitor) { areaId -> setCurrentTask(areaId) }
-
         // Start with the current task from the game package, it will be "start" if new game
         setCurrentTask(gamePackage.currentTaskId)
+
+        // Start location monitoring
+        startLocationMonitoring()
+    }
+
+    suspend fun startLocationMonitoring() {
+        val gamePackage = _currentGamePackage.value ?: throw IllegalStateException("No current game package")
+
+        val areasToMonitor = generateAreasForMonitoring(gamePackage)
+        gameLocationRepository.setUpLocationMonitoring(areasToMonitor) { areaId -> setCurrentTask(areaId) }
     }
 
     suspend fun generateAreasForMonitoring(gamePackage: GamePackage): List<Area> {

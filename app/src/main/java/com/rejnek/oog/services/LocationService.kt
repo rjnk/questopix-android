@@ -1,9 +1,11 @@
 package com.rejnek.oog.services
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Looper.getMainLooper
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -14,9 +16,9 @@ import com.rejnek.oog.data.model.Coordinates
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-class LocationService(context: Context) {
+class LocationService(private val context: Context) {
     private val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-    private val _currentLocation: MutableStateFlow<Coordinates?> = MutableStateFlow(null) // TODO strange default IG
+    private val _currentLocation: MutableStateFlow<Coordinates?> = MutableStateFlow(null)
     val currentLocation: StateFlow<Coordinates?> = _currentLocation
 
     private val locationCallback = object : LocationCallback() {
@@ -27,10 +29,18 @@ class LocationService(context: Context) {
         }
     }
 
-    @SuppressLint("MissingPermission")
     fun startLocationUpdates() {
+        // Simple permission check – if neither fine nor coarse permission is granted, abort.
+        val fineGranted = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!fineGranted) {
+            Log.w("LocationService", "Missing location permission; not starting updates")
+            return
+        }
+
         Log.d("LocationService", "Starting location updates in LocationService")
-        startLocationUpdates()
 
         val locationRequest = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
