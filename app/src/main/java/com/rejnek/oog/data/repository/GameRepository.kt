@@ -164,9 +164,10 @@ class GameRepository(
     }
 
     fun cleanup() {
-        jsEngine.cleanup()
         _currentGamePackage.value = null
         gameUIRepository.clearUIElements()
+        jsEngine.cleanup()
+        gameLocationRepository.stopLocationMonitoring()
 
         // Clear saved game state when cleaning up
         CoroutineScope(Dispatchers.IO).launch {

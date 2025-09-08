@@ -25,24 +25,38 @@ class GameLocationRepository(
         areas: List<Area>,
         onLocationMatch: suspend (String) -> Unit
     ) {
+        if(areas.isEmpty()) {
+            Log.d("GameLocationRepository", "No areas to monitor.")
+            return
+        }
+
+        locationService.startLocationUpdates()
         Log.d("GameLocationRepository", "Starting location monitoring for areas: $areas")
 
         CoroutineScope(Dispatchers.Main).launch {
             currentLocation.collectLatest { location ->
+                if(location == null) {
+                    Log.d("GameLocationRepository", "Current location is null, skipping check.")
+                    return@collectLatest
+                }
+
                 Log.d("GameLocationRepository", "Location updated: $location")
                 areas.forEach { area ->
                     if (checkLocation(location, area)) {
-                        onLocationMatch(area.id ?: throw IllegalStateException("Area ID is null"))
+                        onLocationMatch(area.id)
                     }
                 }
             }
         }
     }
 
-    // TODO stop location monitoring when game is paused or stopped
+    fun stopLocationMonitoring() {
+        locationService.stopLocationUpdates()
+    }
 
     fun checkLocation(areaToCheck: Area): Boolean {
         val location = currentLocation.value
+        if(location == null) return false
         return checkLocation(location, areaToCheck)
     }
 

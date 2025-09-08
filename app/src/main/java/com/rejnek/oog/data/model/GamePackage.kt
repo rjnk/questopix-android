@@ -46,5 +46,5 @@ data class Coordinates(
 @Serializable
 data class Area(
     val points: List<Coordinates>,
-    val id: String? = null
+    val id: String
 )

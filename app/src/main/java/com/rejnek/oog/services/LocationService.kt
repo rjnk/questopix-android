@@ -16,8 +16,8 @@ import kotlinx.coroutines.flow.StateFlow
 
 class LocationService(context: Context) {
     private val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
-    private val _currentLocation: MutableStateFlow<Coordinates> = MutableStateFlow(Coordinates(0.0, 0.0)) // TODO strange default IG
-    val currentLocation: StateFlow<Coordinates> = _currentLocation
+    private val _currentLocation: MutableStateFlow<Coordinates?> = MutableStateFlow(null) // TODO strange default IG
+    val currentLocation: StateFlow<Coordinates?> = _currentLocation
 
     private val locationCallback = object : LocationCallback() {
         override fun onLocationResult(locationResult: LocationResult) {
@@ -27,13 +27,11 @@ class LocationService(context: Context) {
         }
     }
 
-    init {
-        Log.d("LocationService", "LocationService initialized, starting location updates")
-        startLocationUpdates()
-    }
-
     @SuppressLint("MissingPermission")
-    private fun startLocationUpdates() {
+    fun startLocationUpdates() {
+        Log.d("LocationService", "Starting location updates in LocationService")
+        startLocationUpdates()
+
         val locationRequest = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
             1500 // interval in milliseconds
