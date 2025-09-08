@@ -41,9 +41,7 @@ fun GameTaskScreen(
     )
 
     Column(Modifier.fillMaxSize()) {
-        if (gameState != GameState.ARCHIVED) {
-            TopBar(gameName, onOpenSettings)
-        }
+        TopBar(gameName, onOpenSettings)
 
         Box(
             modifier = Modifier

@@ -47,7 +47,6 @@ fun HomeScreen(
     }
 
     // TODO put all strings to a resource file and add localization support for czech and english
-    // TODO add enabled/disabled states for the locations
 
     Scaffold(
         bottomBar = {

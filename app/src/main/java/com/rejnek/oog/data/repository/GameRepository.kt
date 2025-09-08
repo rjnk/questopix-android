@@ -76,9 +76,14 @@ class GameRepository(
 
     suspend fun startLocationMonitoring() {
         val gamePackage = _currentGamePackage.value ?: return
+        if (gamePackage.state == GameState.ARCHIVED) return
 
         val areasToMonitor = generateAreasForMonitoring(gamePackage)
-        gameLocationRepository.setUpLocationMonitoring(areasToMonitor) { areaId -> setCurrentTask(areaId) }
+        gameLocationRepository.setUpLocationMonitoring(areasToMonitor) { areaId ->
+            if(jsEngine.getJsValue("isEnabled(\"$areaId\")").getOrNull() == "true") {
+                setCurrentTask(areaId)
+            }
+        }
     }
 
     suspend fun generateAreasForMonitoring(gamePackage: GamePackage): List<Area> {

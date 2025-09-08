@@ -176,6 +176,7 @@ class JsGameEngine(
                 // mandatory game variables
                 var _onStartActivated = [];
                 var _onEnterActivated = [];
+                var _disabled = [];
 
                 var _currentTask = "start";
                 
@@ -184,6 +185,25 @@ class JsGameEngine(
                     _currentTask = newTask;
                     refresh();
                     save();
+                }
+                
+                function enable(elementId) {
+                    const index = _disabled.indexOf(elementId);
+                    if (index !== -1) {
+                        _disabled.splice(index, 1);
+                    }
+                    save();
+                }
+                
+                function disable(elementId) {
+                    if (!_disabled.includes(elementId)) {
+                        _disabled.push(elementId);
+                    }
+                    save();
+                }
+                
+                function isEnabled(elementId) {
+                    return !_disabled.includes(elementId);
                 }
                 
                 // Functions that interact with Android
