@@ -25,7 +25,6 @@ class GameTaskViewModel(
 
 
     fun refreshLocationPermission() {
-        gameRepository.gameLocationRepository.checkPermission()
         viewModelScope.launch {
             gameRepository.startLocationMonitoring()
         }

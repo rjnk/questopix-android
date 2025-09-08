@@ -1,5 +1,6 @@
 package com.rejnek.oog.ui.screens
 
+import LocationPermissionRequest
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
@@ -19,7 +20,6 @@ import com.rejnek.oog.ui.components.gameInfo.GameCoverImage
 import com.rejnek.oog.ui.components.gameInfo.InfoSection
 import com.rejnek.oog.ui.components.gameInfo.LocationItem
 import com.rejnek.oog.ui.viewmodels.GameInfoViewModel
-import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.koin.androidx.compose.koinViewModel
@@ -33,9 +33,21 @@ fun GameInfoScreen(
     viewModel: GameInfoViewModel = koinViewModel()
 ) {
     val gamePackage = viewModel.gamePackage.collectAsState().value
+    val isTaskRequiringLocation = viewModel.isTaskRequiringLocation.collectAsState()
+    val locationPermissionGranted = viewModel.locationPermissionGranted.collectAsState()
+    val showFarAwayToast = viewModel.showFarAwayToast.collectAsState()
+    val showNoLocationToast = viewModel.showNoLocationToast.collectAsState()
 
     LaunchedEffect(gameId) {
         viewModel.loadGameInfo(gameId, onGameStarted)
+    }
+
+    if (isTaskRequiringLocation.value) {
+        LocationPermissionRequest(
+            locationPermissionGranted = locationPermissionGranted.value,
+            onGoToLibrary = onNavigateBack,
+            onRefreshLocationPermission = { viewModel.refreshLocationPermission() }
+        )
     }
 
     // TODO make it so that you can start the game only in 75m radius around the start location
@@ -63,7 +75,7 @@ fun GameInfoScreen(
         floatingActionButton = {
             if (gamePackage != null) {
                 ExtendedFloatingActionButton(
-                    onClick = { viewModel.startGame(onGameStarted) },
+                    onClick = { viewModel.startGameByPressingButton(onGameStarted) },
                     icon = {
                         Icon(
                             imageVector = Icons.Default.PlayArrow,
@@ -101,7 +113,7 @@ fun GameInfoContent(
             // Description
             InfoSection(title = "Description") {
                 Text(
-                    text = gamePackage.info("description"),
+                    text = gamePackage.getDescription(),
                     style = MaterialTheme.typography.bodyMedium
                 )
             }
@@ -110,32 +122,22 @@ fun GameInfoContent(
         item {
             // Locations
             InfoSection(title = "Locations") {
-                val startLocation = gamePackage.infoAsJson("startLocation")
-                val finishLocation = gamePackage.infoAsJson("finishLocation")
-
-                startLocation?.let {
-                    LocationItem(
-                        title = "Start Location",
-                        locationText = it["text"]?.jsonPrimitive?.content ?: "Unknown",
-                        gpsCoordinates = Coordinates.fromJson(it["coordinates"]?.jsonObject ?: it)
-                        )
-                    if (finishLocation != null) {
-                        Spacer(modifier = Modifier.height(8.dp))
-                    }
-                }
-
-                finishLocation?.let {
-                    LocationItem(
-                        title = "Finish Location",
-                        locationText = it["text"]?.jsonPrimitive?.content ?: "Unknown",
-                        gpsCoordinates = Coordinates.fromJson(it["coordinates"]?.jsonObject ?: it)
-                    )
-                }
+                LocationItem(
+                    title = "Start Location",
+                    locationText = gamePackage.getStartLocationText() ?: "Unknown",
+                    gpsCoordinates = gamePackage.getStartLocation()
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                LocationItem(
+                    title = "Finish Location",
+                    locationText = gamePackage.getFinishLocationText() ?: "Unknown",
+                    gpsCoordinates = gamePackage.getFinishLocation()
+                )
             }
         }
 
         // Cover image
-        val coverPhoto = gamePackage.info("coverPhoto")
+        val coverPhoto = gamePackage.getCoverPhoto()
         if (coverPhoto.isNotEmpty()) {
             item {
                 GameCoverImage(

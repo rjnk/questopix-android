@@ -11,6 +11,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import com.rejnek.oog.data.model.Coordinates
+import com.rejnek.oog.data.repository.GameLocationRepository
 import kotlin.math.*
 
 class DistanceFactory : GenericDirectFactory() {
@@ -22,7 +23,7 @@ class DistanceFactory : GenericDirectFactory() {
         gameRepository?.addUIElement {
             DistanceCard(
                 currentLocationState = gameRepository?.gameLocationRepository?.currentLocation?.collectAsState(),
-                targetLocation = targetLocation
+                targetLocation = targetLocation,
             )
         }
     }
@@ -37,7 +38,7 @@ fun DistanceCard(
     val currentLocation = currentLocationState?.value
 
     val distanceText = if (currentLocation != null) {
-        val distance = calculateDistance(currentLocation, targetLocation)
+        val distance = GameLocationRepository.calculateDistance(currentLocation, targetLocation)
         "Distance: " + formatDistance(distance)
     } else "Getting location..."
 
@@ -64,18 +65,6 @@ fun DistanceCard(
 }
 
 // Helper distance functions
-private fun calculateDistance(from: Coordinates, to: Coordinates): Double {
-    val earthRadius = 6371000.0
-    val latDistance = Math.toRadians(to.lat - from.lat)
-    val lngDistance = Math.toRadians(to.lng - from.lng)
-
-    val a = sin(latDistance / 2).pow(2) +
-            cos(Math.toRadians(from.lat)) * cos(Math.toRadians(to.lat)) *
-            sin(lngDistance / 2).pow(2)
-
-    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-    return earthRadius * c
-}
 
 private fun formatDistance(distanceInMeters: Double): String {
     return when {

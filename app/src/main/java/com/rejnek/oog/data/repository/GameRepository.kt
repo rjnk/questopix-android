@@ -12,8 +12,6 @@ import com.rejnek.oog.data.model.GameState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -78,7 +76,7 @@ class GameRepository(
         if (gamePackage.state == GameState.ARCHIVED) return
 
         val areasToMonitor = generateAreasForMonitoring(gamePackage)
-        gameLocationRepository.setUpLocationMonitoring(areasToMonitor) { areaId ->
+        gameLocationRepository.startMonitoringAreas(areasToMonitor) { areaId ->
             if(jsEngine.getJsValue("isEnabled(\"$areaId\")").getOrNull() == "true") {
                 setCurrentTask(areaId)
             }

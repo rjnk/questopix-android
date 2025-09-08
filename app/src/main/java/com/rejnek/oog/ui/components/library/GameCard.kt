@@ -58,7 +58,7 @@ fun GameCard(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = game.info("description"),
+                text = game.getDescription(),
                 style = MaterialTheme.typography.bodySmall,
                 color = if (isEnabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
             )

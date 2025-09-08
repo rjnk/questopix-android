@@ -17,14 +17,24 @@ data class GamePackage(
     ) {
     fun getId() = gameInfo["id"]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Game ID not found")
 
-    fun getName() = gameInfo["name"]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Game name not found")
+    fun getName() = gameInfo["name"]?.jsonPrimitive?.content ?: "No name"
+    fun getDescription() = gameInfo["description"]?.jsonPrimitive?.content ?: "No description available"
+    fun getCoverPhoto() = gameInfo["coverPhoto"]?.jsonPrimitive?.content ?: ""
 
-    fun info(key: String) : String{
-        return gameInfo[key]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Game info '$key' not found")
+    // Start and Finish locations
+    fun getStartLocationText(): String? {
+        return gameInfo["startLocation"]?.jsonObject["text"]?.jsonPrimitive?.content
     }
-
-    fun infoAsJson(key: String) : JsonObject?{
-        return gameInfo[key]?.jsonObject
+    fun getStartLocation(): Coordinates? {
+        val startLocationJson = gameInfo["startLocation"]?.jsonObject ?: return null
+        return Coordinates.fromJson(startLocationJson["coordinates"]?.jsonObject ?: return null)
+    }
+    fun getFinishLocationText(): String? {
+        return gameInfo["finishLocation"]?.jsonObject["text"]?.jsonPrimitive?.content
+    }
+    fun getFinishLocation(): Coordinates? {
+        val finishLocationJson = gameInfo["finishLocation"]?.jsonObject ?: return null
+        return Coordinates.fromJson(finishLocationJson["coordinates"]?.jsonObject ?: return null)
     }
 
     fun getTaskIds(): List<String> {

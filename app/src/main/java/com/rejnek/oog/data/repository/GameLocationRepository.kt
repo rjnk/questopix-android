@@ -14,6 +14,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.pow
+import kotlin.math.sin
+import kotlin.math.sqrt
 
 /**
  * Repository responsible for location-based game operations
@@ -24,15 +29,20 @@ class GameLocationRepository(
     private val locationService = LocationService(context)
     val currentLocation = locationService.currentLocation
 
-    private val _permissionGranted = MutableStateFlow(
-        ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED
-    )
+    private val _permissionGranted = MutableStateFlow(checkPermission())
     val isPermissionGranted = _permissionGranted.asStateFlow()
 
-    fun setUpLocationMonitoring(
+    fun startLocationService() {
+        refreshPermissionStatus()
+        if(!_permissionGranted.value) {
+            Log.d("GameLocationRepository", "Location permission not granted, cannot start location service.")
+            return
+        }
+
+        locationService.startLocationUpdates()
+    }
+
+    fun startMonitoringAreas(
         areas: List<Area>,
         onLocationMatch: suspend (String) -> Unit
     ) {
@@ -42,13 +52,8 @@ class GameLocationRepository(
             return
         }
 
-        checkPermission()
-        if(!_permissionGranted.value) {
-            Log.d("GameLocationRepository", "Location permission not granted, cannot start monitoring.")
-            return
-        }
+        startLocationService()
 
-        locationService.startLocationUpdates()
         Log.d("GameLocationRepository", "Starting location monitoring for areas: $areas")
 
         CoroutineScope(Dispatchers.Main).launch {
@@ -58,7 +63,6 @@ class GameLocationRepository(
                     return@collectLatest
                 }
 
-                Log.d("GameLocationRepository", "Location updated: $location")
                 areas.forEach { area ->
                     if (checkLocation(location, area)) {
                         onLocationMatch(area.id)
@@ -68,21 +72,19 @@ class GameLocationRepository(
         }
     }
 
-    fun checkPermission() {
-        _permissionGranted.value =
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
+    fun refreshPermissionStatus() {
+        _permissionGranted.value = checkPermission()
+    }
+
+    fun checkPermission() : Boolean {
+        return ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 
     fun stopLocationMonitoring() {
         locationService.stopLocationUpdates()
-    }
-
-    fun checkLocation(locationToCheck: Coordinates, radiusInMeters: Double): Boolean {
-        // todo reuse logic in checkLocation and imput a square area around the point with the given radius
-        return true
     }
 
     fun checkLocation(location: Coordinates, areaToCheck: Area): Boolean {
@@ -106,5 +108,25 @@ class GameLocationRepository(
         }
 
         return isInside
+    }
+
+    companion object {
+        /* Haversine formula to calculate distance between two coordinates in meters
+        * from: Coordinates of the first point
+        * to: Coordinates of the second point
+        * returns: Distance in meters
+         */
+        fun calculateDistance(from: Coordinates, to: Coordinates): Double {
+            val earthRadius = 6371000.0
+            val latDistance = Math.toRadians(to.lat - from.lat)
+            val lngDistance = Math.toRadians(to.lng - from.lng)
+
+            val a = sin(latDistance / 2).pow(2) +
+                    cos(Math.toRadians(from.lat)) * cos(Math.toRadians(to.lat)) *
+                    sin(lngDistance / 2).pow(2)
+
+            val c = 2 * atan2(sqrt(a), sqrt(1 - a))
+            return earthRadius * c
+        }
     }
 }

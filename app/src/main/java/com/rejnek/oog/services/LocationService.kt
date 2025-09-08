@@ -25,6 +25,7 @@ class LocationService(private val context: Context) {
         override fun onLocationResult(locationResult: LocationResult) {
             locationResult.lastLocation?.let { location ->
                 _currentLocation.value = Coordinates(location.latitude, location.longitude)
+                Log.d("LocationService", "Location updated: ${_currentLocation.value}")
             }
         }
     }

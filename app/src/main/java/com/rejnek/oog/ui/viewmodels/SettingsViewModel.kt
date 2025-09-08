@@ -30,7 +30,7 @@ class SettingsViewModel(
                 if(pack != null) {
                     _openFromGame.value = true
                     _gameName.value = pack.getName()
-                    _gameDescription.value = pack.info("description")
+                    _gameDescription.value = pack.getDescription()
                 } else {
                     _openFromGame.value = false
                 }

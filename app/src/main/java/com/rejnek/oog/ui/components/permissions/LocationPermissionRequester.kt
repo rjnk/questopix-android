@@ -41,7 +41,10 @@ fun LocationPermissionRequest(
         AlertDialog(
             onDismissRequest = {},
             confirmButton = {
-                TextButton(onClick = onGoToLibrary) {
+                TextButton(onClick = {
+                    onGoToLibrary()
+                    showDeniedDialog = false
+                }) {
                     Text("OK")
                 }
             },
