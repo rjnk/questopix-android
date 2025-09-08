@@ -21,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
+import com.rejnek.oog.ui.components.permissions.rememberCameraPermissionRequester
 import java.io.File
 
 class TakePictureFactory : GenericDirectFactory() {
@@ -48,38 +49,51 @@ class MyTakePicture(
     @Composable
     fun Show() {
         val context = LocalContext.current
-
         val fileName = "taken-image-$currentTask.jpg"
+        val imageFile = remember { File(context.filesDir, "user_images/$gameId/$fileName") }
 
-        val imageFile = File(context.filesDir, "user_images/$gameId/$fileName")
         var capturedImagePath by remember { mutableStateOf(if (imageFile.exists()) imageFile.absolutePath else null) }
         var tempImageUri by remember { mutableStateOf<Uri?>(null) }
+        var pendingCapture by remember { mutableStateOf(false) }
 
-        // Create camera launcher
+        // Camera launcher
         val cameraLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.TakePicture()
         ) { success ->
             if (success && tempImageUri != null) {
                 val gameImagesDir = File(context.filesDir, "user_images/$gameId")
-                if (!gameImagesDir.exists()) {
-                    gameImagesDir.mkdirs()
-                }
-
+                if (!gameImagesDir.exists()) gameImagesDir.mkdirs()
                 val tempFile = File(context.cacheDir, "temp_camera_image.jpg")
-
                 try {
                     if (tempFile.exists()) {
                         tempFile.copyTo(imageFile, overwrite = true)
-                        // Force state update by setting to null first, then to the new path
                         capturedImagePath = null
                         capturedImagePath = imageFile.absolutePath
                         tempFile.delete()
                     }
-                } catch (e: Exception) {
-                    Log.e("TakePicture", "Error moving image file", e)
-                }
+                } catch (_: Exception) { }
             }
         }
+
+        fun launchCameraCapture() {
+            val tempFile = File(context.cacheDir, "temp_camera_image.jpg")
+            tempImageUri = FileProvider.getUriForFile(
+                context,
+                "${context.packageName}.fileprovider",
+                tempFile
+            )
+            tempImageUri?.let { cameraLauncher.launch(it) }
+        }
+
+        val permissionRequester = rememberCameraPermissionRequester(
+            onPermissionGranted = {
+                if (pendingCapture) {
+                    launchCameraCapture()
+                    pendingCapture = false
+                }
+            },
+            onPermanentlyDenied = { /* no-op */ }
+        )
 
         Card(
             modifier = Modifier
@@ -106,13 +120,12 @@ class MyTakePicture(
                 if (capturedImagePath == null) {
                     Button(
                         onClick = {
-                            val tempFile = File(context.cacheDir, "temp_camera_image.jpg")
-                            tempImageUri = FileProvider.getUriForFile(
-                                context,
-                                "${context.packageName}.fileprovider",
-                                tempFile
-                            )
-                            cameraLauncher.launch(tempImageUri!!)
+                            if (permissionRequester.hasPermission) {
+                                launchCameraCapture()
+                            } else {
+                                pendingCapture = true
+                                permissionRequester.request()
+                            }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -145,13 +158,12 @@ class MyTakePicture(
 
                     Button(
                         onClick = {
-                            val tempFile = File(context.cacheDir, "temp_camera_image.jpg")
-                            tempImageUri = FileProvider.getUriForFile(
-                                context,
-                                "${context.packageName}.fileprovider",
-                                tempFile
-                            )
-                            cameraLauncher.launch(tempImageUri!!)
+                            if (permissionRequester.hasPermission) {
+                                launchCameraCapture()
+                            } else {
+                                pendingCapture = true
+                                permissionRequester.request()
+                            }
                         },
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -163,6 +175,20 @@ class MyTakePicture(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text("Take Again")
                     }
+                }
+
+                // Show permission dialog if needed
+                if (permissionRequester.showPermanentDeniedDialog) {
+                    AlertDialog(
+                        onDismissRequest = { /* Intentionally blank */ },
+                        confirmButton = {
+                            TextButton(onClick = { permissionRequester.resetPermanentDeniedDialog() }) {
+                                Text("OK")
+                            }
+                        },
+                        title = { Text("Camera Permission Required") },
+                        text = { Text("Taking photos doesn't work without granting the camera permission. Please grant it in the device settings.") }
+                    )
                 }
             }
         }
