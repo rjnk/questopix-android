@@ -130,6 +130,8 @@ class JsGameEngine(
         }
 
     suspend fun executeOnStart(elementId: String) {
+        jsInterface.deleteAllFallbacks()
+
         val onStartActivated = getJsValue("_onStartActivated.includes('$elementId')").getOrNull().toBoolean()
 
         if (!onStartActivated) {

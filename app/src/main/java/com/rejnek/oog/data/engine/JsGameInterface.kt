@@ -61,13 +61,27 @@ class JsGameInterface(
      * Resolves a callback by its ID with the provided result
      * This is called by Kotlin when the callback action is completed
      */
-    public fun resolveCallback(callbackId: String, result: String) {
+    fun resolveCallback(callbackId: String, result: String) {
         CoroutineScope(Dispatchers.Main).launch {
             val escapedResult = result.replace("'", "\\'")
             webView?.evaluateJavascript("""
                 if (window.callbackResolvers && window.callbackResolvers['$callbackId']) {
                     window.callbackResolvers['$callbackId']('$escapedResult');
-                    delete window.callbackResolvers['$callbackId'];
+                    // delete window.callbackResolvers['$callbackId'];
+                }
+            """.trimIndent(), null)
+        }
+    }
+
+    /**
+     * Deletes all registered callbacks in the WebView context
+     * This is useful for cleaning up when the game ends or resets
+     */
+    fun deleteAllFallbacks() {
+        CoroutineScope(Dispatchers.Main).launch {
+            webView?.evaluateJavascript("""
+                if (window.callbackResolvers) {
+                    window.callbackResolvers = {};
                 }
             """.trimIndent(), null)
         }
