@@ -125,8 +125,7 @@ class JsGameEngine(
                 }
             }
 
-            // TODO we need to improve logging and get rid of the fails for onStartFirst()...
-            Log.d("JsGameEngine", "JavaScript executed. Evaluation result: $result")
+            Log.d("JsGameEngine", "JavaScript $code executed. Evaluation result: $result")
             Result.success(cleanJsResult(result))
         }
 
@@ -166,7 +165,7 @@ class JsGameEngine(
                 
                 // Error handler
                 window.onerror = function(message, source, lineno, colno, error) {
-                    Android.debugPrint("JS Error: " + message);
+                    debugPrint("JS Error: " + message + " at " + source + ":" + lineno + ":" + colno + (error ? " Stack: " + error.stack : ""));
                     return true;
                 };
                 

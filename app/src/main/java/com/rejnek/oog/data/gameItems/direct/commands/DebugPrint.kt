@@ -7,6 +7,7 @@ class DebugPrint : GenericDirectFactory() {
     override val id = "debugPrint"
 
     override suspend fun create(data: String) {
-        Log.d("DebugPrint", "JS Debug: $data")
+        // we print to log all direct actions, so this is duplicate
+        // Log.d("DebugPrint", "JS Debug: $data")
     }
 }
