@@ -13,12 +13,12 @@ data class GamePackage(
     var currentTaskId: String = "start",
     val gameState: JsonObject? = null
     ) {
-    fun getId() = gameInfo["id"]?.jsonPrimitive?.content ?: throw IllegalStateException("Game ID not found")
+    fun getId() = gameInfo["id"]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Game ID not found")
 
-    fun getName() = gameInfo["name"]?.jsonPrimitive?.content ?: throw IllegalStateException("Game name not found")
+    fun getName() = gameInfo["name"]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Game name not found")
 
     fun info(key: String) : String{
-        return gameInfo[key]?.jsonPrimitive?.content ?: throw IllegalStateException("Game info '$key' not found")
+        return gameInfo[key]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Game info '$key' not found")
     }
 
     fun getTaskIds(): List<String> {

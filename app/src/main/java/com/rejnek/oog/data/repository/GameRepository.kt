@@ -38,8 +38,6 @@ class GameRepository(
     // Mutex
     private val executeOnStartMutex = Mutex()
 
-    // TODO we should get rid of all the exceptions and make it clear
-
     // Initialize method for JS engine setup
     suspend fun initialize(): Result<Unit> {
         return jsEngine.initialize(this@GameRepository).map { }
@@ -48,12 +46,12 @@ class GameRepository(
     // Game Initialization
     suspend fun initializeGameFromLibrary(gameId: String) = withContext(Dispatchers.IO) {
         val game = gameStorageRepository.getGameById(gameId)
-        startGame(game ?: throw IllegalArgumentException("Game with ID $gameId not found in library"))
+        startGame(game ?: throw GameRepositoryException("Game with ID $gameId not found in library"))
     }
 
     suspend fun loadSavedGame() = withContext(Dispatchers.IO) {
         val savedGamePackage = gameStorageRepository.getSavedGamePackage()
-        startGame(savedGamePackage ?: throw IllegalStateException("No saved game found"))
+        startGame(savedGamePackage ?: throw GameRepositoryException("No saved game found"))
     }
 
     suspend fun startGame(gamePackage: GamePackage) {
@@ -76,7 +74,7 @@ class GameRepository(
     }
 
     suspend fun startLocationMonitoring() {
-        val gamePackage = _currentGamePackage.value ?: throw IllegalStateException("No current game package")
+        val gamePackage = _currentGamePackage.value ?: return
 
         val areasToMonitor = generateAreasForMonitoring(gamePackage)
         gameLocationRepository.setUpLocationMonitoring(areasToMonitor) { areaId -> setCurrentTask(areaId) }
@@ -119,7 +117,7 @@ class GameRepository(
 
     suspend fun executeOnStart() {
         executeOnStartMutex.withLock {
-            val taskId = _currentGamePackage.value?.currentTaskId ?: throw IllegalStateException("Current task ID is null")
+            val taskId = _currentGamePackage.value?.currentTaskId ?: throw GameRepositoryException("Current task ID is null")
             jsEngine.executeOnStart(taskId)
         }
     }
@@ -138,29 +136,27 @@ class GameRepository(
             _currentGamePackage.value = currentPackage.copy(state = GameState.ARCHIVED)
         }
         CoroutineScope(Dispatchers.IO).launch {
-            gameStorageRepository.saveGame(_currentGamePackage.value ?: throw IllegalStateException("No current game package"))
-            withContext(Dispatchers.Main) {
-                cleanup()
-            }
+            gameStorageRepository.saveGame(_currentGamePackage.value ?: throw GameRepositoryException("No current game package"))
+            cleanup()
         }
     }
 
     fun pauseCurrentGame() {
         CoroutineScope(Dispatchers.IO).launch {
             gameStorageRepository.saveGame(_currentGamePackage.value ?: throw IllegalStateException("No current game package"))
-            withContext(Dispatchers.Main) {
-                cleanup()
-            }
+            cleanup()
         }
     }
 
     fun quitCurrentGame() {
+        val gamePackage = _currentGamePackage.value ?: return
+
         // Save the game state with reseted values
         val clearPackage = GamePackage(
-            gameInfo = _currentGamePackage.value?.gameInfo ?: throw IllegalStateException("No current game package"),
-            gameCode = _currentGamePackage.value?.gameCode ?: throw IllegalStateException("No current game package"),
+            gameInfo = gamePackage.gameInfo,
+            gameCode = gamePackage.gameCode,
             state = GameState.NOT_STARTED,
-            importedAt = _currentGamePackage.value?.importedAt ?: throw IllegalStateException("No current game package"),
+            importedAt = gamePackage.importedAt,
             currentTaskId = "start",
             gameState = null // Clear the saved state
         )
@@ -174,7 +170,9 @@ class GameRepository(
     fun cleanup() {
         _currentGamePackage.value = null
         gameUIRepository.clearUIElements()
-        jsEngine.cleanup()
+        // jsEngine.cleanup() TODO: Think about this: this is problematic when we play another game or want to resume etc
         gameLocationRepository.stopLocationMonitoring()
     }
 }
+
+class GameRepositoryException(message: String) : Exception(message)

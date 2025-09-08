@@ -29,7 +29,7 @@ class TakePictureFactory : GenericDirectFactory() {
 
     override suspend fun create(data: String) {
         Log.d("TakePictureFactory", "Creating take picture with data: $data")
-        val gamePackage = gameRepository?.currentGamePackage?.value ?: throw IllegalStateException("No current game package")
+        val gamePackage = gameRepository?.currentGamePackage?.value ?: return
 
         gameRepository?.addUIElement {
             MyTakePicture(

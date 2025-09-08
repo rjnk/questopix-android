@@ -83,7 +83,7 @@ private fun extractGameFromZip(baseDir: File, inputStream: InputStream): GamePac
         }
 
         // Get game ID and create final directory
-        val gameId = gameInfo["id"]?.jsonPrimitive?.content ?: throw IllegalStateException("Game ID missing in info.json")
+        val gameId = gameInfo["id"]?.jsonPrimitive?.content ?: throw IllegalArgumentException("Game ID missing in info.json")
         val gameImagesDir = File(baseDir, "game_images/$gameId").apply {
             if (exists()) deleteRecursively()
             mkdirs()

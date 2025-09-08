@@ -18,8 +18,8 @@ class PopUpFactory : GenericDirectFactory() {
     override val id = "popUp"
 
     override suspend fun createWithArgs(args: List<String>) {
-        val text = args.getOrNull(0) ?: throw IllegalStateException("PopUp requires a text argument")
-        val task = args.getOrNull(1) ?: throw IllegalStateException("PopUp requires a task argument")
+        val text = args.getOrNull(0) ?: return
+        val task = args.getOrNull(1) ?: return
 
         gameRepository?.currentGamePackage?.value?.currentTaskId = task
         gameRepository?.evaluateJs("save();")
