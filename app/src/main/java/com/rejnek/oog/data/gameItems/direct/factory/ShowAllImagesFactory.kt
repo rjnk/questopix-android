@@ -38,6 +38,7 @@ class ShowAllImagesFactory : GenericDirectFactory() {
     }
 }
 
+// TODO the scrolling to the side is extremely slow, it needs to improve
 class MyImageGallery(
     private val gameId: String,
     private val heading: String

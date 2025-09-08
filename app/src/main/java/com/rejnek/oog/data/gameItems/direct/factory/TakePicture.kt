@@ -43,6 +43,7 @@ class TakePictureFactory : GenericDirectFactory() {
     }
 }
 
+// TODO this has troubles with a rotation of the image
 class MyTakePicture(
     private val gameId: String,
     private val prompt: String,

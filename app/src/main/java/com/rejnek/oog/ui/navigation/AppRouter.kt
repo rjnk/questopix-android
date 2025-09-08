@@ -18,6 +18,8 @@ fun AppRouter() {
     val navController: NavHostController = rememberNavController()
     val sharedEvents: SharedEventsViewModel = koinViewModel()
 
+    // TODO improve going back, add https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture
+
     NavHost(
         navController = navController,
         startDestination = Routes.HomeScreen.route

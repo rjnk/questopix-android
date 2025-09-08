@@ -43,6 +43,7 @@ fun HomeScreen(
     onLoadGameFromFileViaLibrary: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel()
 ) {
+    // TODO add some demo games
     Scaffold(
         bottomBar = {
             BottomNavigationBar(

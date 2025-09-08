@@ -41,6 +41,7 @@ fun GameTaskScreen(
         onRefreshLocationPermission = { viewModel.refreshLocationPermission() }
     )
 
+    // TODO rn this is too tall, it reaches out of the screen on some devices
     Column(Modifier.fillMaxSize()) {
         TopBar(gameName, onOpenSettings)
 
