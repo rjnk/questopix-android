@@ -86,4 +86,8 @@ class GameInfoViewModel(
     fun refreshLocationPermission() {
         gameRepository.gameLocationRepository.startLocationService()
     }
+
+    // Toast visibility reset helpers
+    fun farAwayToastShown() { _showFarAwayToast.value = false }
+    fun noLocationToastShown() { _showNoLocationToast.value = false }
 }

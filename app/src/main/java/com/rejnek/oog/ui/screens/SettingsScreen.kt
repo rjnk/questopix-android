@@ -117,6 +117,7 @@ fun SettingsScreen(
                         TextButton(onClick = {
                             viewModel.quitGame()
                             onGoToMenu()
+                            showQuitDialog = false
                         }) { Text("Quit") }
                     },
                     dismissButton = {

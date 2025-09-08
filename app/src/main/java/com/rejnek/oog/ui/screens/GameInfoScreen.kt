@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.data.model.Coordinates
@@ -23,6 +24,7 @@ import com.rejnek.oog.ui.viewmodels.GameInfoViewModel
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.koin.androidx.compose.koinViewModel
+import android.widget.Toast
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -38,6 +40,30 @@ fun GameInfoScreen(
     val showFarAwayToast = viewModel.showFarAwayToast.collectAsState()
     val showNoLocationToast = viewModel.showNoLocationToast.collectAsState()
 
+    val context = LocalContext.current
+
+    LaunchedEffect(showFarAwayToast.value) {
+        if (showFarAwayToast.value) {
+            Toast.makeText(
+                context,
+                "You are too far from the game's start location.",
+                Toast.LENGTH_LONG
+            ).show()
+            viewModel.farAwayToastShown()
+        }
+    }
+
+    LaunchedEffect(showNoLocationToast.value) {
+        if (showNoLocationToast.value) {
+            Toast.makeText(
+                context,
+                "Current location not available yet.",
+                Toast.LENGTH_LONG
+            ).show()
+            viewModel.noLocationToastShown()
+        }
+    }
+
     LaunchedEffect(gameId) {
         viewModel.loadGameInfo(gameId, onGameStarted)
     }
@@ -49,8 +75,6 @@ fun GameInfoScreen(
             onRefreshLocationPermission = { viewModel.refreshLocationPermission() }
         )
     }
-
-    // TODO make it so that you can start the game only in 75m radius around the start location
 
     Scaffold(
         topBar = {
