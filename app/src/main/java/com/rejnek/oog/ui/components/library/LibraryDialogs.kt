@@ -4,7 +4,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import com.rejnek.oog.data.model.GamePackage
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import com.rejnek.oog.R
 
 @Composable
 fun DuplicateGameDialog(
@@ -17,13 +20,13 @@ fun DuplicateGameDialog(
 
     AlertDialog(
         onDismissRequest = onCancel,
-        title = { Text("Game Already Exists") },
-        text = { Text("A game with the name '$gameName' already exists in your library. Replace it with the new version?") },
+        title = { Text(stringResource(R.string.duplicate_game_title)) },
+        text = { Text(stringResource(R.string.duplicate_game_message, gameName)) },
         confirmButton = {
-            TextButton(onClick = onConfirm) { Text("Replace") }
+            TextButton(onClick = onConfirm) { Text(stringResource(R.string.replace)) }
         },
         dismissButton = {
-            TextButton(onClick = onCancel) { Text("Cancel") }
+            TextButton(onClick = onCancel) { Text(stringResource(R.string.cancel)) }
         }
     )
 }
@@ -39,16 +42,15 @@ fun DeleteGamesDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Delete Games") },
+        title = { Text(stringResource(R.string.delete_games_title)) },
         text = {
-            Text("Are you sure you want to delete $count game${if (count == 1) "" else "s"}? This action cannot be undone.")
+            Text(pluralStringResource(R.plurals.delete_games_message, count, count))
         },
         confirmButton = {
-            TextButton(onClick = onConfirm) { Text("Delete") }
+            TextButton(onClick = onConfirm) { Text(stringResource(R.string.delete)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         }
     )
 }
-

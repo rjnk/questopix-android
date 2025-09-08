@@ -24,7 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.R
 import com.rejnek.oog.ui.components.BottomNavigationBar
 import com.rejnek.oog.ui.components.home.OOGLogo
 import com.rejnek.oog.ui.components.library.rememberGameFilePicker
@@ -103,7 +105,7 @@ fun HomeScreenContent(
                             contentDescription = null,
                             modifier = Modifier.padding(end = 8.dp)
                         )
-                        Text("Continue Game")
+                        Text(stringResource(R.string.continue_game))
                     }
                 )
             }
@@ -119,7 +121,7 @@ fun HomeScreenContent(
                             contentDescription = null,
                             modifier = Modifier.padding(end = 8.dp)
                         )
-                        Text("Play a New Game")
+                        Text(stringResource(R.string.play_new_game))
                     }
                 )
 
@@ -137,7 +139,7 @@ fun HomeScreenContent(
                                 .size(24.dp)
                                 .padding(end = 6.dp)
                         )
-                        Text("Load game")
+                        Text(stringResource(R.string.load_game))
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondary

@@ -10,7 +10,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.R
 import android.graphics.BitmapFactory
 import java.io.File
 
@@ -31,7 +33,7 @@ fun GameCoverImage(
             ) {
                 Image(
                     bitmap = it.asImageBitmap(),
-                    contentDescription = "Game cover image",
+                    contentDescription = stringResource(R.string.cd_game_cover_image),
                     contentScale = ContentScale.Fit,
                     modifier = Modifier
                         .fillMaxWidth()

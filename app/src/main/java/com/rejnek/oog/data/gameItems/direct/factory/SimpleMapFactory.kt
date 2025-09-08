@@ -19,7 +19,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import android.graphics.BitmapFactory
 import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.R
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -93,7 +95,7 @@ class SimpleMap(
             bitmap?.let {
                 Image(
                     bitmap = it.asImageBitmap(),
-                    contentDescription = "Map background",
+                    contentDescription = stringResource(R.string.cd_map_background),
                     modifier = Modifier.fillMaxWidth(),
                     contentScale = ContentScale.FillWidth
                 )

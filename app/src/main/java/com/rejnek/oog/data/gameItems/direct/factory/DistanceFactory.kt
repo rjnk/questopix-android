@@ -7,8 +7,10 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.R
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import com.rejnek.oog.data.model.Coordinates
 import com.rejnek.oog.data.repository.GameLocationRepository
@@ -39,8 +41,8 @@ fun DistanceCard(
 
     val distanceText = if (currentLocation != null) {
         val distance = GameLocationRepository.calculateDistance(currentLocation, targetLocation)
-        "Distance: " + formatDistance(distance)
-    } else "Getting location..."
+        stringResource(R.string.distance_format, formatDistance(distance))
+    } else stringResource(R.string.getting_location)
 
     Card(
         modifier = modifier.fillMaxWidth().padding(vertical = 8.dp),
@@ -52,7 +54,7 @@ fun DistanceCard(
         ) {
             Icon(
                 imageVector = Icons.Default.LocationOn,
-                contentDescription = "Distance",
+                contentDescription = stringResource(R.string.cd_distance),
                 tint = MaterialTheme.colorScheme.primary
             )
             Text(

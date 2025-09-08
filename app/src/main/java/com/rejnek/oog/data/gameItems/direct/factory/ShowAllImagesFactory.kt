@@ -15,8 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.R
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import com.rejnek.oog.data.repository.LocalCaptureMode
 import java.io.File
@@ -30,7 +32,7 @@ class ShowAllImagesFactory : GenericDirectFactory() {
         gameRepository?.addUIElement {
             MyImageGallery(
                 gameId = gamePackage.getId(),
-                heading = if(data == "") "Photos" else data
+                heading = data
             ).Show()
         }
     }
@@ -65,7 +67,7 @@ class MyImageGallery(
                 shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
-                    text = "No images taken yet",
+                    text = stringResource(R.string.no_images_yet),
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(24.dp)
@@ -86,8 +88,9 @@ class MyImageGallery(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // Heading
+                val headingText = if (heading.isEmpty()) stringResource(R.string.photos) else heading
                 Text(
-                    text = heading,
+                    text = headingText,
                     style = MaterialTheme.typography.headlineSmall,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(8.dp)
@@ -120,7 +123,7 @@ class MyImageGallery(
                         bitmap?.let {
                             Image(
                                 bitmap = it.asImageBitmap(),
-                                contentDescription = "Taken image ${page + 1}",
+                                contentDescription = stringResource(R.string.cd_taken_image, page + 1),
                                 modifier = Modifier.fillMaxWidth(),
                                 contentScale = ContentScale.FillWidth
                             )

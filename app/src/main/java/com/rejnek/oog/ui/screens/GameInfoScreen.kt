@@ -12,8 +12,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.R
 import com.rejnek.oog.data.model.Coordinates
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.ui.components.gameInfo.AttributeItem
@@ -46,7 +48,7 @@ fun GameInfoScreen(
         if (showFarAwayToast.value) {
             Toast.makeText(
                 context,
-                "You are too far from the game's start location.",
+                context.getString(R.string.toast_too_far),
                 Toast.LENGTH_LONG
             ).show()
             viewModel.farAwayToastShown()
@@ -57,7 +59,7 @@ fun GameInfoScreen(
         if (showNoLocationToast.value) {
             Toast.makeText(
                 context,
-                "Current location not available yet.",
+                context.getString(R.string.toast_no_location),
                 Toast.LENGTH_LONG
             ).show()
             viewModel.noLocationToastShown()
@@ -81,7 +83,7 @@ fun GameInfoScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = gamePackage?.getName() ?: "Game Info",
+                        text = gamePackage?.getName() ?: stringResource(R.string.game_info_title),
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Bold
                     )
@@ -90,7 +92,7 @@ fun GameInfoScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.cd_back)
                         )
                     }
                 }
@@ -103,10 +105,10 @@ fun GameInfoScreen(
                     icon = {
                         Icon(
                             imageVector = Icons.Default.PlayArrow,
-                            contentDescription = "Start game"
+                            contentDescription = stringResource(R.string.cd_start_game)
                         )
                     },
-                    text = { Text("Start Game") }
+                    text = { Text(stringResource(R.string.start_game)) }
                 )
             }
         }
@@ -135,7 +137,7 @@ fun GameInfoContent(
     ) {
         item {
             // Description
-            InfoSection(title = "Description") {
+            InfoSection(title = stringResource(R.string.description)) {
                 Text(
                     text = gamePackage.getDescription(),
                     style = MaterialTheme.typography.bodyMedium
@@ -145,16 +147,16 @@ fun GameInfoContent(
 
         item {
             // Locations
-            InfoSection(title = "Locations") {
+            InfoSection(title = stringResource(R.string.locations)) {
                 LocationItem(
-                    title = "Start Location",
-                    locationText = gamePackage.getStartLocationText() ?: "Unknown",
+                    title = stringResource(R.string.start_location),
+                    locationText = gamePackage.getStartLocationText() ?: stringResource(R.string.unknown),
                     gpsCoordinates = gamePackage.getStartLocation()
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 LocationItem(
-                    title = "Finish Location",
-                    locationText = gamePackage.getFinishLocationText() ?: "Unknown",
+                    title = stringResource(R.string.finish_location),
+                    locationText = gamePackage.getFinishLocationText() ?: stringResource(R.string.unknown),
                     gpsCoordinates = gamePackage.getFinishLocation()
                 )
             }
@@ -174,7 +176,7 @@ fun GameInfoContent(
         // Game attributes
         gamePackage.gameInfo["attributes"]?.jsonObject?.let { attributes ->
             item {
-                InfoSection(title = "Game Details") {
+                InfoSection(title = stringResource(R.string.game_details)) {
                     attributes.forEach { (key, value) ->
                         AttributeItem(
                             label = key,

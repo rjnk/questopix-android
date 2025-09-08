@@ -11,12 +11,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.rejnek.oog.R
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 
 class PopUpFactory : GenericDirectFactory() {
@@ -100,7 +102,7 @@ class PopUp(
                         )
                     ) {
                         Text(
-                            text = "Continue",
+                            text = stringResource(R.string.continue_label),
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Medium
                         )

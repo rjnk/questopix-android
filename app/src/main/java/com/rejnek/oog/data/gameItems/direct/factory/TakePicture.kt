@@ -17,9 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import com.rejnek.oog.R
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import com.rejnek.oog.ui.components.permissions.rememberCameraPermissionRequester
 import java.io.File
@@ -131,11 +133,11 @@ class MyTakePicture(
                     ) {
                         Icon(
                             imageVector = Icons.Default.CameraAlt,
-                            contentDescription = "Take Photo",
+                            contentDescription = stringResource(R.string.cd_take_photo),
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Take Photo")
+                        Text(stringResource(R.string.take_photo))
                     }
                 } else {
                     // Show captured image
@@ -144,7 +146,7 @@ class MyTakePicture(
                         val isPortrait = it.height > it.width
                         Image(
                             bitmap = it.asImageBitmap(),
-                            contentDescription = "Captured photo",
+                            contentDescription = stringResource(R.string.cd_captured_photo),
                             modifier = if (isPortrait) {
                                 Modifier.width(200.dp)
                             } else {
@@ -169,11 +171,11 @@ class MyTakePicture(
                     ) {
                         Icon(
                             imageVector = Icons.Default.CameraAlt,
-                            contentDescription = "Take Photo Again",
+                            contentDescription = stringResource(R.string.cd_take_photo_again),
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Take Again")
+                        Text(stringResource(R.string.take_again))
                     }
                 }
 
@@ -183,11 +185,11 @@ class MyTakePicture(
                         onDismissRequest = { /* Intentionally blank */ },
                         confirmButton = {
                             TextButton(onClick = { permissionRequester.resetPermanentDeniedDialog() }) {
-                                Text("OK")
+                                Text(stringResource(R.string.ok))
                             }
                         },
-                        title = { Text("Camera Permission Required") },
-                        text = { Text("Taking photos doesn't work without granting the camera permission. Please grant it in the device settings.") }
+                        title = { Text(stringResource(R.string.camera_permission_required_title)) },
+                        text = { Text(stringResource(R.string.camera_permission_required_message)) }
                     )
                 }
             }

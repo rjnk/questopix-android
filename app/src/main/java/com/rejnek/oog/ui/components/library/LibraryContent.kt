@@ -16,6 +16,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.data.model.GameState
+import androidx.compose.ui.res.stringResource
+import com.rejnek.oog.R
 
 @Composable
 fun LibraryScreenContent(
@@ -42,7 +44,7 @@ fun LibraryScreenContent(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if(inProgressGames.isNotEmpty()) {
-                    item{ SectionHeading("In Progress") }
+                    item{ SectionHeading(stringResource(R.string.games_in_progress)) }
                     items(inProgressGames) { game ->
                         GameCard(
                             game = game,
@@ -55,7 +57,7 @@ fun LibraryScreenContent(
                     item{ HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp)) }
                 }
                 if(newGames.isNotEmpty()){
-                    item{ SectionHeading("Games to Play") }
+                    item{ SectionHeading(stringResource(R.string.games_to_play)) }
                     items(newGames) { game ->
                         GameCard(
                             game = game,
@@ -67,7 +69,7 @@ fun LibraryScreenContent(
                     }
                 }
                 if (ARCHIVEDGames.isNotEmpty()) {
-                    item{ SectionHeading("Completed Games") }
+                    item{ SectionHeading(stringResource(R.string.completed_games)) }
                     items(ARCHIVEDGames) { game ->
                         GameCard(
                             game = game,
@@ -110,13 +112,13 @@ private fun EmptyLibraryState() {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "No games in library",
+            text = stringResource(R.string.empty_library_title),
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = "+ button to add games",
+            text = stringResource(R.string.empty_library_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )

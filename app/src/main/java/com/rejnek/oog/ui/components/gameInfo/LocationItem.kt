@@ -16,6 +16,8 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.data.model.Coordinates
+import androidx.compose.ui.res.stringResource
+import com.rejnek.oog.R
 
 @Composable
 fun LocationItem(
@@ -60,7 +62,7 @@ fun LocationItem(
                 ) {
                     Icon(
                         imageVector = Icons.Default.ContentCopy,
-                        contentDescription = "Copy coordinates",
+                        contentDescription = stringResource(R.string.cd_copy_coordinates),
                         modifier = Modifier.size(16.dp)
                     )
                 }

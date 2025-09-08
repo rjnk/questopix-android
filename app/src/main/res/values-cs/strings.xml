@@ -1,0 +1,103 @@
+<resources>
+    <string name="app_name">OOG</string>
+
+    <string name="submit">Potvrdit</string>
+    <string name="ok">OK</string>
+    <string name="replace">Nahradit</string>
+    <string name="cancel">Zrušit</string>
+    <string name="delete">Smazat</string>
+    <string name="your_answer">Vaše odpověď</string>
+
+    <string name="take_photo">Vyfotit</string>
+    <string name="take_again">Vyfotit znovu</string>
+    <string name="camera_permission_required_title">Vyžadováno oprávnění k fotoaparátu</string>
+    <string name="camera_permission_required_message">Fotografování nefunguje bez udělení oprávnění k fotoaparátu. Povolte jej v nastavení zařízení.</string>
+    <string name="cd_take_photo">Vyfotit</string>
+    <string name="cd_take_photo_again">Vyfotit znovu</string>
+    <string name="cd_captured_photo">Pořízená fotografie</string>
+
+    <string name="duplicate_game_title">Hra již existuje</string>
+    <string name="duplicate_game_message">Hra s názvem %1$s již ve vaší knihovně existuje. Nahradit ji novou verzí?</string>
+    <string name="delete_games_title">Smazat hry</string>
+    <plurals name="delete_games_message">
+        <item quantity="one">Opravdu chcete smazat %d hru? Tuto akci nelze vrátit.</item>
+        <item quantity="few">Opravdu chcete smazat %d hry? Tuto akci nelze vrátit.</item>
+        <item quantity="many">Opravdu chcete smazat %d her? Tuto akci nelze vrátit.</item>
+        <item quantity="other">Opravdu chcete smazat %d her? Tuto akci nelze vrátit.</item>
+    </plurals>
+
+    <string name="permission_required_title">Vyžadováno oprávnění</string>
+    <string name="location_permission_required_message">Aplikace nemůže fungovat bez přesného určení polohy. Povolte jej v systémovém nastavení.</string>
+
+    <string name="toast_too_far">Jste příliš daleko od startovní lokace hry.</string>
+    <string name="toast_no_location">Aktuální poloha není k dispozici.</string>
+
+    <string name="game_info_title">Informace o hře</string>
+    <string name="start_game">Spustit hru</string>
+    <string name="cd_start_game">Spustit hru</string>
+    <string name="cd_back">Zpět</string>
+    <string name="description">Popis</string>
+    <string name="locations">Lokace</string>
+    <string name="start_location">Startovní lokace</string>
+    <string name="finish_location">Cílová lokace</string>
+    <string name="unknown">Neznámé</string>
+    <string name="game_details">Detaily hry</string>
+
+    <string name="continue_game">Pokračovat ve hře</string>
+    <string name="play_new_game">Hrát novou hru</string>
+    <string name="load_game">Načíst hru</string>
+
+    <string name="settings">Nastavení</string>
+    <string name="about_oog_title">Open Outdoor Games</string>
+    <string name="about_oog_description">Open Outdoor Games je mobilní platforma pro hraní venkovních her. Je open‑source a vyvíjena v rámci bakalářské práce na ČVUT v Praze.</string>
+    <string name="project_website">Web projektu</string>
+    <string name="privacy_policy">Privacy policy</string>
+
+    <string name="add_game">Přidat hru</string>
+    <string name="add">Přidat</string>
+    <string name="selected_count">Vybráno: %1$d</string>
+    <string name="game_library">Knihovna her</string>
+    <string name="exit_selection_mode">Konec výběru</string>
+    <string name="select_all">Vybrat vše</string>
+    <string name="delete_selected">Smazat vybrané</string>
+    <string name="select_games">Vybrat hry</string>
+    <string name="share_results">Sdílet výsledky!</string>
+
+    <string name="distance">Vzdálenost</string>
+    <string name="map_background">Pozadí mapy</string>
+
+    <string name="taken_image">Pořízený obrázek %1$d</string>
+    <string name="cd_game_icon">Ikona hry</string>
+    <string name="cd_copy_coordinates">Kopírovat souřadnice</string>
+    <string name="cd_game_cover_image">Obrázek hry</string>
+    <string name="cd_settings">Nastavení</string>
+    <string name="cd_add_game">Přidat hru</string>
+    <string name="cd_exit_selection_mode">Ukončit výběr</string>
+    <string name="cd_select_all">Vybrat vše</string>
+    <string name="cd_delete_selected">Smazat vybrané</string>
+    <string name="cd_select_games">Vybrat hry</string>
+    <string name="cd_distance">Vzdálenost</string>
+    <string name="cd_map_background">Pozadí mapy</string>
+    <string name="cd_taken_image">Pořízený obrázek %1$d</string>
+    <string name="cd_share_icon">Ikona sdílení</string>
+
+    <string name="pause_game">Pozastavit hru</string>
+    <string name="quit">Ukončit</string>
+    <string name="quit_game_title">Ukončit hru?</string>
+    <string name="quit_game_message">Opravdu chcete ukončit aktuální hru? Váš postup bude smazaný!</string>
+
+    <string name="getting_location">Získávání polohy…</string>
+    <string name="distance_format">Vzdálenost: %1$s</string>
+
+    <string name="photos">Fotky</string>
+    <string name="no_images_yet">Zatím nebyly pořízeny žádné obrázky</string>
+
+    <string name="games_in_progress">Rozehrané hry</string>
+    <string name="games_to_play">Hry</string>
+    <string name="completed_games">Dokončené hry</string>
+    <string name="empty_library_title">V knihovně nejsou žádné hry</string>
+    <string name="empty_library_subtitle">Použijte tlačítko + pro přidání</string>
+    <string name="continue_label">Pokračovat</string>
+    <string name="nav_home">Domů</string>
+    <string name="nav_library">Knihovna</string>
+</resources>

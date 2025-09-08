@@ -10,8 +10,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.R
 import com.rejnek.oog.data.gameItems.GenericCallbackFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -83,7 +85,7 @@ class Question(
             OutlinedTextField(
                 value = answerText,
                 onValueChange = onValueChange,
-                label = { Text("Your answer") },
+                label = { Text(stringResource(R.string.your_answer)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -95,7 +97,7 @@ class Question(
                     .fillMaxWidth()
                     .padding(16.dp)
             ) {
-                Text("Submit")
+                Text(stringResource(R.string.submit))
             }
         }
     }

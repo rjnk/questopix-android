@@ -18,7 +18,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.random.Random
@@ -152,7 +154,7 @@ class ShareButtonFactory() : GenericDirectFactory() {
             putExtra(Intent.EXTRA_STREAM, uri)
             addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
-        context.startActivity(Intent.createChooser(shareIntent, "Share results"))
+        context.startActivity(Intent.createChooser(shareIntent, context.getString(R.string.share_results)))
     }
 }
 
@@ -166,7 +168,7 @@ class ShareButton(
     fun Show(
         modifier: Modifier = Modifier
     ) {
-        val text = "Share the results!"
+        val text = stringResource(R.string.share_results)
         val onClick by onButtonClick.collectAsState()
 
         val randomColorIndex = remember { Random.nextInt(3) }
@@ -186,7 +188,7 @@ class ShareButton(
         ) {
             Icon(
                 imageVector = Icons.Default.Share,
-                contentDescription = "Share Icon",
+                contentDescription = stringResource(R.string.cd_share_icon),
                 modifier = Modifier.padding(end = 8.dp)
             )
             Text(text = text)

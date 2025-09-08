@@ -13,6 +13,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
+import com.rejnek.oog.R
 import androidx.compose.ui.text.font.FontWeight
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -30,7 +32,7 @@ fun LibraryTopBar(
     TopAppBar(
         title = {
             Text(
-                text = if (isSelectionMode) "$selectedCount selected" else "Game Library",
+                text = if (isSelectionMode) stringResource(R.string.selected_count, selectedCount) else stringResource(R.string.game_library),
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -40,7 +42,7 @@ fun LibraryTopBar(
                 IconButton(onClick = onExitSelectionMode) {
                     Icon(
                         imageVector = Icons.Default.Close,
-                        contentDescription = "Exit selection mode"
+                        contentDescription = stringResource(R.string.cd_exit_selection_mode)
                     )
                 }
             }
@@ -51,7 +53,7 @@ fun LibraryTopBar(
                     IconButton(onClick = onSelectAll) {
                         Icon(
                             imageVector = Icons.Default.SelectAll,
-                            contentDescription = "Select all"
+                            contentDescription = stringResource(R.string.cd_select_all)
                         )
                     }
                 }
@@ -59,7 +61,7 @@ fun LibraryTopBar(
                     IconButton(onClick = onDeleteSelected) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = "Delete selected"
+                            contentDescription = stringResource(R.string.cd_delete_selected)
                         )
                     }
                 }
@@ -68,14 +70,14 @@ fun LibraryTopBar(
                     IconButton(onClick = onEnterSelectionMode) {
                         Icon(
                             imageVector = Icons.Default.CheckCircle,
-                            contentDescription = "Select games"
+                            contentDescription = stringResource(R.string.cd_select_games)
                         )
                     }
                 }
                 IconButton(onClick = onNavigateToSettings) {
                     Icon(
                         imageVector = Icons.Default.Settings,
-                        contentDescription = "Settings"
+                        contentDescription = stringResource(R.string.cd_settings)
                     )
                 }
             }

@@ -28,8 +28,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.R
 import com.rejnek.oog.ui.viewmodels.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -49,7 +51,7 @@ fun SettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        text = "Settings",
+                        text = stringResource(R.string.settings),
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Bold
                         )
@@ -58,7 +60,7 @@ fun SettingsScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
+                            contentDescription = stringResource(R.string.cd_back)
                         )
                     }
                 }
@@ -92,7 +94,7 @@ fun SettingsScreen(
                         },
                         modifier = Modifier.weight(2f)
                     ) {
-                        Text("Pause game")
+                        Text(stringResource(R.string.pause_game))
                     }
                     Button(
                         onClick = { showQuitDialog = true },
@@ -102,7 +104,7 @@ fun SettingsScreen(
                         ),
                         modifier = Modifier.weight(1f)
                     ){
-                        Text("Quit")
+                        Text(stringResource(R.string.quit))
                     }
                 }
                 // divider
@@ -111,23 +113,23 @@ fun SettingsScreen(
             if(showQuitDialog){
                 AlertDialog(
                     onDismissRequest = { showQuitDialog = false },
-                    title = { Text("Quit game?") },
-                    text = { Text("Are you sure you want to quit the current game? Progress will be lost!") },
+                    title = { Text(stringResource(R.string.quit_game_title)) },
+                    text = { Text(stringResource(R.string.quit_game_message)) },
                     confirmButton = {
                         TextButton(onClick = {
                             viewModel.quitGame()
                             onGoToMenu()
                             showQuitDialog = false
-                        }) { Text("Quit") }
+                        }) { Text(stringResource(R.string.quit)) }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showQuitDialog = false }) { Text("Cancel") }
+                        TextButton(onClick = { showQuitDialog = false }) { Text(stringResource(R.string.cancel)) }
                     }
                 )
             }
             // About section
-            Text("About Open Outdoor Games", style = MaterialTheme.typography.headlineMedium)
-            Text("Open Outdoor Games is a mobile platform for playing outdoor games. It is open-source and developed as a part of a bachelor thesis at Czech Technical University in Prague.")
+            Text(stringResource(R.string.about_oog_title), style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.about_oog_description))
 
             // put the buttons side by side, making them take equal width
             Row(
@@ -140,7 +142,7 @@ fun SettingsScreen(
                     onClick = { viewModel.openUrl(context, "https://gitlab.fel.cvut.cz/rejneluk/oog") },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Project Website")
+                    Text(stringResource(R.string.project_website))
                 }
                 Button(
                     // make the color slightly dimmer to indicate it's not the main website
@@ -151,7 +153,7 @@ fun SettingsScreen(
                     ),
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Privacy Policy")
+                    Text(stringResource(R.string.privacy_policy))
                 }
             }
         }
