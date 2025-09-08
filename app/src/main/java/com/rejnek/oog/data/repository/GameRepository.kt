@@ -15,6 +15,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 
 /**
  * Refactored GameRepository that delegates to specialized repositories
@@ -36,7 +37,7 @@ class GameRepository(
     val currentGamePackage = _currentGamePackage.asStateFlow()
 
     // Mutex
-    private val executeOnStartMutex = Mutex()
+    private val canSetElement = AtomicBoolean(true)
 
     // Initialize method for JS engine setup
     suspend fun initialize(): Result<Unit> {
@@ -106,20 +107,15 @@ class GameRepository(
     }
 
     suspend fun setCurrentTask(elementId: String) {
-        // if(_currentGamePackage.value?.currentTaskId == elementId) return // TODO think about the double execution bug
+        if(! canSetElement.get()) return
+        canSetElement.set(false)
 
         _currentGamePackage.value?.currentTaskId = elementId
         gameUIRepository.clearUIElements()
-        executeOnStart()
+        jsEngine.executeOnStart(elementId)
 
         Log.d("GameRepository", "Selected element set to $elementId")
-    }
-
-    suspend fun executeOnStart() {
-        executeOnStartMutex.withLock {
-            val taskId = _currentGamePackage.value?.currentTaskId ?: throw GameRepositoryException("Current task ID is null")
-            jsEngine.executeOnStart(taskId)
-        }
+        canSetElement.set(true)
     }
 
     // UI Management
