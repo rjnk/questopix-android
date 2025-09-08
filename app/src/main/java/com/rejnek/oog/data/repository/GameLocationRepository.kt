@@ -80,10 +80,9 @@ class GameLocationRepository(
         locationService.stopLocationUpdates()
     }
 
-    fun checkLocation(areaToCheck: Area): Boolean {
-        val location = currentLocation.value
-        if(location == null) return false
-        return checkLocation(location, areaToCheck)
+    fun checkLocation(locationToCheck: Coordinates, radiusInMeters: Double): Boolean {
+        // todo reuse logic in checkLocation and imput a square area around the point with the given radius
+        return true
     }
 
     fun checkLocation(location: Coordinates, areaToCheck: Area): Boolean {

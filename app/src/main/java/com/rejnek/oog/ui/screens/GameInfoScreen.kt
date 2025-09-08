@@ -12,12 +12,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.rejnek.oog.data.model.Coordinates
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.ui.components.gameInfo.AttributeItem
 import com.rejnek.oog.ui.components.gameInfo.GameCoverImage
 import com.rejnek.oog.ui.components.gameInfo.InfoSection
 import com.rejnek.oog.ui.components.gameInfo.LocationItem
 import com.rejnek.oog.ui.viewmodels.GameInfoViewModel
+import kotlinx.serialization.json.double
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.koin.androidx.compose.koinViewModel
@@ -108,14 +110,15 @@ fun GameInfoContent(
         item {
             // Locations
             InfoSection(title = "Locations") {
-                val startLocation = gamePackage.gameInfo["startLocation"]?.jsonObject
-                val finishLocation = gamePackage.gameInfo["finishLocation"]?.jsonObject
+                val startLocation = gamePackage.infoAsJson("startLocation")
+                val finishLocation = gamePackage.infoAsJson("finishLocation")
 
                 startLocation?.let {
                     LocationItem(
                         title = "Start Location",
-                        locationText = it["text"]?.jsonPrimitive?.content ?: "Unknown"
-                    )
+                        locationText = it["text"]?.jsonPrimitive?.content ?: "Unknown",
+                        gpsCoordinates = Coordinates.fromJson(it["coordinates"]?.jsonObject ?: it)
+                        )
                     if (finishLocation != null) {
                         Spacer(modifier = Modifier.height(8.dp))
                     }
@@ -124,7 +127,8 @@ fun GameInfoContent(
                 finishLocation?.let {
                     LocationItem(
                         title = "Finish Location",
-                        locationText = it["text"]?.jsonPrimitive?.content ?: "Unknown"
+                        locationText = it["text"]?.jsonPrimitive?.content ?: "Unknown",
+                        gpsCoordinates = Coordinates.fromJson(it["coordinates"]?.jsonObject ?: it)
                     )
                 }
             }
@@ -132,7 +136,7 @@ fun GameInfoContent(
 
         // Cover image
         val coverPhoto = gamePackage.info("coverPhoto")
-        if (coverPhoto != "ERROR" && coverPhoto.isNotEmpty()) {
+        if (coverPhoto.isNotEmpty()) {
             item {
                 GameCoverImage(
                     gameId = gamePackage.getId(),

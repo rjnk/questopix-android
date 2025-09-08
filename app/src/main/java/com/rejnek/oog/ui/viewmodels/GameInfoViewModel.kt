@@ -1,6 +1,5 @@
 package com.rejnek.oog.ui.viewmodels
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.rejnek.oog.data.model.GamePackage
@@ -16,6 +15,9 @@ class GameInfoViewModel(
 
     private val _gamePackage = MutableStateFlow<GamePackage?>(null)
     val gamePackage = _gamePackage.asStateFlow()
+
+    private val _showFarAwayToast = MutableStateFlow(false)
+    val showFarAwayToast = _showFarAwayToast.asStateFlow()
 
     fun loadGameInfo(gameId: String, onGameStarted: () -> Unit) {
         viewModelScope.launch {
