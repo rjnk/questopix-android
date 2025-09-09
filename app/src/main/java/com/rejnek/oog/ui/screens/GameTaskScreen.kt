@@ -2,6 +2,7 @@ package com.rejnek.oog.ui.screens
 
 import LocationPermissionRequest
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,6 +15,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import com.rejnek.oog.R
 import com.rejnek.oog.data.model.GameState
 import com.rejnek.oog.ui.viewmodels.GameTaskViewModel
@@ -76,19 +78,18 @@ fun GameTaskScreen(
                 .fillMaxSize()
         ) {
             val scrollState = rememberScrollState()
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .background(MaterialTheme.colorScheme.background)
-                    .padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                uiElements.forEachIndexed { index, element ->
-                    element()
-                    if (index != uiElements.lastIndex) {
-                        Spacer(Modifier.height(8.dp))
+            Crossfade(targetState = uiElements) { elements ->
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(scrollState)
+                        .background(MaterialTheme.colorScheme.background)
+                        .padding(16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    elements.forEachIndexed { index, element ->
+                        element()
                     }
                 }
             }

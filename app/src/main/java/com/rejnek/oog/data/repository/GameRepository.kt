@@ -147,6 +147,10 @@ class GameRepository(
         gameUIRepository.addUIElement(element)
     }
 
+    fun removeLastUIElement() {
+        gameUIRepository.removeLastUIElement()
+    }
+
     // Game Lifecycle
     fun finishGame() {
         _currentGamePackage.value?.let { currentPackage ->

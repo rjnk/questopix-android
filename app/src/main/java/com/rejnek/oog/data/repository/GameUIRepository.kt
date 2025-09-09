@@ -31,6 +31,15 @@ class GameUIRepository {
     }
 
     /**
+     * Remove the last added UI element
+     */
+    fun removeLastUIElement() {
+        if (_uiElements.value.isNotEmpty()) {
+            _uiElements.value = _uiElements.value.dropLast(1)
+        }
+    }
+
+    /**
      * Clear all UI elements
      */
     fun clearUIElements() {
