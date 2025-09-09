@@ -2,7 +2,6 @@ package com.rejnek.oog.di
 
 import android.app.Application
 import com.rejnek.oog.data.repository.GameRepository
-import com.rejnek.oog.data.gameItems.direct.factory.map.MapViewModel
 import com.rejnek.oog.ui.viewmodels.*
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.viewModel
@@ -15,13 +14,12 @@ val appModule = module {
     single { GameRepository(get()) }
 
     // ViewModels
+    viewModel { LoadBundledViewModel(get()) }
     viewModel { HomeViewModel(get()) }
+    viewModel { LibraryViewModel(get()) }
+    viewModel { GameInfoViewModel(get()) }
     viewModel { GameTaskViewModel(get()) }
-    viewModel { GameFinishViewModel(get()) }
-    viewModel { GameMenuViewModel(get()) }
-    viewModel { MapViewModel(
-        androidContext().applicationContext as Application,
-        get()
-    ) }
-    viewModel { SecondaryTabViewModel(get()) }
+    viewModel { SettingsViewModel(get()) }
+    // Shared events ViewModel (activity scoped)
+    viewModel { SharedEventsViewModel() }
 }

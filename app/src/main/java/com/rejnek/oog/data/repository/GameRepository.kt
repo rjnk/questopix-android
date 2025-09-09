@@ -1,242 +1,207 @@
 package com.rejnek.oog.data.repository
 
 import android.content.Context
-import com.rejnek.oog.data.model.GameTask
-import com.rejnek.oog.data.model.GameElementType
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import android.util.Log
 import androidx.compose.runtime.Composable
 import com.rejnek.oog.data.engine.JsGameEngine
-import com.rejnek.oog.data.engine.demoGame
-import com.rejnek.oog.data.gameItems.callback.ButtonFactory
-import com.rejnek.oog.data.gameItems.direct.commands.DebugPrint
-import com.rejnek.oog.data.gameItems.GenericItemFactory
-import com.rejnek.oog.data.gameItems.direct.factory.HeadingFactory
-import com.rejnek.oog.data.gameItems.callback.QuestionFactory
-import com.rejnek.oog.data.gameItems.direct.commands.Refresh
-import com.rejnek.oog.data.gameItems.direct.commands.Save
-import com.rejnek.oog.data.gameItems.direct.factory.DistanceFactory
-import com.rejnek.oog.data.gameItems.direct.factory.TextFactory
-import com.rejnek.oog.data.gameItems.direct.factory.map.MapFactory
-import com.rejnek.oog.data.model.GameType
-import com.rejnek.oog.services.LocationService
-import com.rejnek.oog.data.storage.GameStorage
+import com.rejnek.oog.data.model.Area
+import com.rejnek.oog.data.model.GamePackage
+import com.rejnek.oog.data.model.GameState
+import com.rejnek.oog.ui.components.library.loadBundledGames
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.concurrent.atomic.AtomicBoolean
 
+/**
+ * Refactored GameRepository that delegates to specialized repositories
+ * Maintains the same public API for backward compatibility
+ */
 class GameRepository(
-    context: Context
+    private val context: Context
 ) {
-    val gameItems = arrayListOf<GenericItemFactory>(
-        DebugPrint(),
-        QuestionFactory(),
-        ButtonFactory(),
-        TextFactory(),
-        HeadingFactory(),
-        DistanceFactory(),
-        MapFactory(),
-        Refresh(),
-        Save()
-    )
+    // Specialized repositories
+    private val jsEngine = JsGameEngine(context)
+    val gameStorageRepository = GameStorageRepository(context)
+    val gameLocationRepository = GameLocationRepository(context)
+    val gameUIRepository = GameUIRepository()
+    val gameItemRepository = GameItemRepository()
 
-    // JavaScript game engine
-    val jsEngine = JsGameEngine(context)
+    // Current Game Package & task
+    private val _currentGamePackage = MutableStateFlow<GamePackage?>(null)
+    val currentGamePackage = _currentGamePackage.asStateFlow()
 
-    // Game storage for saving/loading
-    private val gameStorage = GameStorage(context)
+    // Mutex
+    private val canSetElement = AtomicBoolean(true)
 
-    // User location
-    private val locationService = LocationService(context)
-    val currentLocation = locationService.currentLocation
-
-    // Current task location monitoring scope
-    private val locationMonitoringScope = CoroutineScope(Dispatchers.IO)
-
-    private val _selectedElement: MutableStateFlow<GameTask?> = MutableStateFlow(null)
-    val selectedElement: StateFlow<GameTask?> = _selectedElement.asStateFlow()
-
-    private val _uiElements = MutableStateFlow<List<@Composable () -> Unit>>(emptyList())
-    val uiElements: StateFlow<List<@Composable () -> Unit>> = _uiElements.asStateFlow()
-
-    suspend fun initializeGame() = withContext(Dispatchers.IO) {
-        jsEngine.evaluateJs(demoGame) // Load the demo js code
-        selectTask("start")
-        startLocationMonitoring()
+    // Initialize method for JS engine setup
+    suspend fun initialize(): Result<Unit> {
+        val res = jsEngine.initialize(this@GameRepository).map { }
+        Log.d("GameRepository", "JS engine initialized successfully")
+        return res
     }
 
-    private fun startLocationMonitoring() {
-        locationMonitoringScope.launch {
-            currentLocation.collectLatest { location ->
-                Log.d("GameRepository", "Location updated: $location")
-                if( checkLocation() ){
-                    executeOnEnter()
-                }
+    // Game Initialization
+    suspend fun initializeGameFromLibrary(gameId: String) = withContext(Dispatchers.IO) {
+        val game = gameStorageRepository.getGameById(gameId)
+        startGame(game ?: throw GameRepositoryException("Game with ID $gameId not found in library"))
+    }
+
+    suspend fun loadSavedGame() = withContext(Dispatchers.IO) {
+        val savedGamePackage = gameStorageRepository.getSavedGamePackage()
+        startGame(savedGamePackage ?: throw GameRepositoryException("No saved game found"))
+    }
+
+    suspend fun preloadGames() = withContext(Dispatchers.IO) {
+        val games = loadBundledGames(context)
+
+        for (game in games) {
+            val existingGame = gameStorageRepository.getGameById(game.getId())
+
+            if (existingGame == null) {
+                gameStorageRepository.addGameToLibrary(game)
+                Log.d("GameRepository", "Preloaded bundled game: ${game.getId()}")
+            } else {
+                Log.d("GameRepository", "Bundled game already exists, skipping: ${game.getId()}")
             }
         }
     }
 
-    suspend fun refresh(){
-        selectTask(getCurrentTaskId())
+    suspend fun startGame(gamePackage: GamePackage) {
+        if(jsEngine.isInitialized.not()) {
+            throw GameRepositoryException("JS Engine not initialized")
+        }
+
+        // Set the current game package
+        _currentGamePackage.value = gamePackage
+
+        // Initialize the game first with the game code
+        jsEngine.evaluateJs(gamePackage.gameCode)
+
+        // If there's saved game state, restore it
+        gamePackage.gameState?.let { gameStateJson ->
+            jsEngine.restoreState(gameStateJson)
+        }
+
+        // Start with the current task from the game package, it will be "start" if new game
+        setCurrentTask(gamePackage.currentTaskId)
+
+        // Start location monitoring
+        startLocationMonitoring()
     }
 
-    suspend fun selectTask(elementId: String) {
-        _selectedElement.value = getTask(elementId)
+    suspend fun startLocationMonitoring() {
+        val gamePackage = _currentGamePackage.value ?: return
+        if (gamePackage.state == GameState.ARCHIVED) return
 
-        val elementType = _selectedElement.value?.elementType
-        if( elementType != GameElementType.FINISH && elementType != GameElementType.START ) {
-            _uiElements.value = emptyList()
-        }
-
-        Log.d("GameRepository", "Selected element set to ${_selectedElement.value?.id}")
-
-        if( checkLocation() ) {
-            executeOnEnter()
-        }
-        else {
-            executeOnStart()
+        val areasToMonitor = generateAreasForMonitoring(gamePackage)
+        gameLocationRepository.startMonitoringAreas(areasToMonitor) { areaId ->
+            if(jsEngine.getJsValue("isEnabled(\"$areaId\")").getOrNull() == "true") {
+                setCurrentTask(areaId)
+            }
         }
     }
 
-    suspend fun getTask(id: String): GameTask {
-        Log.d("GameRepository", "Getting game element with ID: $id")
+    suspend fun generateAreasForMonitoring(gamePackage: GamePackage): List<Area> {
+        val areasToMonitor = ArrayList<Area>()
 
-        val name = getJsValue("$id.name") ?: "Err"
-        val elementType = getJsValue("$id.type")?.let {
-            GameElementType.valueOf(it.toString().uppercase())
-        } ?: GameElementType.UNKNOWN
-        val coordinates = jsEngine.getCoordinates(id)
-
-        return GameTask(
-            id = id,
-            name = name,
-            elementType = elementType,
-            coordinates = coordinates,
-            visible = true
-        )
-    }
-
-    fun checkLocation(): Boolean {
-        return selectedElement.value?.isInside(currentLocation.value.first, currentLocation.value.second) == true
-    }
-
-    suspend fun executeOnStart() {
-        val elementId = selectedElement.value?.id
-
-        val onStartActivated = getJsValue("_onStartActivated.includes('$elementId')")?.toBoolean() == true;
-        if(onStartActivated){
-            jsEngine.evaluateJs("$elementId.onStart()")
-        }
-        else{
-            jsEngine.evaluateJs("$elementId.onStartFirst()")
-            jsEngine.evaluateJs("if (!_onStartActivated.includes($elementId)) { _onStartActivated.push('$elementId'); }")
-            jsEngine.evaluateJs("$elementId.onStart()")
-        }
-        jsEngine.evaluateJs("save()")
-    }
-
-    suspend fun executeOnEnter() {
-        val elementId = selectedElement.value?.id
-
-        val onEnterActivated = getJsValue("_onEnterActivated.includes('$elementId')")?.toBoolean() == true;
-        if(onEnterActivated){
-            jsEngine.evaluateJs("$elementId.onEnter()")
-        }
-        else{
-            jsEngine.evaluateJs("$elementId.onEnterFirst()")
-            jsEngine.evaluateJs("if (!_onEnterActivated.includes($elementId)) { _onEnterActivated.push('$elementId'); }")
+        for (taskId in gamePackage.getTaskIds()) {
+            val area = jsEngine.getArea(taskId)
+            area?.let { areasToMonitor.add(it) }
         }
 
-        jsEngine.evaluateJs("save()")
+        return areasToMonitor
     }
 
-    /**
-     * Add a UI element (Composable function) to be displayed in the GameTaskScreen
-     */
+    // Game state management
+    fun setCurrentGamePackage(gamePackage: GamePackage) {
+        _currentGamePackage.value = gamePackage
+    }
+
+    suspend fun refresh() {
+        val currentTask = jsEngine.getJsValue("_currentTask").getOrNull() ?: ""
+        setCurrentTask(currentTask)
+    }
+
+     fun evaluateJs(code: String) = CoroutineScope(Dispatchers.IO).launch {
+        jsEngine.evaluateJs(code)
+    }
+
+    suspend fun setCurrentTask(elementId: String) {
+        if(! canSetElement.get()) return
+        canSetElement.set(false)
+
+        _currentGamePackage.value?.currentTaskId = elementId
+        gameUIRepository.clearUIElements()
+        jsEngine.executeOnStart(elementId)
+
+        Log.d("GameRepository", "Selected element set to $elementId")
+        canSetElement.set(true)
+    }
+
+    // UI Management
     fun addUIElement(element: @Composable () -> Unit) {
-        _uiElements.value = _uiElements.value + element
+        gameUIRepository.addUIElement(element)
     }
 
-    suspend fun getCurrentTaskId() : String {
-        return getJsValue("_currentTask") ?: ""
+    fun removeLastUIElement() {
+        gameUIRepository.removeLastUIElement()
     }
 
-    suspend fun getSecondaryTabElementId() : String {
-        return getJsValue("_secondaryTask") ?: ""
+    // Game Lifecycle
+    fun finishGame() {
+        _currentGamePackage.value?.let { currentPackage ->
+            _currentGamePackage.value = currentPackage.copy(state = GameState.FINISHED)
+        }
+        _currentGamePackage.value?.let { currentPackage ->
+            _currentGamePackage.value = currentPackage.copy(state = GameState.ARCHIVED)
+        }
+        CoroutineScope(Dispatchers.IO).launch {
+            gameStorageRepository.saveGame(_currentGamePackage.value ?: throw GameRepositoryException("No current game package"))
+            cleanup()
+        }
     }
 
-    suspend fun getGameType(): GameType {
-        val typeString = getJsValue("_gameType") ?: return GameType.UNKNOWN
-        return GameType.valueOf(typeString.uppercase())
+    fun pauseCurrentGame() {
+        CoroutineScope(Dispatchers.IO).launch {
+            gameStorageRepository.saveGame(_currentGamePackage.value ?: throw IllegalStateException("No current game package"))
+            cleanup()
+        }
     }
 
-    suspend fun getVisibleElements(): List<GameTask> {
-        val ids = jsEngine
-            .getJsValue("_visibleTasks")
-            .getOrNull()
-            ?.removeSurrounding("[", "]")
-            ?.replace("\"", "")
-            ?.split(",")
-            ?.map { it.trim() }
-            ?: return emptyList()
+    fun quitCurrentGame() {
+        val gamePackage = _currentGamePackage.value ?: return
 
-        Log.d("GameRepository", "Visible elements IDs: $ids")
-
-        return ids.map { id -> getTask(id) }
+        // Save the game state with reseted values
+        val clearPackage = GamePackage(
+            gameInfo = gamePackage.gameInfo,
+            gameCode = gamePackage.gameCode,
+            state = GameState.NOT_STARTED,
+            importedAt = gamePackage.importedAt,
+            currentTaskId = "start",
+            gameState = null // Clear the saved state
+        )
+        CoroutineScope(Dispatchers.IO).launch {
+            gameStorageRepository.saveGame(clearPackage)
+        }
+        gameStorageRepository.deleteAllImages(clearPackage.getId())
+        cleanup()
     }
 
     fun cleanup() {
-        jsEngine.cleanup()
-        _uiElements.value = emptyList()
+        CoroutineScope(Dispatchers.Main).launch {
+            _currentGamePackage.value = null
+            gameUIRepository.clearUIElements()
+            gameLocationRepository.stopLocationMonitoring()
 
-        // Clear saved game state when cleaning up
-        CoroutineScope(Dispatchers.IO).launch {
-            gameStorage.clearSavedGame()
-        }
-    }
-
-    private suspend fun getJsValue(id: String): String? {
-        return jsEngine.getJsValue(id).getOrNull()
-    }
-
-    suspend fun saveGameState(gameStateJson: String) = withContext(Dispatchers.IO) {
-        gameStorage.saveGameState(gameStateJson)
-    }
-
-    /**
-     * Check if there is a saved game available
-     */
-    suspend fun hasSavedGame(): Boolean = withContext(Dispatchers.IO) {
-        return@withContext gameStorage.hasSavedGame()
-    }
-
-    /**
-     * Load saved game and restore the state
-     */
-    suspend fun loadSavedGame() = withContext(Dispatchers.IO) {
-        val savedState = gameStorage.loadGameState()
-        if (savedState != null) {
-            // Initialize the game first
-            jsEngine.evaluateJs(demoGame)
-
-            // Restore the saved state by evaluating JavaScript that reconstructs the variables
-            jsEngine.evaluateJs("""
-                const savedState = $savedState;
-                Object.keys(savedState).forEach(key => {
-                    if (key.startsWith('_')) {
-                        globalThis[key] = savedState[key];
-                    }
-                });
-            """.trimIndent())
-
-            // Start with the current task from the restored state
-            val currentTask = getJsValue("_currentTask") ?: "start"
-            selectTask(currentTask)
-            startLocationMonitoring()
+            // Re-initialize JS engine for next game
+            jsEngine.cleanup()
+            jsEngine.initialize(this@GameRepository)
         }
     }
 }
+
+class GameRepositoryException(message: String) : Exception(message)

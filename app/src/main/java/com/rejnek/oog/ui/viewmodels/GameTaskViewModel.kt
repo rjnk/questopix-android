@@ -2,54 +2,50 @@ package com.rejnek.oog.ui.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.rejnek.oog.data.model.GameState
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import com.rejnek.oog.data.model.GameElementType
-import com.rejnek.oog.data.model.GameType
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
 
 class GameTaskViewModel(
     private val gameRepository: GameRepository
 ) : ViewModel() {
-    private val _name = MutableStateFlow("Loading...")
-    val name = _name.asStateFlow()
-
-    private val _navigationEvents = MutableSharedFlow<NavigationEvent>()
-    val navigationEvents = _navigationEvents.asSharedFlow()
-
-    private val _gameType = MutableStateFlow<GameType>(GameType.UNKNOWN)
-    val gameType = _gameType.asStateFlow()
+    private val _finishGame = MutableStateFlow(false)
+    val finishGame = _finishGame.asSharedFlow()
+    private val _gameName = MutableStateFlow("")
+    val gameName = _gameName.asStateFlow()
+    private val _gameState = MutableStateFlow(GameState.IN_PROGRESS)
+    val gameState = _gameState.asStateFlow()
+    private val _packNeedsLocation = MutableStateFlow(false)
+    val isTaskRequiringLocation = _packNeedsLocation.asStateFlow()
+    val locationPermissionGranted = gameRepository.gameLocationRepository.isPermissionGranted
 
     // Expose UI elements from the repository
-    val uiElements = gameRepository.uiElements
+    val uiElements = gameRepository.gameUIRepository.uiElements
 
 
-    init {
-        // Observe current element changes in a separate coroutine
+    fun refreshLocationPermission() {
         viewModelScope.launch {
-            gameRepository.selectedElement.collect { elem ->
-                if(elem == null){
-                    _navigationEvents.emit(NavigationEvent.Menu)
-                    return@collect
-                }
-
-                if(elem.elementType == GameElementType.FINISH) {
-                    _navigationEvents.emit(NavigationEvent.Finish)
-                    return@collect
-                }
-
-                _gameType.value = gameRepository.getGameType()
-            }
+            gameRepository.startLocationMonitoring()
         }
     }
 
-    sealed class NavigationEvent {
-        object Menu: NavigationEvent()
-        object Finish : NavigationEvent()
+    init {
+        viewModelScope.launch {
+            gameRepository.currentGamePackage.collect { pack ->
+                if(pack != null) {
+                    _gameName.value = pack.getName()
+                    _gameState.value = pack.state
+                    _packNeedsLocation.value = gameRepository.generateAreasForMonitoring(pack).isNotEmpty()
+
+                    if(pack.state == GameState.FINISHED) {
+                        _finishGame.value = true
+                    }
+                }
+            }
+        }
     }
 }
-
-

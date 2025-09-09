@@ -1,0 +1,28 @@
+{
+    "id": "com.rejnek.dejvice.alpha",
+    "name": "Dejvická hra",
+    "description": "Hra vás provede po zajímavých místech v Dejvicích a okolí.",
+    "coverPhoto": "cover.jpeg",
+    "startLocation": { 
+        "text": "zastávka tramvaje Hradčanská, Praha 6",
+        "coordinates": {
+            "lat": 50.0971869,
+            "lng": 14.4038831,
+            "radius": 50.0
+        }
+    },
+    "finishLocation": { 
+        "text": "U Matěje 140, Praha 6",
+        "coordinates": {
+            "lat": 50.0,
+            "lng": 14.0,
+            "radius": 50.0
+        }
+    },
+    "attributes": {
+        "Očekávaná délka": "1 hodina",
+        "Mentální náročnost": "2/5",
+        "Fyzická náročnost": "2/5",
+        "Trapnost": "1/5"
+    }
+}

@@ -1,0 +1,179 @@
+# Open Outdoor Games
+This is a mobile app that lets you play GPS based outdoor games.
+Outdoor game consist of a set of tasks such as answering a question, taking a photo or visiting a location.
+
+The actual game is written in JavaScript and you simply import the game as part of a game zip file into the app. The zip file contains also the game info (info.json) and any images used in the game.
+The app then runs the javascript code and lets you interact with the in game events.
+
+**Example JavaScript game file:**
+```javascript
+// custom
+var _score = 0;
+var _timerStart = Date.now();
+
+// startovní úkol / first task
+const start = {
+    onStart: () => {
+        // setup
+        disable("uhotelu"); // disabling affects only location tasks, task without coordinates is not affected
+        disable("kauflandQuestion");
+    
+        heading("Hra začíná 🎉🎉", "Hurá!");
+        text("Vítejte v demonstrační demo hře pro systém Open Outdoor Games. Vaším úkolem je projít významná stanoviště v okolí Dejvic a plnit po cestě úkoly. Myslete na to, že se počítá skóre a přeji plno zábavy.");
+        text("Jak asi víte, tak se začíná na tramvajové zastávce Hradčanská. Měli byste tam stát. Děkuji.");
+        button("Začít hru", () => {
+            _timerStart = Date.now();
+            showTask("vietnamec");
+        });
+        takePicture("Bonusová fotka nadšení na začátku.");
+    }
+}
+
+// 1. úkol
+const vietnamec = {
+    onStart: () => {
+        heading("Vietnamec");
+        text("Váš první úkol je najít nejbližší Vietnamskou večerku a koupit si nějaké exotické pití. Jedna je fakt na dohled od Hrančanský, takže by to mělo být chill.\nAž to budete mít, tak pokračujte dál");
+        image("piti.png");
+        button("Koupil jsem pití", () => {
+            _score += 10;
+            showTask("cestaNaZelenou");
+        });
+        button("Nemám prachy nebo je zavřeno nebo něco", () => {
+            _score -= 10;
+            showTask("cestaNaZelenou");
+        });
+    }
+}
+
+// 2. úkol
+const cestaNaZelenou = {
+    onStart: () => {
+        heading("Velký přesun");
+        text("U Hradčanské už nic zajímavého není, takže je potřeba se přesunout na Zelenou. K tomu použij bus 131, odjíždí normálně z Hrančasnký. Počítej po cestě zastávky, na zelený se zeptám kolik jich bylo 😉😉.");
+        image("bus.png");
+        button("Už jsem na Zelený!", () => {
+            _score -= 10;
+            showTask("netrpelivostPoCeste");
+        });
+        text("PS: Tvoje skóre se právě změnilo na " + _score + ".");
+    }
+}
+
+// 3. úkol
+const netrpelivostPoCeste = {
+    onStart: () => {
+        text("Přece se to změní automaticky, když dojedeš. Za netrpělivost odečítám 10 bodů.");
+        takePicture("Můžeš vyfotit svůj hloupý výraz z týhle informace 🤗.");
+        button("Zpátky", () => {
+            showTask("cestaNaZelenou");
+        });
+        button("Přeskočit na hádanku", () => {
+            showTask("kauflandQuestion");
+        });
+    }
+}
+
+const zelena = {
+    loc: [
+        [50.106943, 14.394933],
+        [50.107247, 14.394844],
+        [50.107293, 14.395915],
+        [50.106949, 14.396097]
+    ],
+    onStartFirst: () => {
+        _score += 5;
+    },
+    onStart: () => {
+        heading("Jsi na Zelené. GJ ☺️.");
+        text("Teď je tady ta otázka. Odpovídej z hlavy!!");
+        
+        question("Jak se jmenovala první zastávka po Hradčasnké 😜?", (answer) => {
+            if (answer === "Ronalda Reagana") {
+                _score += 20;
+                popUp("Dobrá práce, to je správně! Jen tak dál.", "internacional");
+            }
+            else {
+                debugPrint("Špatně.");
+                popUp("Špatně, 0 bodů přidáno 😭.", "internacional");
+            }
+        });
+        
+        text("PS: Za tvoji odvahu v buse přidávám 5 bodů a tak máš celkem " + _score);
+    }
+}
+
+const internacional = {
+    onStart: () => {
+        heading("Cesta k hotelu");
+        text("Teď je potřeba dojít k hotelu Internacional. Měl bý být vidět, protože je vysoký. Pro jistotu dávám nápovědu.");
+        image("hotel.png");
+        text("Jinak samozřejmě až tam dojdeš, tak se objeví nový úkol...");
+        distance(50.1094158, 14.3933839);
+        text("PS: můžeš se vzdát jestli na to nemáš");
+        enable("uhotelu");
+    }
+}
+
+const uhotelu = {
+    loc: [
+        [50.1099739, 14.3939067],
+        [50.1087081, 14.3934669],
+        [50.1093600, 14.3949394]
+    ],
+    onFirstStart: () => {
+        _score += 5;
+    },
+    onStart: () => {
+        heading("Cesta za dobrotou 😋");
+        takePicture("Vyfoť se s hotelem.");
+        text("Dostáváš dalších 5 bodů za nevzdání. Teď je potřeba se vyfotit s hotelem a pak se můžeš vydat za dalším úkolem, který je u kauflandu. Naviguj se podle mapy.");
+        // '{"backgroundImage":"map2.png","topLeftLat":50.114903,"topLeftLng":14.390008,"bottomRightLat":50.108091,"bottomRightLng":14.397186}'
+        simpleMap("map2.png", 50.114903, 14.390008, 50.108091, 14.397186);
+        enable("kauflandQuestion");
+    }
+}
+
+const kauflandQuestion = {
+    loc: [
+        [50.1120861, 14.3922456],
+        [50.1109372, 14.3926747],
+        [50.1117903, 14.3939944]
+    ],
+    onStart: () => {
+        heading("Super! Vítej u Kauflandu.");
+        text("Teď stačí odpovědět na otázku a pak jsi vyhrál a můžeš hurá pro jídlo!");
+        multichoice("Kolik pater má Kauland", (answerNumber) => {
+            if(answerNumber === 1) {
+                debugPrint("ok");
+                _score += 15;
+                popUp("Dobře! + 15b 🤖.", "finish");
+            } else {
+                debugPrint("wrong");
+                popUp("Špatně! + 0b 😭.", "finish");
+            }
+        }, "Jedno", "Dvě", "Tři");
+    }
+}
+
+const finish = {
+    onStart: () => {
+        // setup
+        disable("uhotelu");
+        disable("kauflandQuestion");
+    
+        heading("Skvělá práce!", "center");
+        image("trophy.png");
+        text("Blahopřeji k dokončení hry. Byla to fuška, ale zvládnul jsi to fakt perfektně.");
+        
+        const elapsedMs = Date.now() - _timerStart;
+        const elapsedMinutes = Math.floor(elapsedMs / (60 * 1000));
+        
+        board("Výsledky", "Scóre", _score, "Čas", elapsedMinutes + "min.")
+            
+        shareButton();
+        showAllImages("Fotky ze hry:");
+        finishGameButton("Do menu");
+    }
+}
+```

@@ -6,12 +6,15 @@ import android.util.Log
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import com.rejnek.oog.data.gameItems.GenericItemFactory
+import com.rejnek.oog.data.model.Area
 import com.rejnek.oog.data.model.Coordinates
 import com.rejnek.oog.data.repository.GameRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonObject
 import kotlin.coroutines.resume
+import kotlin.text.toBoolean
 
 class JsGameEngine(
     private val context: Context
@@ -22,7 +25,7 @@ class JsGameEngine(
 
     // WebView instance for JavaScript execution
     private var webView: WebView? = null
-    private var isInitialized = false
+    var isInitialized = false
 
     // Interface for JavaScript to call Kotlin functions
     private val jsInterface = JsGameInterface(gameItems)
@@ -40,7 +43,7 @@ class JsGameEngine(
         }
 
         repository = gameRepository
-        repository?.gameItems?.let { items ->
+        repository?.gameItemRepository?.getGameItemFactories()?.let { items ->
             gameItems.addAll(items.toList())
         }
 
@@ -92,7 +95,10 @@ class JsGameEngine(
      * @return Result containing the evaluation result as a string
      */
     suspend fun getJsValue(code: String): Result<String> {
-        return evaluateJs(code, expectResult = true)
+        val result = evaluateJs(code, expectResult = true)
+
+        return if(result.getOrNull() == "null") Result.failure(Exception("Value is null"))
+        else result
     }
 
     /**
@@ -104,7 +110,7 @@ class JsGameEngine(
      */
     private suspend fun evaluateJs(code: String, expectResult: Boolean): Result<String> =
         withContext(Dispatchers.Main) {
-            val webViewInstance = webView ?: throw IllegalStateException("WebView is not initialized")
+            val webViewInstance = webView ?: return@withContext Result.failure(Exception("WebView not initialized"))
 
             val actualCode = if (expectResult) "sendResult($code);" else code
 
@@ -119,9 +125,34 @@ class JsGameEngine(
                 }
             }
 
-            Log.d("JsGameEngine", "JavaScript executed. Evaluation result: $result")
+            Log.d("JsGameEngine", "JavaScript $code executed. Evaluation result: $result")
             Result.success(cleanJsResult(result))
         }
+
+    suspend fun executeOnStart(elementId: String) {
+        jsInterface.deleteAllFallbacks()
+
+        val onStartActivated = getJsValue("_onStartActivated.includes('$elementId')").getOrNull().toBoolean()
+
+        if (!onStartActivated) {
+            evaluateJs("$elementId.onStartFirst()")
+            evaluateJs("if (!_onStartActivated.includes($elementId)) { _onStartActivated.push('$elementId'); }")
+        }
+
+        evaluateJs("$elementId.onStart()")
+        evaluateJs("save()")
+    }
+
+    suspend fun restoreState(gameState: JsonObject) {
+        evaluateJs("""
+                const savedState = $gameState;
+                Object.keys(savedState).forEach(key => {
+                    if (key.startsWith('_')) {
+                        globalThis[key] = savedState[key];
+                    }
+                });
+            """.trimIndent())
+    }
 
     private fun htmlTemplate(gameItems: List<GenericItemFactory>) = """
         <!DOCTYPE html>
@@ -136,46 +167,44 @@ class JsGameEngine(
                 
                 // Error handler
                 window.onerror = function(message, source, lineno, colno, error) {
-                    Android.debugPrint("JS Error: " + message);
+                    debugPrint("JS Error: " + message + " at " + source + ":" + lineno + ":" + colno + (error ? " Stack: " + error.stack : ""));
                     return true;
                 };
                 
                 // Initialize callback resolvers storage
                 window.callbackResolvers = {};
                 
-                // Generic function to create a callback and wait for its result
-                async function createCallback(type, data) {
-                    // Register the callback with Android
-                    const callbackId = Android.registerCallback(type, data);
-                    
-                    // Return a promise that will be resolved when the callback is triggered
-                    return new Promise((resolve) => {
-                        // Store the resolver function that will be called when the callback is triggered
-                        window.callbackResolvers[callbackId] = resolve;
-                    });
-                }
-                
-                // Function for direct actions that don't need to wait for user input
-                function directAction(type, data) {
-                    Android.directAction(type, data || "");
-                }
+                // mandatory game variables
+                var _onStartActivated = [];
+                var _onEnterActivated = [];
+                var _disabled = [];
+
+                var _currentTask = "start";
                 
                 // Additional custom functions
                 function showTask(newTask) {
-                    let previousTask = _currentTask; 
-    
-                    // visibleElements
-                    if (!_visibleTasks.includes(newTask)) { _visibleTasks.push(newTask); }
-                    _visibleTasks = _visibleTasks.filter(task => task !== previousTask);
-               
-                    // If the current element is the secondary tab, update it
-                    if(_secondaryTask === previousTask) {
-                        _secondaryTask = newTask;
-                    }
-                
                     _currentTask = newTask;
                     refresh();
                     save();
+                }
+                
+                function enable(elementId) {
+                    const index = _disabled.indexOf(elementId);
+                    if (index !== -1) {
+                        _disabled.splice(index, 1);
+                    }
+                    save();
+                }
+                
+                function disable(elementId) {
+                    if (!_disabled.includes(elementId)) {
+                        _disabled.push(elementId);
+                    }
+                    save();
+                }
+                
+                function isEnabled(elementId) {
+                    return !_disabled.includes(elementId);
                 }
                 
                 // Functions that interact with Android
@@ -218,23 +247,15 @@ class JsGameEngine(
         gameItems.clear()
     }
 
-    suspend fun getCoordinates(elementId: String): Coordinates? {
-        val lat = getJsValue("$elementId.coordinates.lat").getOrNull()
-        val lng = getJsValue("$elementId.coordinates.lng").getOrNull()
-        val radius = getJsValue("$elementId.coordinates.radius").getOrNull()
+    suspend fun getArea(elementId: String): Area? {
+        val length = getJsValue("$elementId.loc.length").getOrNull()?.toInt() ?: return null
 
-        return if(lat != null && lat != "null" && lng != null && lng != "null" && radius != null && radius != "null") {
-            Coordinates(
-                lat = lat.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid latitude: $lat"),
-                lng = lng.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid longitude: $lng"),
-                radius = radius.toDoubleOrNull() ?: throw IllegalArgumentException("Invalid radius: $radius")
-            )
-        } else{
-            null
+        val coordinates = (0 until length).map { i ->
+            val lat = getJsValue("$elementId.loc[$i][0]").getOrNull()?.toDouble() ?: return null
+            val lng = getJsValue("$elementId.loc[$i][1]").getOrNull()?.toDouble() ?: return null
+            Coordinates(lat, lng)
         }
+
+        return Area(coordinates, elementId)
     }
 }
-
-
-
-

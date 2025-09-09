@@ -3,6 +3,8 @@ package com.rejnek.oog.data.engine
 import android.util.Log
 import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import com.rejnek.oog.data.gameItems.GenericCallbackFactory
+import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import com.rejnek.oog.data.gameItems.GenericItemFactory
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,34 +23,35 @@ class JsGameInterface(
     /**
      * Generic method for handling direct actions from JavaScript that don't need to wait for callbacks
      * @param actionType The type of action to perform (corresponds to game item ID)
-     * @param data Additional data needed for the action
+     * @param args Additional arguments needed for the action
      * @return An immediate result string, if any (empty string for void actions)
      */
     @JavascriptInterface
-    fun directAction(actionType: String, data: String): Unit {
-        Log.d("JsGameEngine", "Direct action: $actionType with data: $data")
+    fun directAction(actionType: String, vararg args: String): Unit {
+        Log.d("JsGameEngine", "Direct action: $actionType with args: ${args.joinToString(", ")}")
 
-        val gameItem = gameItems.find { it.id == actionType }
+        val gameItem = gameItems.find { it.id == actionType } as GenericDirectFactory
 
         CoroutineScope(Dispatchers.Main).launch {
-            gameItem?.create(data, "blank")
+            gameItem.createWithArgs(args.toList())
         }
     }
 
     /**
      * Generic method to register a callback from JavaScript
      * @param callbackType The type of callback
-     * @param data Additional data needed for the callback
+     * @param args Additional arguments needed for the callback
      * @return A callback ID that JavaScript can use to resolve the callback
      */
     @JavascriptInterface
-    fun registerCallback(callbackType: String, data: String): String {
+    fun registerCallback(callbackType: String, vararg args: String): String {
         val callbackId = "callback_${callbackType}_${callbackIdCounter++}_${System.currentTimeMillis()}"
-        Log.d("JsGameEngine", "Registering $callbackType callback: $callbackId with data: $data")
+        Log.d("JsGameEngine", "Registering $callbackType callback: $callbackId with args: ${args.joinToString(", ")}")
+
+        val gameItem = gameItems.find { it.id == callbackType } as GenericCallbackFactory
 
         CoroutineScope(Dispatchers.Main).launch {
-            val gameItem = gameItems.find { it.id == callbackType }
-            gameItem?.create(data, callbackId) ?: Log.e("JsGameEngine", "No game item found with ID: $callbackType")
+            gameItem.createWithArgs(args.toList(), callbackId)
         }
 
         return callbackId
@@ -58,13 +61,27 @@ class JsGameInterface(
      * Resolves a callback by its ID with the provided result
      * This is called by Kotlin when the callback action is completed
      */
-    public fun resolveCallback(callbackId: String, result: String) {
+    fun resolveCallback(callbackId: String, result: String) {
         CoroutineScope(Dispatchers.Main).launch {
             val escapedResult = result.replace("'", "\\'")
             webView?.evaluateJavascript("""
                 if (window.callbackResolvers && window.callbackResolvers['$callbackId']) {
                     window.callbackResolvers['$callbackId']('$escapedResult');
-                    delete window.callbackResolvers['$callbackId'];
+                    // delete window.callbackResolvers['$callbackId'];
+                }
+            """.trimIndent(), null)
+        }
+    }
+
+    /**
+     * Deletes all registered callbacks in the WebView context
+     * This is useful for cleaning up when the game ends or resets
+     */
+    fun deleteAllFallbacks() {
+        CoroutineScope(Dispatchers.Main).launch {
+            webView?.evaluateJavascript("""
+                if (window.callbackResolvers) {
+                    window.callbackResolvers = {};
                 }
             """.trimIndent(), null)
         }

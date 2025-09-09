@@ -14,6 +14,4 @@ abstract class GenericItemFactory(
         this.gameRepository = gameRepository
         this.game = game
     }
-
-    abstract suspend fun create(data: String, callbackId: String)
 }

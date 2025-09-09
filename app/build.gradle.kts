@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.androidx.material.icons.extended)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation.compose)
+    implementation(libs.coil.compose)
 
     // Koin Dependency Injection
     implementation(libs.koin.core)
@@ -63,6 +64,8 @@ dependencies {
     implementation(libs.androidx.javascriptengine)
     implementation(libs.play.services.location)
     implementation(libs.maplibre.android.sdk)
+    implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.androidx.exifinterface)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)

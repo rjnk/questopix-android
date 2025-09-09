@@ -3,48 +3,79 @@ package com.rejnek.oog.data.storage
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.core.content.edit
+import com.rejnek.oog.data.model.GamePackage
+import kotlinx.serialization.json.Json
 
 class GameStorage(context: Context) {
     private val sharedPreferences: SharedPreferences =
-        context.getSharedPreferences("game_save_data", Context.MODE_PRIVATE)
+        context.getSharedPreferences("game_storage", Context.MODE_PRIVATE)
+
+    private val json = Json { ignoreUnknownKeys = true }
 
     companion object {
-        private const val GAME_STATE_KEY = "game_state"
-        private const val SAVE_TIMESTAMP_KEY = "save_timestamp"
+        private const val LIBRARY_GAMES_KEY = "library_games"
+        private const val IS_SETUP_COMPLETE_KEY = "is_setup_complete"
+    }
+
+    // ========== LIBRARY OPERATIONS ==========
+
+    /**
+     * Add a game to the library
+     */
+    fun addGameToLibrary(gamePackage: GamePackage) {
+        val currentGames = getLibraryGames().toMutableList()
+        // Remove existing game with same ID if present
+        currentGames.removeAll { it.getId() == gamePackage.getId() }
+        currentGames.add(gamePackage)
+        saveLibraryGames(currentGames)
     }
 
     /**
-     * Save game state to local storage
+     * Get all games in the library
      */
-    fun saveGameState(gameStateJson: String) {
-        sharedPreferences.edit(commit = true) {
-            putString(GAME_STATE_KEY, gameStateJson)
-            putLong(SAVE_TIMESTAMP_KEY, System.currentTimeMillis())
+    fun getLibraryGames(): List<GamePackage> {
+        val gamesJson = sharedPreferences.getString(LIBRARY_GAMES_KEY, null)
+        return if (gamesJson != null) {
+            try {
+                json.decodeFromString<List<GamePackage>>(gamesJson)
+            } catch (_: Exception) {
+                emptyList()
+            }
+        } else {
+            emptyList()
         }
     }
 
     /**
-     * Load game state from local storage
+     * Get a specific game by ID from library
      */
-    fun loadGameState(): String? {
-        return sharedPreferences.getString(GAME_STATE_KEY, null)
+    fun getGameById(gameId: String): GamePackage? {
+        return getLibraryGames().find { it.getId() == gameId }
     }
 
     /**
-     * Check if there is a saved game state
+     * Remove a game from the library
      */
-    fun hasSavedGame(): Boolean {
-        val savedState = sharedPreferences.getString(GAME_STATE_KEY, null)
-        return !savedState.isNullOrEmpty()
+    fun removeGameFromLibrary(gameId: String) {
+        val games = getLibraryGames().toMutableList()
+        games.removeAll { it.getId() == gameId }
+        saveLibraryGames(games)
     }
 
-    /**
-     * Clear saved game state
-     */
-    fun clearSavedGame() {
+    private fun saveLibraryGames(games: List<GamePackage>) {
+        val gamesJson = json.encodeToString(games)
         sharedPreferences.edit(commit = true) {
-            remove(GAME_STATE_KEY)
-            remove(SAVE_TIMESTAMP_KEY)
+            putString(LIBRARY_GAMES_KEY, gamesJson)
         }
+    }
+
+    // ========== SETUP OPERATIONS ==========
+    fun setSetupComplete() {
+        sharedPreferences.edit(commit = true) {
+            putBoolean(IS_SETUP_COMPLETE_KEY, true)
+        }
+    }
+    fun isSetupComplete(): Boolean {
+        return sharedPreferences.getBoolean(IS_SETUP_COMPLETE_KEY, false)
     }
 }

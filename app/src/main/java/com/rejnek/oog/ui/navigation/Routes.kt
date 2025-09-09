@@ -5,17 +5,20 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class Routes(val route: String) {
     @Serializable
+    data object LoadBundledScreen : Routes("LoadBundledScreen")
+
+    @Serializable
     data object HomeScreen : Routes("HomeScreen")
 
     @Serializable
     data object GameTaskScreen : Routes("GameTaskScreen")
 
     @Serializable
-    data object GameFinishScreen : Routes("GameFinishScreen")
+    data object LibraryScreen : Routes("LibraryScreen")
 
     @Serializable
-    data object GameMenuScreen : Routes("GameMenuScreen")
+    data class GameInfoScreen(val gameId: String) : Routes("GameInfoScreen/{gameId}")
 
     @Serializable
-    data object GameMapScreen : Routes("GameMapScreen")
+    data object SettingsScreen : Routes("SettingsScreen")
 }
