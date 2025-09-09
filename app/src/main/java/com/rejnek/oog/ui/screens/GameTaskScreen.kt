@@ -27,7 +27,8 @@ fun GameTaskScreen(
     viewModel: GameTaskViewModel = koinViewModel()
 ) {
     val finishGame by viewModel.finishGame.collectAsState(initial = false)
-    val locPermissionNeeded = viewModel.locationPermissionNeeded.collectAsState(false)
+    val isTaskRequiringLocation = viewModel.isTaskRequiringLocation.collectAsState()
+    val locationPermissionGranted = viewModel.locationPermissionGranted.collectAsState()
     val gameName by viewModel.gameName.collectAsState()
     val gameState by viewModel.gameState.collectAsState()
     val uiElements by viewModel.uiElements.collectAsState()
@@ -40,11 +41,13 @@ fun GameTaskScreen(
         }
     }
 
-    LocationPermissionRequest(
-        locationPermissionGranted = !locPermissionNeeded.value,
-        onGoToLibrary = onFinishTask,
-        onRefreshLocationPermission = { viewModel.refreshLocationPermission() }
-    )
+    if (isTaskRequiringLocation.value) {
+        LocationPermissionRequest(
+            locationPermissionGranted = locationPermissionGranted.value,
+            onGoToLibrary = onFinishTask,
+            onRefreshLocationPermission = { viewModel.refreshLocationPermission() }
+        )
+    }
 
     Scaffold(
         topBar = {

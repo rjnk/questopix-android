@@ -19,15 +19,9 @@ class GameTaskViewModel(
     val gameName = _gameName.asStateFlow()
     private val _gameState = MutableStateFlow(GameState.IN_PROGRESS)
     val gameState = _gameState.asStateFlow()
-
     private val _packNeedsLocation = MutableStateFlow(false)
-    val locationPermissionNeeded = combine(
-        gameRepository.gameLocationRepository.isPermissionGranted,
-        _packNeedsLocation.asStateFlow()
-    ) { isGranted, needsLocation ->
-        if(!needsLocation) false
-        else isGranted
-    }
+    val isTaskRequiringLocation = _packNeedsLocation.asStateFlow()
+    val locationPermissionGranted = gameRepository.gameLocationRepository.isPermissionGranted
 
     // Expose UI elements from the repository
     val uiElements = gameRepository.gameUIRepository.uiElements
