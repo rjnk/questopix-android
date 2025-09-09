@@ -48,7 +48,8 @@ import com.rejnek.oog.data.repository.LocalCaptureMode
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.graphics.createBitmap
 
-// Note: this was heavily created by copilot
+// Note: this was heavily created by copilot the code is verbose but it works well enough for now
+// TODO add loading state when the capture is being generated
 class ShareButtonFactory() : GenericDirectFactory() {
     override val id: String = "shareButton"
 

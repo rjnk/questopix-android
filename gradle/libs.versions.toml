@@ -16,6 +16,7 @@ androidxJavascriptEngine = "1.0.0-rc01"
 playServicesLocation = "21.3.0"
 uiTextGoogleFonts = "1.8.3"
 exifinterface = "1.4.1"
+coil = "2.4.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -46,6 +47,7 @@ play-services-location = { group = "com.google.android.gms", name = "play-servic
 maplibre-android-sdk = { group = "org.maplibre.gl", name = "android-sdk", version = "11.8.5" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
+coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

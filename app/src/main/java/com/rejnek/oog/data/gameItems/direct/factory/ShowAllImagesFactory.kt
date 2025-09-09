@@ -15,9 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
+import coil.request.ImageRequest
 import com.rejnek.oog.R
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import com.rejnek.oog.data.repository.LocalCaptureMode
@@ -38,7 +41,6 @@ class ShowAllImagesFactory : GenericDirectFactory() {
     }
 }
 
-// TODO the scrolling to the side is extremely slow, it needs to improve
 class MyImageGallery(
     private val gameId: String,
     private val heading: String
@@ -113,25 +115,55 @@ class MyImageGallery(
                         }
                     }
                 } else {
-                    // Swipeable image gallery - full width
-                    HorizontalPager(
-                        state = pagerState!!,
-                        modifier = Modifier.fillMaxWidth()
-                    ) { page ->
-                        val imageFile = imageFiles[page]
-                        val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
+                    val ps = pagerState!!
 
-                        bitmap?.let {
-                            Image(
-                                bitmap = it.asImageBitmap(),
+                    BoxWithConstraints {
+                        val densityInner = LocalDensity.current
+                        val availableWidthPx = with(densityInner) { this@BoxWithConstraints.maxWidth.toPx() }
+                        val screenHeightPxInner = context.resources.displayMetrics.heightPixels
+
+                        val maxImageHeightDpFromImages = remember(imageFiles.map { it.absolutePath }, availableWidthPx, screenHeightPxInner) {
+                            var maxPx = 0f
+                            val screenLimitPx = screenHeightPxInner * 0.75f
+
+                            imageFiles.forEach { file ->
+                                val opts = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                                BitmapFactory.decodeFile(file.absolutePath, opts)
+                                if (opts.outWidth > 0 && opts.outHeight > 0) {
+                                    val desiredHeightPx = availableWidthPx * (opts.outHeight.toFloat() / opts.outWidth.toFloat())
+                                    val clamped = desiredHeightPx.coerceAtMost(screenLimitPx)
+                                    if (clamped > maxPx) maxPx = clamped
+                                }
+                            }
+
+                            with(densityInner) { if (maxPx == 0f) (screenHeightPxInner * 0.5f).toDp() else maxPx.toDp() }
+                        }
+
+                        HorizontalPager(
+                            state = ps,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(maxImageHeightDpFromImages)
+                        ) { page ->
+                            val imageFile = imageFiles.getOrNull(page) ?: return@HorizontalPager
+                            val request = remember(imageFile.absolutePath) {
+                                ImageRequest.Builder(context)
+                                    .data(imageFile)
+                                    .size(availableWidthPx.toInt()) // optional: request decode sized to actual available width
+                                    .crossfade(true)
+                                    .build()
+                            }
+
+                            AsyncImage(
+                                model = request,
                                 contentDescription = stringResource(R.string.cd_taken_image, page + 1),
-                                modifier = Modifier.fillMaxWidth(),
-                                contentScale = ContentScale.FillWidth
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Fit
                             )
                         }
                     }
 
-                    // Page indicators
+                    // Page indicators (use non-null ps)
                     if (imageFiles.size > 1) {
                         Row(
                             modifier = Modifier.padding(16.dp),
@@ -146,7 +178,7 @@ class MyImageGallery(
                                     Card(
                                         shape = RoundedCornerShape(50),
                                         colors = CardDefaults.cardColors(
-                                            containerColor = if (index == pagerState.currentPage) {
+                                            containerColor = if (index == ps.currentPage) {
                                                 MaterialTheme.colorScheme.primary
                                             } else {
                                                 MaterialTheme.colorScheme.outline
