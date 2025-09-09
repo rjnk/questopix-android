@@ -21,10 +21,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import androidx.exifinterface.media.ExifInterface
+import java.io.FileOutputStream
 import com.rejnek.oog.R
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import com.rejnek.oog.ui.components.permissions.rememberCameraPermissionRequester
 import java.io.File
+import androidx.core.graphics.scale
 
 class TakePictureFactory : GenericDirectFactory() {
     override val id = "takePicture"
@@ -43,7 +48,7 @@ class TakePictureFactory : GenericDirectFactory() {
     }
 }
 
-// TODO this has troubles with a rotation of the image
+// Note: this is heavily Copilot generated and the code is quite verbose. As this is a self contained module, it's fine for now.
 class MyTakePicture(
     private val gameId: String,
     private val prompt: String,
@@ -64,22 +69,94 @@ class MyTakePicture(
             contract = ActivityResultContracts.TakePicture()
         ) { success ->
             if (success && tempImageUri != null) {
+                // Ensure destination directory exists
                 val gameImagesDir = File(context.filesDir, "user_images/$gameId")
                 if (!gameImagesDir.exists()) gameImagesDir.mkdirs()
                 val tempFile = File(context.cacheDir, "temp_camera_image.jpg")
                 try {
                     if (tempFile.exists()) {
-                        tempFile.copyTo(imageFile, overwrite = true)
-                        capturedImagePath = null
-                        capturedImagePath = imageFile.absolutePath
-                        tempFile.delete()
+                        // Decode bitmap with high quality config
+                        val options = BitmapFactory.Options().apply {
+                            inPreferredConfig = Bitmap.Config.ARGB_8888
+                        }
+                        val bitmap: Bitmap? = BitmapFactory.decodeFile(tempFile.absolutePath, options)
+
+                        // If bitmap was decoded, correct orientation via EXIF and save final image
+                        if (bitmap != null) {
+                            try {
+                                val exif = ExifInterface(tempFile.absolutePath)
+                                val orientation = exif.getAttributeInt(
+                                    ExifInterface.TAG_ORIENTATION,
+                                    ExifInterface.ORIENTATION_NORMAL
+                                )
+                                val matrix = Matrix()
+                                when (orientation) {
+                                    ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
+                                    ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
+                                    ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
+                                    ExifInterface.ORIENTATION_FLIP_HORIZONTAL -> matrix.preScale(-1f, 1f)
+                                    ExifInterface.ORIENTATION_FLIP_VERTICAL -> matrix.preScale(1f, -1f)
+                                    ExifInterface.ORIENTATION_TRANSPOSE -> {
+                                        matrix.postRotate(90f)
+                                        matrix.preScale(-1f, 1f)
+                                    }
+                                    ExifInterface.ORIENTATION_TRANSVERSE -> {
+                                        matrix.postRotate(270f)
+                                        matrix.preScale(-1f, 1f)
+                                    }
+                                    else -> { /* no-op */ }
+                                }
+
+                                val rotatedBitmap = if (!matrix.isIdentity) {
+                                    Bitmap.createBitmap(bitmap, 0, 0, bitmap.width, bitmap.height, matrix, true)
+                                } else bitmap
+
+                                // Optionally scale down if extremely large to avoid OOM, keep reasonable max dimension
+                                val maxDim = 3840 // allow high resolution but limit extreme sizes
+                                val finalBitmap = if (rotatedBitmap.width > maxDim || rotatedBitmap.height > maxDim) {
+                                    val scale = maxDim.toFloat() / maxOf(rotatedBitmap.width, rotatedBitmap.height)
+                                    rotatedBitmap.scale(
+                                        (rotatedBitmap.width * scale).toInt(),
+                                        (rotatedBitmap.height * scale).toInt()
+                                    )
+                                } else rotatedBitmap
+
+                                // Save to final image file with good quality
+                                FileOutputStream(imageFile).use { out ->
+                                    finalBitmap.compress(Bitmap.CompressFormat.JPEG, 90, out)
+                                }
+
+                                // Recycle bitmaps if different instances
+                                if (finalBitmap !== rotatedBitmap && rotatedBitmap != bitmap) rotatedBitmap.recycle()
+                                if (rotatedBitmap !== bitmap) bitmap.recycle()
+
+                                capturedImagePath = null
+                                capturedImagePath = imageFile.absolutePath
+                            } catch (_: Exception) {
+                                // Fallback: copy raw file
+                                try { tempFile.copyTo(imageFile, overwrite = true); capturedImagePath = imageFile.absolutePath } catch (_: Exception) { }
+                            }
+                        } else {
+                            // If decoding failed, fallback to raw copy
+                            try { tempFile.copyTo(imageFile, overwrite = true); capturedImagePath = imageFile.absolutePath } catch (_: Exception) { }
+                        }
+
+                        // Cleanup temp file
+                        try { tempFile.delete() } catch (_: Exception) { }
                     }
                 } catch (_: Exception) { }
             }
         }
 
         fun launchCameraCapture() {
+            // Ensure temp file exists and is writable before launching camera
             val tempFile = File(context.cacheDir, "temp_camera_image.jpg")
+            try {
+                tempFile.parentFile?.mkdirs()
+                if (tempFile.exists()) tempFile.delete()
+                tempFile.createNewFile()
+            } catch (_: Exception) { }
+
             tempImageUri = FileProvider.getUriForFile(
                 context,
                 "${context.packageName}.fileprovider",

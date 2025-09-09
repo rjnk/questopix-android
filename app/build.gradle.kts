@@ -64,6 +64,7 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.maplibre.android.sdk)
     implementation(libs.androidx.ui.text.google.fonts)
+    implementation(libs.androidx.exifinterface)
 
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
