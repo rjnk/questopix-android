@@ -39,7 +39,6 @@ import org.koin.androidx.compose.koinViewModel
 fun HomeScreen(
     onLoadGameClick: () -> Unit,
     onNavigateToLibrary: () -> Unit = {},
-    onNavigateToSettings: () -> Unit = {},
     onLoadGameFromFileViaLibrary: () -> Unit = {},
     viewModel: HomeViewModel = koinViewModel()
 ) {

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.R
+import com.rejnek.oog.data.model.GameState
 import com.rejnek.oog.ui.viewmodels.GameTaskViewModel
 import org.koin.androidx.compose.koinViewModel
 
@@ -33,7 +34,11 @@ fun GameTaskScreen(
 
     LaunchedEffect(finishGame) { if (finishGame) onFinishTask() }
 
-    BackHandler { }
+    BackHandler {
+        if(gameState == GameState.ARCHIVED){
+            onFinishTask()
+        }
+    }
 
     LocationPermissionRequest(
         locationPermissionGranted = locationPermissionGranted.value,

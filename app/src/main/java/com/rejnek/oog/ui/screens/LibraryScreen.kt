@@ -69,10 +69,6 @@ fun LibraryScreen(
         }
     }
 
-    BackHandler {
-        onNavigateToHome()
-    }
-
     DuplicateGameDialog(
         show = showDuplicateDialog,
         gameName = pendingGamePackage?.getName() ?: "",

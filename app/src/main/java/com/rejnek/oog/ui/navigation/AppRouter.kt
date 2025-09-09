@@ -1,6 +1,8 @@
 package com.rejnek.oog.ui.navigation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,13 +14,13 @@ import com.rejnek.oog.ui.screens.LibraryScreen
 import com.rejnek.oog.ui.screens.SettingsScreen
 import com.rejnek.oog.ui.viewmodels.SharedEventsViewModel
 import org.koin.androidx.compose.koinViewModel
+import android.app.Activity
+import androidx.activity.compose.LocalActivity
 
 @Composable
 fun AppRouter() {
     val navController: NavHostController = rememberNavController()
     val sharedEvents: SharedEventsViewModel = koinViewModel()
-
-    // TODO improve going back, add https://developer.android.com/guide/navigation/custom-back/predictive-back-gesture
 
     NavHost(
         navController = navController,
@@ -26,6 +28,12 @@ fun AppRouter() {
     ) {
         // Main screens with bottom navigation
         composable(Routes.HomeScreen.route) {
+            // Ensure back from Home closes the app
+            val activity = LocalActivity.current
+            BackHandler {
+                activity?.finish()
+            }
+
             HomeScreen(
                 onLoadGameClick = {
                     navController.navigate(Routes.GameTaskScreen.route)
@@ -38,9 +46,6 @@ fun AppRouter() {
                         launchSingleTop = true
                         restoreState = true
                     }
-                },
-                onNavigateToSettings = {
-                    navController.navigate(Routes.SettingsScreen.route)
                 },
                 onLoadGameFromFileViaLibrary = {
                     // set flag then navigate; LibraryScreen will consume and launch picker
@@ -57,6 +62,16 @@ fun AppRouter() {
         }
 
         composable(Routes.LibraryScreen.route) {
+            // Ensure back from Library always returns to Home
+            BackHandler {
+                navController.navigate(Routes.HomeScreen.route) {
+                    popUpTo(Routes.HomeScreen.route) {
+                        inclusive = true
+                    }
+                    launchSingleTop = true
+                }
+            }
+
             LibraryScreen(
                 onNavigateToHome = {
                     navController.navigate(Routes.HomeScreen.route) {
@@ -76,7 +91,7 @@ fun AppRouter() {
             )
         }
 
-        composable("GameInfoScreen/{gameId}") { backStackEntry ->
+        composable(Routes.GameInfoScreen("{gameId}").route) { backStackEntry ->
             val gameId = backStackEntry.arguments?.getString("gameId") ?: ""
             GameInfoScreen(
                 gameId = gameId,
