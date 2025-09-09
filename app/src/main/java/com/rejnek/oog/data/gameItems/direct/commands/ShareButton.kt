@@ -6,6 +6,7 @@ import androidx.compose.material3.Icon
 import com.rejnek.oog.data.gameItems.GenericDirectFactory
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -49,15 +50,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.graphics.createBitmap
 
 // Note: this was heavily created by copilot the code is verbose but it works well enough for now
-// TODO add loading state when the capture is being generated
+// Note: we are generating the share image in a Main thread so this can slow down the app when there is a lot of images to render
 class ShareButtonFactory() : GenericDirectFactory() {
     override val id: String = "shareButton"
 
     override suspend fun create(data: String) {
         val repo = gameRepository ?: return
-
-        var elementRef: (@Composable () -> Unit)? = null
-        elementRef = {
+        val elementRef = @Composable {
             val context = LocalContext.current
             ShareButton {
                 val all = repo.gameUIRepository.uiElements.value
@@ -70,15 +69,21 @@ class ShareButtonFactory() : GenericDirectFactory() {
         repo.addUIElement(elementRef)
     }
 
-    private val capturing = AtomicBoolean(false)
+    companion object {
+        // Atomic flag used for the actual atomic compare-and-set when starting capture
+        private val capturingAtomic = AtomicBoolean(false)
+        // Observable state that composables can collect to show loading UI
+        val capturingState: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    }
 
     private fun captureAndShare(
         context: Context,
         uiElements: List<@Composable () -> Unit>
     ) {
-        if (!capturing.compareAndSet(false, true)) return
-        val activity = context as? Activity ?: run { capturing.set(false); return }
-        val root = activity.window?.decorView?.findViewById<ViewGroup>(android.R.id.content) ?: run { capturing.set(false); return }
+        if (!capturingAtomic.compareAndSet(false, true)) return
+        capturingState.value = true
+        val activity = context as? Activity ?: run { capturingAtomic.set(false); return }
+        val root = activity.window?.decorView?.findViewById<ViewGroup>(android.R.id.content) ?: run { capturingAtomic.set(false); return }
 
         // Filter out any composables registered in the exclusion set
         val filtered = uiElements.filter { candidate -> UiCaptureExclusions.excluded.none { it === candidate } }
@@ -138,7 +143,8 @@ class ShareButtonFactory() : GenericDirectFactory() {
                     shareBitmap(context, bitmap)
                 }
                 root.removeView(composeView)
-                capturing.set(false)
+                capturingAtomic.set(false)
+                capturingState.value = false
             }
         }
     }
@@ -179,8 +185,12 @@ class ShareButton(
             else -> MaterialTheme.colorScheme.tertiary
         }
 
+        // Observe the factory's capturing state to show a loading indicator and disable the button
+        val isLoading by ShareButtonFactory.capturingState.collectAsState()
+
         Button(
             onClick = onClick,
+            enabled = !isLoading,
             modifier = modifier.fillMaxWidth(),
             colors = ButtonDefaults.buttonColors(
                 containerColor = selectedColor,
@@ -192,7 +202,8 @@ class ShareButton(
                 contentDescription = stringResource(R.string.cd_share_icon),
                 modifier = Modifier.padding(end = 8.dp)
             )
-            Text(text = text)
+            if(isLoading) Text(stringResource(R.string.share_result_are_generated))
+            else Text(text)
         }
     }
 }

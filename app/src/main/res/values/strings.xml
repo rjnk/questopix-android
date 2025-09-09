@@ -69,6 +69,7 @@
     <string name="delete_selected">Delete selected</string>
     <string name="select_games">Select games</string>
     <string name="share_results">Share the results!</string>
+    <string name="share_result_are_generated">Generating image for sharing...</string>
 
     <!-- Distance and map settings -->
     <string name="distance">Distance</string>
