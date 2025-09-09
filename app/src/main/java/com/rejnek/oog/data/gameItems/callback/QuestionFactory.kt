@@ -1,6 +1,7 @@
 package com.rejnek.oog.data.gameItems.callback
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -17,6 +18,11 @@ import com.rejnek.oog.R
 import com.rejnek.oog.data.gameItems.GenericCallbackFactory
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
 /**
  * Usage:
@@ -71,9 +77,14 @@ class Question(
         val text by questionText.collectAsState()
         val onSubmit by this.onSubmit.collectAsState()
 
+        // get keyboard controller and focus manager to control IME
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
+
         Card(
             modifier = modifier
                 .fillMaxWidth()
+                .imePadding() // ensure card is pushed above the IME when keyboard is open
                 .padding(top = 16.dp, bottom = 16.dp),
         ) {
             Text(
@@ -86,6 +97,15 @@ class Question(
                 value = answerText,
                 onValueChange = onValueChange,
                 label = { Text(stringResource(R.string.your_answer)) },
+                singleLine = true, // prevent newline on Enter
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        // hide keyboard and clear focus when the user presses Enter/Done
+                        focusManager.clearFocus()
+                        keyboardController?.hide()
+                    }
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
