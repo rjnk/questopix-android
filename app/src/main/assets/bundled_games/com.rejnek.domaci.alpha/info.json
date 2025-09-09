@@ -1,0 +1,17 @@
+{
+    "id": "com.rejnek.domaci.alpha",
+    "name": "Domámcí minihra",
+    "description": "Mini hra kterou můžete hrát kdekoli.",
+    "startLocation": { 
+        "text": "Kdekoli"
+    },
+    "finishLocation": { 
+        "text": "Kdekoli"
+    },
+    "attributes": {
+        "Očekávaná délka": "10 minut",
+        "Mentální náročnost": "3/5",
+        "Fyzická náročnost": "0/5",
+        "Trapnost": "0/5"
+    }
+}

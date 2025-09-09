@@ -1,12 +1,3 @@
-# Open Outdoor Games
-This is a mobile app that lets you play GPS based outdoor games.
-Outdoor game consist of a set of tasks such as answering a question, taking a photo or visiting a location.
-
-The actual game is written in JavaScript and you simply import the game as part of a game zip file into the app. The zip file contains also the game info (info.json) and any images used in the game.
-The app then runs the javascript code and lets you interact with the in game events.
-
-**Example JavaScript game file:**
-```javascript
 // custom
 var _score = 0;
 var _timerStart = Date.now();
@@ -15,7 +6,7 @@ var _timerStart = Date.now();
 const start = {
     onStart: () => {
         // setup
-        disable("uhotelu"); // disabling affects only location tasks, task without coordinates is not affected
+        disable("uhotelu");
         disable("kauflandQuestion");
     
         heading("Hra začíná 🎉🎉", "Hurá!");
@@ -176,4 +167,5 @@ const finish = {
         finishGameButton("Do menu");
     }
 }
-```
+
+

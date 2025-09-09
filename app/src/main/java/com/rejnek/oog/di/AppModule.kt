@@ -14,6 +14,7 @@ val appModule = module {
     single { GameRepository(get()) }
 
     // ViewModels
+    viewModel { LoadBundledViewModel(get()) }
     viewModel { HomeViewModel(get()) }
     viewModel { LibraryViewModel(get()) }
     viewModel { GameInfoViewModel(get()) }

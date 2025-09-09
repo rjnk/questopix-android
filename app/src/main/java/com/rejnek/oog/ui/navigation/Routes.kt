@@ -5,6 +5,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class Routes(val route: String) {
     @Serializable
+    data object LoadBundledScreen : Routes("LoadBundledScreen")
+
+    @Serializable
     data object HomeScreen : Routes("HomeScreen")
 
     @Serializable

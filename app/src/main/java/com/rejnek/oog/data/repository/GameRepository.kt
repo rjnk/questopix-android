@@ -9,6 +9,7 @@ import com.rejnek.oog.data.engine.JsGameEngine
 import com.rejnek.oog.data.model.Area
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.data.model.GameState
+import com.rejnek.oog.ui.components.library.loadBundledGames
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -52,6 +53,21 @@ class GameRepository(
     suspend fun loadSavedGame() = withContext(Dispatchers.IO) {
         val savedGamePackage = gameStorageRepository.getSavedGamePackage()
         startGame(savedGamePackage ?: throw GameRepositoryException("No saved game found"))
+    }
+
+    suspend fun preloadGames() = withContext(Dispatchers.IO) {
+        val games = loadBundledGames(context)
+
+        for (game in games) {
+            val existingGame = gameStorageRepository.getGameById(game.getId())
+
+            if (existingGame == null) {
+                gameStorageRepository.addGameToLibrary(game)
+                Log.d("GameRepository", "Preloaded bundled game: ${game.getId()}")
+            } else {
+                Log.d("GameRepository", "Bundled game already exists, skipping: ${game.getId()}")
+            }
+        }
     }
 
     suspend fun startGame(gamePackage: GamePackage) {

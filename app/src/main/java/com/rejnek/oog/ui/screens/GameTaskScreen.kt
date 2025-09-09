@@ -27,7 +27,7 @@ fun GameTaskScreen(
     viewModel: GameTaskViewModel = koinViewModel()
 ) {
     val finishGame by viewModel.finishGame.collectAsState(initial = false)
-    val locationPermissionGranted = viewModel.locationPermissionNeeded.collectAsState(true)
+    val locPermissionNeeded = viewModel.locationPermissionNeeded.collectAsState(false)
     val gameName by viewModel.gameName.collectAsState()
     val gameState by viewModel.gameState.collectAsState()
     val uiElements by viewModel.uiElements.collectAsState()
@@ -41,7 +41,7 @@ fun GameTaskScreen(
     }
 
     LocationPermissionRequest(
-        locationPermissionGranted = locationPermissionGranted.value,
+        locationPermissionGranted = !locPermissionNeeded.value,
         onGoToLibrary = onFinishTask,
         onRefreshLocationPermission = { viewModel.refreshLocationPermission() }
     )

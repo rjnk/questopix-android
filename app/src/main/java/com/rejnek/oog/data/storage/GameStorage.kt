@@ -14,6 +14,7 @@ class GameStorage(context: Context) {
 
     companion object {
         private const val LIBRARY_GAMES_KEY = "library_games"
+        private const val IS_SETUP_COMPLETE_KEY = "is_setup_complete"
     }
 
     // ========== LIBRARY OPERATIONS ==========
@@ -66,5 +67,15 @@ class GameStorage(context: Context) {
         sharedPreferences.edit(commit = true) {
             putString(LIBRARY_GAMES_KEY, gamesJson)
         }
+    }
+
+    // ========== SETUP OPERATIONS ==========
+    fun setSetupComplete() {
+        sharedPreferences.edit(commit = true) {
+            putBoolean(IS_SETUP_COMPLETE_KEY, true)
+        }
+    }
+    fun isSetupComplete(): Boolean {
+        return sharedPreferences.getBoolean(IS_SETUP_COMPLETE_KEY, false)
     }
 }

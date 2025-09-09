@@ -17,6 +17,15 @@ class GameStorageRepository(
 ) {
     private val gameStorage = GameStorage(context)
 
+    // Setup
+    fun setSetupComplete() {
+        gameStorage.setSetupComplete()
+    }
+
+    fun isSetupComplete(): Boolean {
+        return gameStorage.isSetupComplete()
+    }
+
     // Library Operations
     fun addGameToLibrary(gamePackage: GamePackage) {
         deleteAllImages(gamePackage.getId())

@@ -14,8 +14,8 @@ import com.rejnek.oog.ui.screens.LibraryScreen
 import com.rejnek.oog.ui.screens.SettingsScreen
 import com.rejnek.oog.ui.viewmodels.SharedEventsViewModel
 import org.koin.androidx.compose.koinViewModel
-import android.app.Activity
 import androidx.activity.compose.LocalActivity
+import com.rejnek.oog.ui.screens.GameLoadBundledScreen
 
 @Composable
 fun AppRouter() {
@@ -24,8 +24,21 @@ fun AppRouter() {
 
     NavHost(
         navController = navController,
-        startDestination = Routes.HomeScreen.route
+        startDestination = Routes.LoadBundledScreen.route
     ) {
+        composable (Routes.LoadBundledScreen.route) {
+            GameLoadBundledScreen(
+                onGoToHome = {
+                    navController.navigate(Routes.HomeScreen.route) {
+                        popUpTo(Routes.LoadBundledScreen.route) {
+                            inclusive = true
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            )
+        }
+
         // Main screens with bottom navigation
         composable(Routes.HomeScreen.route) {
             // Ensure back from Home closes the app
