@@ -19,6 +19,7 @@ class GameStorageRepository(
 
     // Library Operations
     fun addGameToLibrary(gamePackage: GamePackage) {
+        deleteAllImages(gamePackage.getId())
         gameStorage.addGameToLibrary(gamePackage)
     }
 
