@@ -41,14 +41,31 @@ fun GameTaskScreen(
         onRefreshLocationPermission = { viewModel.refreshLocationPermission() }
     )
 
-    // TODO rn this is too tall, it reaches out of the screen on some devices
-    Column(Modifier.fillMaxSize()) {
-        TopBar(gameName, onOpenSettings)
-
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = gameName,
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
+                actions = {
+                    IconButton(onClick = onOpenSettings) {
+                        Icon(
+                            imageVector = Icons.Filled.Settings,
+                            contentDescription = stringResource(R.string.cd_settings)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(MaterialTheme.colorScheme.surfaceContainer)
+            )
+        },
+    ) { innerPadding ->
         Box(
             modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth()
+                .padding(innerPadding)
+                .fillMaxSize()
         ) {
             val scrollState = rememberScrollState()
             Column(
@@ -67,32 +84,6 @@ fun GameTaskScreen(
                     }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun TopBar(
-    text: String,
-    onClick: () -> Unit
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .padding(top = 22.dp, start = 16.dp, bottom = 4.dp, end = 16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier.weight(1f)
-        )
-        IconButton(onClick = onClick) {
-            Icon(
-                imageVector = Icons.Filled.Settings,
-                contentDescription = stringResource(R.string.cd_settings)
-            )
         }
     }
 }
