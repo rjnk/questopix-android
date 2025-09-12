@@ -1,11 +1,74 @@
 # Open Outdoor Games
-This is a mobile app that lets you play GPS based outdoor games.
+This is a mobile app that lets you play GPS based outdoor games (like a treasure hunt or a scavenger hunt).
 Outdoor game consist of a set of tasks such as answering a question, taking a photo or visiting a location.
+
+## App screens
+**Home screen**:
+This screen is accessible from the bottom menu as the first tab.
+- the main screen of the app, the buttons forward the user to the library
+**Library screen**:
+This screen is accessible from the bottom menu as a second tab.
+- shows the list of games that are available to play
+- shows a list of games that have been played
+- lets you delete downloaded games
+- lets you import a new game from a zip file (with a confirmation if the game is already present)
+**Game info screen**:
+This screen opens when the users clicks on a game in the library or after a game is imported.
+- shows the game info from the info.json file (name, description, start & finish location, cover photo, game stats - such as expected duration, distance, number of tasks)
+- checks if you are close enough to the starting location
+- lets you start the game
+**Game task screen**:
+This is the screen where the actual game is played. The ui is generated from the game javascript code. It can contain text, images, buttons, questions, photo tasks, location tasks, maps, score board etc.
+The last task in a game is generally showing the final score and a button to go to the library. But it's still a task so any content can be shown there.
+- some tasks shows only when you are at a given location
+**Settings screen**:
+- lets you pause or quit the current game
+- lets you change the app language via Android app language (currently English and Czech are supported)
+- shows info about the project
 
 The actual game is written in JavaScript and you simply import the game as part of a game zip file into the app. The zip file contains also the game info (info.json) and any images used in the game.
 The app then runs the javascript code and lets you interact with the in game events.
 
-**Example JavaScript game file:**
+## Game zip file
+A game zip file contains all information about the game. It gets imported to the library and then shows as an item in the listing.
+It contains:
+- info.json - the game info file
+- game.js - the actual game code
+- images - images used in the game (such as cover-photo.jpg, trophy.png, etc.)
+
+### Example of info.json
+```json
+{
+  "id": "com.rejnek.dejvice.alpha",
+  "name": "Dejvická hra",
+  "description": "Hra vás provede po zajímavých místech v Dejvicích a okolí.",
+  "coverPhoto": "cover.jpeg",
+  "startLocation": {
+    "text": "zastávka tramvaje Hradčanská, Praha 6",
+    "coordinates": {
+      "lat": 50.0971869,
+      "lng": 14.4038831,
+      "radius": 70.0
+    }
+  },
+  "finishLocation": {
+    "text": "Kaufland Dejvice, Praha 6",
+    "coordinates": {
+      "lat": 50.1118728,
+      "lng": 14.3926511,
+      "radius": 70.0
+    }
+  },
+  "attributes": {
+    "Očekávaná délka": "1 hodina",
+    "Mentální náročnost": "2/5",
+    "Fyzická náročnost": "2/5",
+    "Trapnost": "1/5"
+  }
+}
+```
+
+### Example of javascript game code (game.js)
 ```javascript
 // custom
 var _score = 0;
@@ -14,8 +77,9 @@ var _timerStart = Date.now();
 // startovní úkol / first task
 const start = {
     onStart: () => {
-        // setup
-        disable("uhotelu"); // disabling affects only location tasks, task without coordinates is not affected
+        // setup - disable location tasks that are not unlocked yet
+        // note: there is no point to disable non-location tasks - the command has no effect on those
+        disable("uhotelu");
         disable("kauflandQuestion");
     
         heading("Hra začíná 🎉🎉", "Hurá!");
@@ -81,6 +145,8 @@ const zelena = {
         [50.107293, 14.395915],
         [50.106949, 14.396097]
     ],
+    // Note: onFirstStart is called only once, when the user arrives to the location for the first time
+    // onStart is called every time the user arrives to the location (including the first time) - so the score would be increased multiple times
     onStartFirst: () => {
         _score += 5;
     },
@@ -128,7 +194,7 @@ const uhotelu = {
         heading("Cesta za dobrotou 😋");
         takePicture("Vyfoť se s hotelem.");
         text("Dostáváš dalších 5 bodů za nevzdání. Teď je potřeba se vyfotit s hotelem a pak se můžeš vydat za dalším úkolem, který je u kauflandu. Naviguj se podle mapy.");
-        // '{"backgroundImage":"map2.png","topLeftLat":50.114903,"topLeftLng":14.390008,"bottomRightLat":50.108091,"bottomRightLng":14.397186}'
+        // the simple map works by showing an image with given coordinates - '{"backgroundImage":"map2.png","topLeftLat":50.114903,"topLeftLng":14.390008,"bottomRightLat":50.108091,"bottomRightLng":14.397186}'
         simpleMap("map2.png", 50.114903, 14.390008, 50.108091, 14.397186);
         enable("kauflandQuestion");
     }
@@ -158,7 +224,7 @@ const kauflandQuestion = {
 
 const finish = {
     onStart: () => {
-        // setup
+        // disable all location tasks so that these don't show up any more
         disable("uhotelu");
         disable("kauflandQuestion");
     
