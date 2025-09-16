@@ -16,13 +16,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.R
-import com.rejnek.oog.data.model.Coordinates
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.ui.components.gameInfo.AttributeItem
 import com.rejnek.oog.ui.components.gameInfo.GameCoverImage
 import com.rejnek.oog.ui.components.gameInfo.InfoSection
 import com.rejnek.oog.ui.components.gameInfo.LocationItem
-import com.rejnek.oog.ui.viewmodels.GameInfoViewModel
+import com.rejnek.oog.ui.viewmodel.GameInfoViewModel
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.koin.androidx.compose.koinViewModel

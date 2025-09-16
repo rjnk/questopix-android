@@ -29,9 +29,8 @@ import androidx.compose.ui.unit.dp
 import com.rejnek.oog.R
 import com.rejnek.oog.ui.components.BottomNavigationBar
 import com.rejnek.oog.ui.components.home.OOGLogo
-import com.rejnek.oog.ui.components.library.rememberGameFilePicker
 import com.rejnek.oog.ui.navigation.Routes
-import com.rejnek.oog.ui.viewmodels.HomeViewModel
+import com.rejnek.oog.ui.viewmodel.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

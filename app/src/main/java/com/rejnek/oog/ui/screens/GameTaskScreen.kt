@@ -15,10 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import com.rejnek.oog.R
 import com.rejnek.oog.data.model.GameState
-import com.rejnek.oog.ui.viewmodels.GameTaskViewModel
+import com.rejnek.oog.ui.viewmodel.GameTaskViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)

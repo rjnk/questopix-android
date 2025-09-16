@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.rejnek.oog.ui.viewmodels.LoadBundledViewModel
+import com.rejnek.oog.ui.viewmodel.LoadBundledViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

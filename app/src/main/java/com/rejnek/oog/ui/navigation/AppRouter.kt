@@ -2,7 +2,6 @@ package com.rejnek.oog.ui.navigation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -12,7 +11,7 @@ import com.rejnek.oog.ui.screens.GameTaskScreen
 import com.rejnek.oog.ui.screens.HomeScreen
 import com.rejnek.oog.ui.screens.LibraryScreen
 import com.rejnek.oog.ui.screens.SettingsScreen
-import com.rejnek.oog.ui.viewmodels.SharedEventsViewModel
+import com.rejnek.oog.ui.viewmodel.SharedEventsViewModel
 import org.koin.androidx.compose.koinViewModel
 import androidx.activity.compose.LocalActivity
 import com.rejnek.oog.ui.screens.GameLoadBundledScreen

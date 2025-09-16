@@ -1,9 +1,7 @@
 package com.rejnek.oog.di
 
-import android.app.Application
 import com.rejnek.oog.data.repository.GameRepository
-import com.rejnek.oog.ui.viewmodels.*
-import org.koin.android.ext.koin.androidContext
+import com.rejnek.oog.ui.viewmodel.*
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 

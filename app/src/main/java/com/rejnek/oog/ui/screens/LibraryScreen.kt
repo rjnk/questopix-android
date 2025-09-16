@@ -1,6 +1,5 @@
 package com.rejnek.oog.ui.screens
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
@@ -31,8 +30,8 @@ import com.rejnek.oog.ui.components.library.LibraryScreenContent
 import com.rejnek.oog.ui.components.library.LibraryTopBar
 import com.rejnek.oog.ui.components.library.rememberGameFilePicker
 import com.rejnek.oog.ui.navigation.Routes
-import com.rejnek.oog.ui.viewmodels.LibraryViewModel
-import com.rejnek.oog.ui.viewmodels.SharedEventsViewModel
+import com.rejnek.oog.ui.viewmodel.LibraryViewModel
+import com.rejnek.oog.ui.viewmodel.SharedEventsViewModel
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.runtime.LaunchedEffect
 

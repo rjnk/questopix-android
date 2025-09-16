@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import android.util.Log
 import androidx.compose.runtime.Composable
-import com.rejnek.oog.data.engine.JsGameEngine
+import com.rejnek.oog.engine.JsGameEngine
 import com.rejnek.oog.data.model.Area
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.data.model.GameState
@@ -25,10 +25,10 @@ class GameRepository(
 ) {
     // Specialized repositories
     private val jsEngine = JsGameEngine(context)
-    val gameStorageRepository = GameStorageRepository(context)
-    val gameLocationRepository = GameLocationRepository(context)
+    val storageRepository = StorageRepository(context)
+    val locationRepository = LocationRepository(context)
     val gameUIRepository = GameUIRepository()
-    val gameItemRepository = GameItemRepository()
+    val commandRepository = CommandRepository()
 
     // Current Game Package & task
     private val _currentGamePackage = MutableStateFlow<GamePackage?>(null)
@@ -46,12 +46,12 @@ class GameRepository(
 
     // Game Initialization
     suspend fun initializeGameFromLibrary(gameId: String) = withContext(Dispatchers.IO) {
-        val game = gameStorageRepository.getGameById(gameId)
+        val game = storageRepository.getGameById(gameId)
         startGame(game ?: throw GameRepositoryException("Game with ID $gameId not found in library"))
     }
 
     suspend fun loadSavedGame() = withContext(Dispatchers.IO) {
-        val savedGamePackage = gameStorageRepository.getSavedGamePackage()
+        val savedGamePackage = storageRepository.getSavedGamePackage()
         startGame(savedGamePackage ?: throw GameRepositoryException("No saved game found"))
     }
 
@@ -59,10 +59,10 @@ class GameRepository(
         val games = loadBundledGames(context)
 
         for (game in games) {
-            val existingGame = gameStorageRepository.getGameById(game.getId())
+            val existingGame = storageRepository.getGameById(game.getId())
 
             if (existingGame == null) {
-                gameStorageRepository.addGameToLibrary(game)
+                storageRepository.addGameToLibrary(game)
                 Log.d("GameRepository", "Preloaded bundled game: ${game.getId()}")
             } else {
                 Log.d("GameRepository", "Bundled game already exists, skipping: ${game.getId()}")
@@ -98,7 +98,7 @@ class GameRepository(
         if (gamePackage.state == GameState.ARCHIVED) return
 
         val areasToMonitor = generateAreasForMonitoring(gamePackage)
-        gameLocationRepository.startMonitoringAreas(areasToMonitor) { areaId ->
+        locationRepository.startMonitoringAreas(areasToMonitor) { areaId ->
             if(jsEngine.getJsValue("isEnabled(\"$areaId\")").getOrNull() == "true") {
                 setCurrentTask(areaId)
             }
@@ -160,14 +160,14 @@ class GameRepository(
             _currentGamePackage.value = currentPackage.copy(state = GameState.ARCHIVED)
         }
         CoroutineScope(Dispatchers.IO).launch {
-            gameStorageRepository.saveGame(_currentGamePackage.value ?: throw GameRepositoryException("No current game package"))
+            storageRepository.saveGame(_currentGamePackage.value ?: throw GameRepositoryException("No current game package"))
             cleanup()
         }
     }
 
     fun pauseCurrentGame() {
         CoroutineScope(Dispatchers.IO).launch {
-            gameStorageRepository.saveGame(_currentGamePackage.value ?: throw IllegalStateException("No current game package"))
+            storageRepository.saveGame(_currentGamePackage.value ?: throw IllegalStateException("No current game package"))
             cleanup()
         }
     }
@@ -185,9 +185,9 @@ class GameRepository(
             gameState = null // Clear the saved state
         )
         CoroutineScope(Dispatchers.IO).launch {
-            gameStorageRepository.saveGame(clearPackage)
+            storageRepository.saveGame(clearPackage)
         }
-        gameStorageRepository.deleteAllImages(clearPackage.getId())
+        storageRepository.deleteAllImages(clearPackage.getId())
         cleanup()
     }
 
@@ -195,7 +195,7 @@ class GameRepository(
         CoroutineScope(Dispatchers.Main).launch {
             _currentGamePackage.value = null
             gameUIRepository.clearUIElements()
-            gameLocationRepository.stopLocationMonitoring()
+            locationRepository.stopLocationMonitoring()
 
             // Re-initialize JS engine for next game
             jsEngine.cleanup()
