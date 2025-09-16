@@ -10,11 +10,12 @@ const start = {
         text("Vítejte v domácí hře na hledání pokladu! Vaším úkolem je splnit různé výzvy po celém domě. Každý úkol prověří vaše pozorovací schopnosti.");
         text("Za správné odpovědi získáte body, za použití nápověd body ztratíte. Uvidíme, jak dobře znáte svůj vlastní domov!");
 
+        takePicture("Vyfotografujte se na začátku hry!");
+
         button("Začít hru", () => {
             _casStart = Date.now();
             showTask("kuchyneUkol");
         });
-        takePicture("Vyfotografujte se na začátku hry!");
     }
 }
 
@@ -27,7 +28,7 @@ const kuchyneUkol = {
         takePicture("Vyfotografujte něco červeného ve vaší kuchyni");
 
         multichoice("Kolik různých druhů koření najdete ve své kuchyni?", (cisloOdpovedi) => {
-            if(cisloOdpovedi === 2) { // Více než 10
+            if(cisloOdpovedi === 0) { // Více než 10
                 _skore += 20;
                 popUp("Výborně! Máte dobře zásobenou kuchyni! +20 bodů", "koupelnaUkol");
             } else if(cisloOdpovedi === 1) { // 5-10

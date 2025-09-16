@@ -1,7 +1,7 @@
 {
     "id": "com.rejnek.domaci.alpha",
-    "name": "Domámcí minihra",
-    "description": "Mini hra kterou můžete hrát kdekoli.",
+    "name": "Domácí minihra",
+    "description": "Minihra kterou můžete hrát kdekoli.",
     "startLocation": { 
         "text": "Kdekoli"
     },
