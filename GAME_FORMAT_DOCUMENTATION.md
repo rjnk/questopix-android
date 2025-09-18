@@ -113,7 +113,7 @@ The name of the first task must be `start`.
 
 ```javascript
 const taskName = {
-    // Optional: called when user first arrives at location
+    // Optional: called only the first time the task is started. Suitable for variable increase.
     onStartFirst: () => {
         // First-time setup logic
     },
@@ -121,6 +121,7 @@ const taskName = {
     // Called every time task becomes active
     onStart: () => {
         // Task content and interactions
+        // never put variable increase here - it will increase every time when the task is visited, e.g. after pausing and resuming the game
     },
 
     // Optional: location boundaries for location-based tasks. Defined as polygon of [lat, lng] pairs
@@ -362,11 +363,15 @@ var _timeElapsed = 0;
 
 // Starting task
 const start = {
+    onStartFirst: () => {
+        _timerStart = Date.now();
+    },
+
     onStart: () => {
         heading("Game Begins!");
-        text("Welcome to the adventure...");
-        button("Start", () => {
-            _timerStart = Date.now();
+        text("Welcome to the adventure.");
+        text("You need to go to the first challenge location.");
+        button("Skip", () => {
             showTask("firstChallenge");
         });
     }
@@ -374,7 +379,15 @@ const start = {
 
 // Location-based task
 const firstChallenge = {
-    loc: [[lat1, lng1], [lat2, lng2], [lat3, lng3]], // polygon coordinates of the area
+
+    // The locaiton is defined as a polygon of [lat, lng] pairs - minimun number is 3
+    loc: [
+        [50.106943, 14.394933],
+        [50.107247, 14.394844],
+        [50.107293, 14.395915]
+    ],
+
+    // The onStart activates when the user visit the locaiton OR when the task is shown by showTask()
     onStart: () => {
         heading("First Challenge");
         question("What do you see?", (answer) => {
