@@ -265,6 +265,7 @@ You can omit the `nextTask` parameter to just show a message without changing th
 popUp("Correct answer!", "nextTask");
 popUp("The hint is 1234."); // stays in current task
 ```
+<img src="docs/function-examples/popup.png" alt="PopUp function example" width="45%">
 
 ### Game Flow Control
 
@@ -326,6 +327,7 @@ board("Final Results",
       "Time", Math.floor((Date.now() - _timerStart) / 60000) + " min",
       "Difficulty", "Hard");
 ```
+<img src="docs/function-examples/board.png" alt="Board function example" width="45%">
 
 #### showAllImages(title)
 Display a gallery of all photos captured during the game.

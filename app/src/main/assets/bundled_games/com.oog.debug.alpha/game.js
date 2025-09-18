@@ -28,7 +28,7 @@ const start = {
 
         question("What number is written on the building?", (answer) => {
             if( answer === "42") {
-                popUp("Correct!");
+                popUp("Correct answer!");
             } else {
                 popUp("Wrong answer, try again.");
             }
