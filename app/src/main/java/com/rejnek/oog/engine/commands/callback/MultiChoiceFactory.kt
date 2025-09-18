@@ -62,7 +62,7 @@ class MultiChoice(
         Card(
             modifier = modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp, bottom = 16.dp),
+                .padding(vertical = 8.dp),
         ) {
             Text(
                 text = questionText,

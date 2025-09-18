@@ -1,0 +1,18 @@
+{
+  "id": "com.oog.debug.alpha",
+  "name": "OOG Debug Test",
+  "description": "Debug game showcasing all Open Outdoor Games API functions for testing purposes.",
+  "coverPhoto": "trophy.png",
+  "startLocation": {
+    "text": "Any location - debug testing game"
+  },
+  "finishLocation": {
+    "text": "Any location - debug testing game"
+  },
+  "attributes": {
+    "Expected duration": "5 minutes",
+    "Type": "Debug/Testing",
+    "Mental difficulty": "1/5",
+    "Physical difficulty": "1/5"
+  }
+}

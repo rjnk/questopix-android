@@ -86,6 +86,7 @@ class SimpleMap(
             modifier = Modifier
                 .offset(x = (-16).dp)
                 .requiredWidth(screenWidth + 32.dp)
+                .padding(vertical = 8.dp)
         ) {
             // Background image
             val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)

@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.layout.ContentScale
 import android.graphics.BitmapFactory
 import android.util.Log
+import androidx.compose.foundation.layout.padding
 import com.rejnek.oog.engine.commands.GenericDirectFactory
 import java.io.File
 
@@ -45,9 +46,9 @@ class MyImage(
                     bitmap = it.asImageBitmap(),
                     contentDescription = filename,
                     modifier = if (isPortrait) {
-                        Modifier.width(250.dp)
+                        Modifier.width(250.dp).padding(vertical = 8.dp)
                     } else {
-                        Modifier
+                        Modifier.padding(vertical = 8.dp)
                     },
                     contentScale = ContentScale.Fit
                 )

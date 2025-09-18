@@ -85,7 +85,7 @@ class Question(
             modifier = modifier
                 .fillMaxWidth()
                 .imePadding() // ensure card is pushed above the IME when keyboard is open
-                .padding(top = 16.dp, bottom = 16.dp),
+                .padding(vertical = 8.dp),
         ) {
             Text(
                 text = text,

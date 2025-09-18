@@ -38,6 +38,7 @@ class MyBoard(
     fun Show() {
         Card(
             modifier = Modifier
+                .padding(vertical = 8.dp)
                 .fillMaxWidth(),
             shape = RoundedCornerShape(8.dp),
         ) {

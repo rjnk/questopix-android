@@ -190,7 +190,7 @@ class ShareButton(
         Button(
             onClick = onClick,
             enabled = !isLoading,
-            modifier = modifier.fillMaxWidth(),
+            modifier = modifier.fillMaxWidth().padding(8.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = selectedColor,
                 contentColor = MaterialTheme.colorScheme.onPrimary

@@ -172,6 +172,7 @@ Display title text with optional alignment (`"left"`, `"center"`, `"right"`).
 heading("Welcome to the Game!", "center");
 heading("Task title"); // defaults to left alignment
 ```
+![docs/function-examples/heading.png]
 
 #### text(content)
 Display paragraph text.
@@ -181,6 +182,7 @@ Display paragraph text.
 text("This is an example of game instructions or story text.");
 text("You can include newline characters \n for formatting or put multiple text() calls below each other.");
 ```
+![docs/function-examples/text.png]
 
 #### image(filename)
 Display an image from the game assets.
@@ -190,6 +192,7 @@ Display an image from the game assets.
 image("trophy.png");
 image("./images/illustration.jpeg"); // relative path also works
 ```
+![docs/function-examples/image.png]
 
 #### takePicture(prompt)
 Prompt user to take a photo with their device camera.
@@ -201,6 +204,7 @@ The photo is saved to the game storage and can be viewed later with `showAllImag
 ```javascript
 takePicture("Take a photo of the monument!");
 ```
+![docs/function-examples/takePicture.png]
 
 ### User interaction
 
@@ -215,6 +219,7 @@ button("Skip", () => {
     popUp("Task skipped", "otherTask");
 });
 ```
+![docs/function-examples/button.png]
 
 #### question(prompt, callback)
 Display an open question prompt and handle user answer via callback.
@@ -230,6 +235,7 @@ question("What number is written on the building?", (answer) => {
     }
 });
 ```
+![docs/function-examples/question.png]
 
 #### multichoice(prompt, callback, ...options)
 Present multiple choice question with predefined options. The number of selected option is passed to the callback.
@@ -248,6 +254,7 @@ multichoice("Pick your difficulty:", (choice) => {
     showTask("gameStart");
 }, "Easy", "Medium", "Hard");
 ```
+![docs/function-examples/multiquestion.png]
 
 #### popUp(message, nextTask)
 Show a popup message and automatically continue to the next task. This function is meant to be used from callbacks after user action.
@@ -296,6 +303,7 @@ Display the distance from current location to specified coordinates.
 ```javascript
 distance(50.1094, 14.3933);
 ```
+![docs/function-examples/distance.png]
 
 #### simpleMap(image, topLeftLat, topLeftLng, bottomRightLat, bottomRighLng)
 Display a map overlay image with geographic bounds. The app will show user's current location on the map as a blue dot.
@@ -304,6 +312,7 @@ Display a map overlay image with geographic bounds. The app will show user's cur
 ```javascript
 simpleMap("park_map.png", 50.11, 14.39, 50.10, 14.40);
 ```
+![docs/function-examples/simpleMap.png]
 
 ### Finish Game
 
@@ -325,6 +334,7 @@ Display a gallery of all photos captured during the game.
 ```javascript
 showAllImages("Memories from the Game");
 ```
+![docs/function-examples/showAllImages.png]
 
 #### shareButton()
 Add a social sharing button that shares the current screen. Most useful on the final results screen.
@@ -334,6 +344,7 @@ Add a social sharing button that shares the current screen. Most useful on the f
 shareButton();
 // Allows users to share their progress or results
 ```
+![docs/function-examples/shareButton.png]
 
 #### finishGameButton(label)
 Create a button that returns to the library and marks the game as finished.
@@ -342,6 +353,7 @@ Create a button that returns to the library and marks the game as finished.
 ```javascript
 finishGameButton("Return to Library");
 ```
+![docs/function-examples/finishGameButton.png]
 
 ### Debug Functions
 
