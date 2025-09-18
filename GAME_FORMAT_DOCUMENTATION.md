@@ -309,9 +309,12 @@ distance(50.1094, 14.3933);
 #### simpleMap(image, topLeftLat, topLeftLng, bottomRightLat, bottomRighLng)
 Display a map overlay image with geographic bounds. The app will show user's current location on the map as a blue dot.
 
+- The image needs to be part of the game assets, the same way as images used in `image()` function.
+- The coordinates are for the top-left and bottom-right corners of the image.
+
 **Example:**
 ```javascript
-simpleMap("park_map.png", 50.11, 14.39, 50.10, 14.40);
+simpleMap("map.png", 51.6620556, 13.2027478, 48.2060719, 16.3777964);
 ```
 <img src="docs/function-examples/simpleMap.png" alt="Simple map function example" width="45%">
 
