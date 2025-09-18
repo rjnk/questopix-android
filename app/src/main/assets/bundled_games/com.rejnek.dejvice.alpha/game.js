@@ -97,11 +97,11 @@ const zelena = {
 const internacional = {
     onStart: () => {
         heading("Cesta k hotelu");
-        text("Teď je potřeba dojít k hotelu Internacional. Měl bý být vidět, protože je vysoký. Pro jistotu dávám nápovědu.");
+        text("Teď je potřeba dojít k hotelu Internacional. Je vysoký a tak by měl být vidět. Pro jistotu dávám nápovědu 😇.");
         image("hotel.png");
-        text("Jinak samozřejmě až tam dojdeš, tak se objeví nový úkol...");
+        text("Jinak samozřejmě až tam dorazíš, tak se automaticky objeví nový úkol...");
         distance(50.1094158, 14.3933839);
-        text("PS: můžeš se vzdát jestli na to nemáš");
+        text("PS: tvoje skóre je " + _score + ".");
         enable("uhotelu");
     }
 }
@@ -118,7 +118,7 @@ const uhotelu = {
     onStart: () => {
         heading("Cesta za dobrotou 😋");
         takePicture("Vyfoť se s hotelem.");
-        text("Dostáváš dalších 5 bodů za nevzdání. Teď je potřeba se vyfotit s hotelem a pak se můžeš vydat za dalším úkolem, který je u kauflandu. Naviguj se podle mapy.");
+        text("Dostáváš dalších 5 bodů za nevzdání. Teď je potřeba se vyfotit s hotelem a pak se můžeš vydat za dalším úkolem, který je u Kauflandu. Naviguj se podle mapy 😉.");
         // '{"backgroundImage":"map2.png","topLeftLat":50.114903,"topLeftLng":14.390008,"bottomRightLat":50.108091,"bottomRightLng":14.397186}'
         simpleMap("map2.png", 50.114903, 14.390008, 50.108091, 14.397186);
         enable("kauflandQuestion");

@@ -15,9 +15,11 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalConfiguration
 import android.graphics.BitmapFactory
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.R
+import com.rejnek.oog.data.repository.GameRepository
 import com.rejnek.oog.engine.commands.GenericDirectFactory
 import kotlinx.serialization.Serializable
 import java.io.File
@@ -51,7 +53,7 @@ class SimpleMapFactory : GenericDirectFactory() {
 class SimpleMap(
     private val gameId: String,
     private val mapData: SimpleMapData,
-    private val gameRepository: com.rejnek.oog.data.repository.GameRepository?
+    private val gameRepository: GameRepository?
 ) {
     @Composable
     fun Show() {
@@ -82,8 +84,8 @@ class SimpleMap(
 
         Box(
             modifier = Modifier
-                .offset(x = (-16).dp) // Shift left to counteract parent padding
-                .width(screenWidth) // Use full screen width
+                .offset(x = (-16).dp)
+                .requiredWidth(screenWidth + 32.dp)
         ) {
             // Background image
             val bitmap = BitmapFactory.decodeFile(imageFile.absolutePath)
