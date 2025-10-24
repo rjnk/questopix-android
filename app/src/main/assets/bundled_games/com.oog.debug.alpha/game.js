@@ -52,23 +52,24 @@ const start = {
 
         simpleMap("map.png", 51.6620556, 13.2027478, 48.2060719, 16.3777964);
 
+/*
         // Start Timer t
         startTimer(20, () => {
             popUp("Time's up!");
         }, "timer1");
 
-        /*
         I need to implement 1 new game command - timer.
         It should start a countdown timer for a specified number of seconds and call a callback function when the time is up.
         There is an example in the game.js file of the debug game.
         The timer doesn't have a UI, it just runs in the background via javascript's setTimeout function.
         The implementation should be done in engine/commands/direct/simple, since it is a direct command that doesn't require any user interaction. Take inspiration from other simple commands
-        */
+
 
         timerCard("Time left: ", "timer1");
 
         // Timer UI
         timerCard("Time left: ", timer1);
+*/
 
         // Utility Functions
         board("Final Results",

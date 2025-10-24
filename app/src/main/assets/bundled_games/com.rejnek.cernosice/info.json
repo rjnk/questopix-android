@@ -1,0 +1,27 @@
+{
+  "id": "com.rejnek.cernosice",
+  "name": "Malá Černošická",
+  "description": "Debug game showcasing all Open Outdoor Games API functions for testing purposes.",
+  "coverPhoto": "trophy.png",
+  "startLocation": {
+    "text": "Městký úřad Černošice",
+    "coordinates": {
+      "lat": 49.9586522,
+      "lng": 14.3204883,
+      "radius": 50.0
+    }
+  },
+  "finishLocation": {
+    "text": "Rozcestník U památného dubu",
+    "coordinates": {
+      "lat": 49.9533172,
+      "lng": 14.2957539,
+      "radius": 50.0
+    }
+  },
+  "attributes": {
+    "Očekávaná délka": "1h 15min",
+    "Typ": "Hra v Přírodě",
+    "Náročnost": "2/5"
+  }
+}
