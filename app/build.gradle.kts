@@ -63,7 +63,6 @@ dependencies {
     // JavaScript engine
     implementation(libs.androidx.javascriptengine)
     implementation(libs.play.services.location)
-    implementation(libs.maplibre.android.sdk)
     implementation(libs.androidx.ui.text.google.fonts)
     implementation(libs.androidx.exifinterface)
 

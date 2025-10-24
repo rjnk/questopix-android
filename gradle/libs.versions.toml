@@ -11,7 +11,6 @@ composeBom = "2025.06.00"
 kotlinSerialization = "1.8.0"
 navigationCompose = "2.9.0"
 koin = "4.0.3"
-rhino = "1.7.14"
 androidxJavascriptEngine = "1.0.0-rc01"
 playServicesLocation = "21.3.0"
 uiTextGoogleFonts = "1.8.3"
@@ -41,10 +40,8 @@ koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koin"
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koin" }
 koin-androidx-compose = { group = "io.insert-koin", name = "koin-androidx-compose", version.ref = "koin" }
 # JavaScript engine
-rhino = { group = "org.mozilla", name = "rhino", version.ref = "rhino" }
 androidx-javascriptengine = { group = "androidx.javascriptengine", name = "javascriptengine", version.ref = "androidxJavascriptEngine" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
-maplibre-android-sdk = { group = "org.maplibre.gl", name = "android-sdk", version = "11.8.5" }
 androidx-ui-text-google-fonts = { group = "androidx.compose.ui", name = "ui-text-google-fonts", version.ref = "uiTextGoogleFonts" }
 androidx-exifinterface = { group = "androidx.exifinterface", name = "exifinterface", version.ref = "exifinterface" }
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
