@@ -8,14 +8,12 @@ const start = {
     },
     onStart: () => {
         heading("Vítej v Malé Černošické hře!", "center");
-        text("Hra obsahuje různé úkoly, za jejichž splnění získáváš body.");
-        text("Kromě důvtipu bude někdy potřeby i odvaha, šikovnost a spolupráce.");
+        text("Hra obsahuje různé úkoly, za jejichž splnění získáváš body.\n");
+        text("Kromě důvtipu bude někdy potřeba i odvaha, šikovnost a spolupráce.");
 
         button("Začít hru", () => {
             showTask("task1");
         });
-
-        text("PS: Tvoje skóre je zatím: " + _score + " bodů.");
     }
 }
 
@@ -23,7 +21,7 @@ const task1 = {
     onStart: () => {
         heading("Úkol 1: Černošická trivia");
         multichoice("Jaký je původ názvu Černošice?", (choice) => {
-            if (choice === 0) {
+            if (choice === "0") {
                 popUp("Správně! Přidávám 10 bodů.", "task2");
                 _score += 10;
             } else {
@@ -36,27 +34,27 @@ const task1 = {
 const task2 = {
     onStart: () => {
         heading("Další otázka:");
-        question("Kolik obyatel mají Černošice? Čím blíže budeš, tím více bodů dostaneš - maximálně 25 bodů.", (answer) => {
+        question("Kolik obyvatel mají Černošice? Čím blíže budeš, tím více bodů dostaneš.", (answer) => {
             if(isNaN(answer)) {
-                popUp("To není číslo! Ale že jsi to ty můžeš znova.");
+                popUp("To není číslo! Zkus to prosím znovu.");
                 return;
             }
             let population = 7712;
             let diff = Math.abs(population - parseInt(answer));
             if(diff < 500) {
-                popUp("Výborně! Počet je 7 712 a tak přidávám 25 bodů.", "task3");
+                popUp("Výborně! Počet je 7712 a tak přidávám 25 bodů.", "task3");
                 _score += 25;
             } else if(diff < 1000) {
-                popUp("Dobře! Počet je 7 712 a tak přidávám 20 bodů.", "task3");
+                popUp("Dobře! Počet je 7712 a tak přidávám 20 bodů.", "task3");
                 _score += 20;
             } else if(diff < 2000) {
-                popUp("Ujde to! Počet je 7 712 a tak přidávám 10 bodů.", "task3");
+                popUp("Ujde to! Počet je 7712 a tak přidávám 10 bodů.", "task3");
                 _score += 10;
             } else if (diff < 4000) {
-                popUp("Nic moc. Počet je 7 712 a přidávám 5 bodů za snahu.", "task3");
+                popUp("Nic moc. Počet je 7712 a přidávám 5 bodů za snahu.", "task3");
                 _score += 5;
             } else {
-                popUp("Bohužel špatně. Počet je 7 712 a ty získáváš 0 bodů.", "task3");
+                popUp("Bohužel špatně. Počet je 7712 a ty získáváš 0 bodů.", "task3");
             }
         });
         text("PS: Tvoje skóre je zatím: " + _score + " bodů.");
@@ -69,7 +67,7 @@ const task3 = {
         text("Opět můžeš získat body podle přesnosti své odpovědi. Maximum je 25 bodů.");
         question("Kdy byla první písemná zmínka o (Horních) Černošicích? (uveď rok)", (answer) => {
             if(isNaN(answer)) {
-                popUp("To není číslo! Ale že jsi to ty můžeš znova.");
+                popUp("To není číslo! Zkus to prosím znovu.");
                 return;
             }
             const explanation = "Horní Černošice jsou poprvé zmíněny v listině Kladrubského kláštera z roku 1115.";
@@ -79,7 +77,7 @@ const task3 = {
                 popUp("Výborně! " + explanation + " Přidávám 25 bodů.", "task4");
                 _score += 25;
             } else if (diff < 150) {
-                popUp("Dobře " + explanation + " Získáváš 15 bodů.", "task4");
+                popUp("Dobře! " + explanation + " Získáváš 15 bodů.", "task4");
                 _score += 15;
             } else if (diff < 250) {
                 popUp(explanation + " Přidávám 5 bodů za snahu.", "task4");
@@ -95,7 +93,7 @@ const task3 = {
 const task4 = {
     onStart: () => {
         heading("Jde se do akce!");
-        text("Kvízů už je dost a teď je potřeba se začít hýbat. Pokračuj po Karlštejnské ulici dál směrem od řeky.");
+        text("Kvízů už je dost a teď je potřeba se začít hýbat. Pokračuj po Karlštejnské ulici dál směrem od řeky.\n");
         text("Jakmile dorazíš ke křížení s ulicí V Dolících zobrazí se ti další instrukce.");
         distance(49.9576319, 14.3160736);
         text("PS: Tvoje skóre je zatím: " + _score + " bodů.");
@@ -115,7 +113,7 @@ const task5 = {
         simpleMap("map-rozhodnuti.png", 49.9595664, 14.3081878, 49.9539097, 14.3178492);
         button("Pokračovat po hlavní ulici", () => {
             _score -= 10;
-            popUp("Za zbabělots -10 bodů.", "task6ulice");
+            popUp("Za zbabělost -10 bodů.", "task6ulice");
         });
         button("Jít delší cestou přes les", () => {
             _score += 10;
@@ -136,7 +134,7 @@ const task6ulice = {
 const task6les = {
     onStart: () => {
         text("Výborně! Dobrodružství čeká. Pokračuj podle mapy než dorazíš k dalšímu úkolu.");
-        distance(49.9563911, 14.3100736);
+        simpleMap("map-les.png", 49.9595664, 14.3081878, 49.9539097, 14.3178492);
         text("PS: Tvoje skóre je zatím: " + _score + " bodů.");
     }
 }
@@ -192,7 +190,7 @@ const task9hrbitov = {
 const task10cestaKeStolu = {
     onStart: () => {
         heading("Blížíme se ke konci");
-        text("Nyní pokračuj znovu podle ukazetele vzdálenosti, zpátky do lesa. Čeká tam na tebe poslední úkol.");
+        text("Nyní pokračuj znovu podle ukazatele vzdálenosti, zpátky do lesa. Čeká tam na tebe poslední úkol.");
         distance(49.9535658, 14.2954517);
         text("PS: Tvoje skóre je zatím: " + _score + " bodů.");
     }
@@ -206,7 +204,7 @@ const task11stul = {
     ],
     onStart: () => {
         heading("Poslední úkol");
-        text("Na rozcestí je kamenný stůl. Tvým úkolem je na něj vylézt BEZ použití roukou a vyfotit vítěznou selfie.");
+        text("Na rozcestí je kamenný stůl. Tvým úkolem je na něj vylézt BEZ použití rukou a vyfotit vítěznou selfie.");
         takePicture("Vítězná selfie");
 
         button("Mám to!", () => {
@@ -214,7 +212,7 @@ const task11stul = {
             popUp("Výborně! Získáváš 10 bodů za splnění úkolu.", "end");
         });
 
-        button("Použij sem ruce...", () => {
+        button("Použiji ruce...", () => {
             popUp("Škoda, ale nevadí, nejsou za to záporné body.", "end");
         });
 
@@ -240,4 +238,3 @@ const end = {
         finishGameButton("Konec");
     }
 }
-

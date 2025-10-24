@@ -1,8 +1,8 @@
 {
   "id": "com.rejnek.cernosice",
   "name": "Malá Černošická",
-  "description": "Debug game showcasing all Open Outdoor Games API functions for testing purposes.",
-  "coverPhoto": "trophy.png",
+  "description": "Hra vás provede po kraji Černošic. Vyzkoušíte si nejen kvízy, ale i různé úkoly v přírodě.",
+  "coverPhoto": "urad.jpeg",
   "startLocation": {
     "text": "Městký úřad Černošice",
     "coordinates": {
