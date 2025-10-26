@@ -277,6 +277,8 @@ Open another task by its name. The current task is closed and the onStart of the
 showTask("nextChallenge");
 ```
 
+**Note:** After showing a next task, the current one gets **automatically disabled** (see disable() function below).
+
 #### enable(taskName)
 Enable a location-based task (makes it active for location detection). This has no effect for showing the task by `showTask` command.
 
@@ -294,6 +296,8 @@ Disable a location-based task (prevents further location detection). This has no
 ```javascript
 disable("completedTask");
 ```
+
+**Note:** After completing a task, it gets **automatically disabled** to prevent re-triggering on location revisit.
 
 ### Navigation UI elements
 

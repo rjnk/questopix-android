@@ -183,6 +183,7 @@ class JsGameEngine(
                 
                 // Additional custom functions
                 function showTask(newTask) {
+                    disable(_currentTask);
                     _currentTask = newTask;
                     refresh();
                     save();
