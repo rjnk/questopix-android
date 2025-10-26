@@ -47,7 +47,7 @@ class LocationService(private val context: Context) {
             Priority.PRIORITY_HIGH_ACCURACY,
             1500 // interval in milliseconds
         ).apply {
-            setMinUpdateDistanceMeters(25f) // smallest displacement
+            setMinUpdateDistanceMeters(1f) // smallest displacement
             setWaitForAccurateLocation(true)
         }.build()
 
