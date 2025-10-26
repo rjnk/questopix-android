@@ -169,7 +169,7 @@ const task7most = {
 const task8cestaNaHrbitov = {
     onStart: () => {
         heading("Cesta na hřbitov");
-        text("Nyní pokračuj podle ukazatele vzdálenosti na hřbitov na Vráži.\neká tě tam další dobrodružství 💀.");
+        text("Nyní pokračuj podle ukazatele vzdálenosti na hřbitov na Vráži.\nČeká tě tam další dobrodružství 💀.");
         distance(49.9538839, 14.3028222);
         text("PS: Tvoje skóre je zatím: " + _score + " bodů.");
     }
