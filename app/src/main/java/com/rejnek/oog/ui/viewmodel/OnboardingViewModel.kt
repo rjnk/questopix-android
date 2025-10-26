@@ -7,22 +7,25 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class LoadBundledViewModel(
+class OnboardingViewModel(
     private val repository: GameRepository,
 ) : ViewModel() {
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading = _isLoading.asStateFlow()
+    private val _showOnboarding = MutableStateFlow(false)
+    val showOnboarding = _showOnboarding.asStateFlow()
 
     init {
-        if(repository.storageRepository.isSetupComplete()) {
-            _isLoading.value = false
-        }
-        else {
+        if (repository.storageRepository.isSetupComplete()) {
+            _showOnboarding.value = false
+        } else {
+            _showOnboarding.value = true
             viewModelScope.launch {
                 repository.preloadGames()
                 repository.storageRepository.setSetupComplete()
-                _isLoading.value = false
             }
         }
+    }
+
+    fun onOnboardingComplete() {
+        _showOnboarding.value = false
     }
 }

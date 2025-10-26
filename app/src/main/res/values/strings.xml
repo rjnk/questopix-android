@@ -120,4 +120,15 @@
 
     <!-- Error toasts -->
     <string name="language_settings_unavailable">Language settings not available on this device</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Welcome to Questopix</string>
+    <string name="onboarding_welcome_description">Experience interactive outdoor games that combine real-world exploration with digital storytelling.</string>
+    <string name="onboarding_location_title">Location-Based Adventures</string>
+    <string name="onboarding_location_description">Use your device\'s GPS to unlock tasks and challenges as you move through the real world.</string>
+    <string name="onboarding_journey_title">Start Your Journey</string>
+    <string name="onboarding_journey_description">Start playing by importing a new game file to the library.</string>
+    <string name="onboarding_skip">Skip</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
 </resources>

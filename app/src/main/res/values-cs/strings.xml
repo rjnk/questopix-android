@@ -103,4 +103,15 @@
     <string name="nav_library">Knihovna</string>
     <string name="change_app_language">Změnit jazyk aplikace</string>
     <string name="language_settings_unavailable">Nastavení jazyka není na tomto zařízení k dispozici</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_title">Vítejte v Questopix</string>
+    <string name="onboarding_welcome_description">Zažijte interaktivní venkovní hry kombinující digitální a reálný svět.</string>
+    <string name="onboarding_location_title">Dobrodružství pomocí GPS</string>
+    <string name="onboarding_location_description">Využijte GPS během hry pro odemykání úkolů.</string>
+    <string name="onboarding_journey_title">Jde se na to</string>
+    <string name="onboarding_journey_description">Začněte hrát po importu herního souboru do knihovny.</string>
+    <string name="onboarding_skip">Přeskočit</string>
+    <string name="onboarding_next">Další</string>
+    <string name="onboarding_get_started">Začít</string>
 </resources>
