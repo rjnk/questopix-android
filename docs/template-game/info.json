@@ -1,0 +1,14 @@
+{
+  "id": "com.your.name.gamename",
+  "name": "Název vaší hry",
+  "description": "Popis vaší hry.",
+  "coverPhoto": "trophy.png",
+  "startLocation": {
+    "text": "Kdekoli"
+  },
+  "attributes": {
+    "Očekávaná délka": "x minut",
+    "Mentální náročnost": "x/5",
+    "Fyzická náročnost": "x/5"
+  }
+}
