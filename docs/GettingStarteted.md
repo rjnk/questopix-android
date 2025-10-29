@@ -22,7 +22,7 @@ You can create your own game by following this step-by-step guide. As for now, t
 ## Creating the game
 
 ### Step 1: Download the template
-The best starting point for creating your own game is to download the game template from the [Questopix GitHub repository](TBD). After downloading, unzip the file to a folder on your computer. It will contain the `info.json`, `game.js`, and some images.
+The best starting point for creating your own game is to download the game template from the [Questopix GitHub repository](https://gitlab.fel.cvut.cz/rejneluk/questopix-releases/-/raw/master/template-game.zip?ref_type=heads). After downloading, unzip the file to a folder on your computer. It will contain the `info.json`, `game.js`, and some images.
 
 ## Step 2: Edit game informations in the info.json
 Read the `GameFormatSpecification.md## Info.json (Game Metadata)` file to understand the file structure. After that, open the `info.json` file in your text editor and modify the fields inside to your liking.
@@ -32,7 +32,7 @@ Creating your own game tasks is more tricky that editing the info.json file. Fir
 
 It's practical to start with a game that is **not tied** to a specific locations, so you can test it indoors. You can later add location-based tasks once you are familiar with the platform.
 
-If you are unsure, you can look at the example games in the [Questopix GitHub repository](TBD) to see how they are implemented or ask the Generative AI for help (while providing the game specification file as a reference).
+If you are unsure, you can look at the example games in the [Questopix GitHub repository](https://gitlab.fel.cvut.cz/rejneluk/oog/-/tree/master/app/src/main/assets/bundled_games?ref_type=heads) to see how they are implemented or ask the Generative AI for help (while providing the game specification file as a reference).
 
 ### Step 4: Validate your game files using Generative AI
 Currently, the Questopix platform doesn't have a built-in game validator. However, you can use Generative AI tools to help validate your game files. Simply provide the AI with the `GameFormatSpecification.md` file and your modified `info.json` and `game.js` files, and ask it to check for any errors or inconsistencies.
@@ -41,12 +41,12 @@ Currently, the Questopix platform doesn't have a built-in game validator. Howeve
 Once you have finished editing the `info.json` and `game.js` files, you need to package them into a ZIP file. Make sure to include all necessary images used in the game. The ZIP file should contain:
 - `info.json`
 - `game.js`
-- Any images used in the game
+- Any images used in the gameTBD
 
 ### Step 6: Installing the Questopix app
 The Questopix app is avaliable for Android 10+ only, without iOS support. The app needs to be installed from apk file as it's not yet avaliable in Google Play Store.
 
-1. Download the latest Questopix apk file from the [releases section of the GitHub repository](TBD).
+1. Download the latest Questopix apk file from the [releases section of the GitHub repository](https://gitlab.fel.cvut.cz/rejneluk/oog/-/releases).
 2. Install the apk file on your Android device, following the standard installation procedure for apk files (guide: https://www.browserstack.com/guide/download-and-install-apk-on-android)
 
 ### Step 6: Import and test the game in Questopix app
