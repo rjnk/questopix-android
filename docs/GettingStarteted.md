@@ -49,5 +49,5 @@ The Questopix app is avaliable for Android 10+ only, no iOS support. The app nee
 1. Download the latest Questopix apk file from the [releases section of the GitHub repository](https://gitlab.fel.cvut.cz/rejneluk/oog/-/releases).
 2. Install the apk file on your Android device, following the standard installation procedure for apk files (guide: [https://www.browserstack.com/guide/download-and-install-apk-on-android](https://www.browserstack.com/guide/download-and-install-apk-on-android))
 
-### Step 6: Import and test the game in Questopix app
+### Step 7: Import and test the game in Questopix app
 Now that you have your game packaged as a ZIP file, you can import it into the Questopix app. Open the app, navigate to the Library screen, and use the import function to add your game. Once imported, you can start playing your game to test it out and ensure everything works as expected.
