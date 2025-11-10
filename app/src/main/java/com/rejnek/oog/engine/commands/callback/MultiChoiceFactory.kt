@@ -16,16 +16,27 @@ import kotlinx.coroutines.flow.asStateFlow
 
 /**
  * Usage:
- * multichoice("Kolik pater má Kauland", (answerNumber) => {
- *     if(answerNumber === 2) {
- *         debugPrint("ok");
+ * multichoice("How many floors does the Kaufland have?", (answerNumber) => {
+ *     if(answerNumber === 1) { // second choice, we use 0-based indexing. Kaufland has 2 floors.
+ *         debugPrint("Correct!");
  *         _score += 15;
  *     }
- *     finishGameButton("Konec");
- * }, "Jedno", "Dvě", "Tři");
+ *     finishGameButton("Finish");
+ * }, "One", "Two", "Three");
  */
 class MultiChoiceFactory : GenericCallbackFactory() {
     override val id: String = "multichoice"
+
+    override val js: String = """
+        function multichoice(question, callback, ...choices) {
+            const callbackId = Android.registerCallback("multichoice", [question, ...choices.map(arg => String(arg))]);
+
+            window.callbackResolvers[callbackId] = (result) => {
+                callback(parseInt(result, 10));
+                return "";
+            };
+        }
+    """.trimIndent()
 
     override suspend fun createWithArgs(args: List<String>, callbackId: String) {
         if (args.isEmpty()) return
