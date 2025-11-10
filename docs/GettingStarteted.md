@@ -19,6 +19,15 @@ You can create your own game by following this step-by-step guide. As for now, t
 
 ---
 
+**Using Generative AI (ChatGPT)**
+
+Generative AI tools are really helpful for creating and validating games! Just upload the full specification: [GameFormatSpecification.md](https://gitlab.fel.cvut.cz/rejneluk/oog/-/blob/master/docs/GameFormatSpecification.md) and describe your game.
+The AI will then generate you the `info.json` and `game.js` files.
+
+You can use any AI tools - ChatGPT, Copilot, Gemini, etc.
+
+---
+
 ## Creating the game
 
 ### Step 1: Download the template
