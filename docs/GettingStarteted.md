@@ -25,10 +25,10 @@ You can create your own game by following this step-by-step guide. As for now, t
 The best starting point for creating your own game is to download the game template from the [Questopix GitHub repository](https://gitlab.fel.cvut.cz/rejneluk/questopix-releases/-/raw/master/template-game.zip?ref_type=heads). After downloading, unzip the file to a folder on your computer. It will contain the `info.json`, `game.js`, and some images.
 
 ## Step 2: Edit game informations in the info.json
-Read the `GameFormatSpecification.md## Info.json (Game Metadata)` file to understand the file structure. After that, open the `info.json` file in your text editor and modify the fields inside to your liking.
+Read the [GameFormatSpecification.md, Info.json section](https://gitlab.fel.cvut.cz/rejneluk/oog/-/blob/master/docs/GameFormatSpecification.md#infojson-game-metadata) to understand the file structure. After that, open the `info.json` file in your text editor and modify the fields inside to your liking.
 
 ### Step 3: Create a game tasks in the game.js
-Creating your own game tasks is more tricky that editing the info.json file. First read the [GameFormatSpecification.md](https://gitlab.fel.cvut.cz/rejneluk/oog/-/blob/master/docs/GameFormatSpecification.md) to understand how to use the individual actions. After you are ready, open the `game.js` file in your text editor and edit it to your liking. It contains some basic structure of a game with few example tasks that you can modify or delete.
+Creating your own game tasks is more tricky that editing the info.json file. First read the [GameFormatSpecification.md, Game.js section](https://gitlab.fel.cvut.cz/rejneluk/oog/-/blob/master/docs/GameFormatSpecification.md#gamejs-game-logic) to understand how to use the individual actions. After you are ready, open the `game.js` file in your text editor and edit it to your liking. It contains some basic structure of a game with few example tasks that you can modify or delete.
 
 It's practical to start with a game that is **not tied** to a specific locations, so you can test it indoors. You can later add location-based tasks once you are familiar with the platform.
 
