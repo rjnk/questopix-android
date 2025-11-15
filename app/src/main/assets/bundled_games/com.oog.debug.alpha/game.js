@@ -48,7 +48,7 @@ const start = {
         takePicture("Take a photo of the monument!");
 
         // Navigation UI
-        distance(50.1094, 14.3933);
+        distance(50.0, 14.0);
 
         simpleMap("map.png", 51.6620556, 13.2027478, 48.2060719, 16.3777964);
 

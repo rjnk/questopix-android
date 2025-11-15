@@ -309,6 +309,7 @@ Display the distance from current location to specified coordinates.
 distance(50.1094, 14.3933);
 ```
 <img src="function-examples/distance.png" alt="Distance function example" width="45%">
+<img src="function-examples/distance-2.png" alt="Distance function example 2" width="45%">
 
 #### simpleMap(image, topLeftLat, topLeftLng, bottomRightLat, bottomRighLng)
 Display a map overlay image with geographic bounds. The app will show user's current location on the map as a blue dot.
