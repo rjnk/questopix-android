@@ -23,7 +23,7 @@ const task1 = {
     onStart: () => {
         heading("Úkol 1: Černošická trivia");
         multichoice("Jaký je původ názvu Černošice?", (choice) => {
-            if (choice === "0") {
+            if (choice === 0) {
                 popUp("Správně! Přidávám 10 bodů.", "task2");
                 _score += 10;
             } else {

@@ -7,25 +7,29 @@ Outdoor game consist of a set of tasks such as answering a question, taking a ph
 - shows only on the first app start
 - explains the app purpose and basic usage
 
-**Home screen**:
+**Home screen**:  
 This screen is accessible from the bottom menu as the first tab.
 - the main screen of the app, the buttons forward the user to the library
-**Library screen**:
+
+**Library screen**:  
 This screen is accessible from the bottom menu as a second tab.
 - shows the list of games that are available to play
 - shows a list of games that have been played
 - lets you delete downloaded games
 - lets you import a new game from a zip file (with a confirmation if the game is already present)
-**Game info screen**:
+
+**Game info screen**:  
 This screen opens when the users clicks on a game in the library or after a game is imported.
 - shows the game info from the info.json file (name, description, start & finish location, cover photo, game stats - such as expected duration, distance, number of tasks)
 - checks if you are close enough to the starting location
 - lets you start the game
-**Game task screen**:
+
+**Game task screen**:  
 This is the screen where the actual game is played. The ui is generated from the game javascript code. It can contain text, images, buttons, questions, photo tasks, location tasks, maps, score board etc.
 The last task in a game is generally showing the final score and a button to go to the library. But it's still a task so any content can be shown there.
 - some tasks shows only when you are at a given location
-**Settings screen**:
+
+**Settings screen**:  
 - lets you pause or quit the current game
 - lets you change the app language via Android app language (currently English and Czech are supported)
 - shows info about the project
