@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.engine
 
 import android.annotation.SuppressLint
