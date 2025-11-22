@@ -1,47 +1,44 @@
-# Open Outdoor Games
-This is a mobile app that lets you play GPS based outdoor games (like a treasure hunt or a scavenger hunt).
-Outdoor game consist of a set of tasks such as answering a question, taking a photo or visiting a location.
+# Questopix
 
-## App screens
-**Onboarding slides**
-- shows only on the first app start
-- explains the app purpose and basic usage
+An Android app for playing GPS-based outdoor games like treasure hunts and scavenger hunts. Create your own games in JavaScript, package them as ZIP files, and play them anywhere.
 
-**Home screen**:  
-This screen is accessible from the bottom menu as the first tab.
-- the main screen of the app, the buttons forward the user to the library
+![Screenshot 1](docs/images/screenshot1.png)
+![Screenshot 2](docs/images/screenshot2.png)
 
-**Library screen**:  
-This screen is accessible from the bottom menu as a second tab.
-- shows the list of games that are available to play
-- shows a list of games that have been played
-- lets you delete downloaded games
-- lets you import a new game from a zip file (with a confirmation if the game is already present)
+## Features
 
-**Game info screen**:  
-This screen opens when the users clicks on a game in the library or after a game is imported.
-- shows the game info from the info.json file (name, description, start & finish location, cover photo, game stats - such as expected duration, distance, number of tasks)
-- checks if you are close enough to the starting location
-- lets you start the game
+- Play outdoor GPS-based games with tasks like answering questions, taking photos, or visiting locations
+- Import custom games from ZIP files
+- Save and resume game progress
+- Works offline once games are downloaded
 
-**Game task screen**:  
-This is the screen where the actual game is played. The ui is generated from the game javascript code. It can contain text, images, buttons, questions, photo tasks, location tasks, maps, score board etc.
-The last task in a game is generally showing the final score and a button to go to the library. But it's still a task so any content can be shown there.
-- some tasks shows only when you are at a given location
+## Creating Your Own Game
 
-**Settings screen**:  
-- lets you pause or quit the current game
-- lets you change the app language via Android app language (currently English and Czech are supported)
-- shows info about the project
+Want to create your own outdoor adventure? Check out the documentation:
 
-The actual game is written in JavaScript and you simply import the game as part of a game zip file into the app. The zip file contains also the game info (info.json) and any images used in the game.
-The app then runs the javascript code and lets you interact with the in game events.
+- [Getting Started Guide](docs/GettingStarted.md) - Step-by-step tutorial for creating your first game
+- [Game Format Specification](docs/GameFormatSpecification.md) - Complete API reference, licensed under [MIT](docs/LICENSE-MIT.md)
 
-## Game zip file
-A game zip file contains all information about the game. It gets imported to the library and then shows as an item in the listing.
-It contains:
-- info.json - the game info file
-- game.js - the actual game code
-- images - images used in the game (such as cover-photo.jpg, trophy.png, etc.)
+## Installation
 
-The specification of the game format is avaliable in the /docs/GameFormatSpecification.md file.
+Download the latest APK from the [Releases](https://github.com/rjnk/questopix-android/releases) page. Android 10+ required.
+
+## Building from Source
+
+```bash
+# Build debug APK
+./gradlew assembleDebug
+
+# Install to connected device
+./gradlew installDebug
+```
+
+## Contributing
+
+Pull requests are welcome! Whether it's bug fixes, new features, documentation improvements, or new game examples - all contributions are appreciated.
+
+## License
+
+The Questopix Android application is licensed under the [GPL-3.0](LICENSE).
+
+The game format, as specified in the [Game Format Specification](docs/GameFormatSpecification.md), is licensed under the [MIT License](docs/LICENSE-MIT.md).
