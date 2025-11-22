@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.data.repository
 
 import android.Manifest
@@ -22,6 +25,7 @@ import kotlin.math.sqrt
 
 /**
  * Repository responsible for location-based game operations
+ * @param context Application context for resource access
  */
 class LocationRepository(
     private val context: Context

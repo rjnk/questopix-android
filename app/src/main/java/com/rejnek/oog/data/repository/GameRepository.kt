@@ -17,14 +17,18 @@ import kotlinx.coroutines.withContext
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * Refactored GameRepository that delegates to specialized repositories
- * Maintains the same public API for backward compatibility
+ * Repository managing game state, initialization, and interactions
+ * Delegates commands to specialized repositories (storage, location, UI, commands)
+ *
+ * @param context Application context for resource access
  */
 class GameRepository(
     private val context: Context
 ) {
-    // Specialized repositories
+    // JS Game Engine instance
     private val jsEngine = JsGameEngine(context)
+
+    // Specialized repositories
     val storageRepository = StorageRepository(context)
     val locationRepository = LocationRepository(context)
     val gameUIRepository = GameUIRepository()
@@ -34,27 +38,46 @@ class GameRepository(
     private val _currentGamePackage = MutableStateFlow<GamePackage?>(null)
     val currentGamePackage = _currentGamePackage.asStateFlow()
 
-    // Mutex
+    // Mutex for setting current task
     private val canSetElement = AtomicBoolean(true)
 
-    // Initialize method for JS engine setup
+    /**
+     * Initializes the JS game engine.
+     * Must be called before starting any game.
+     * @return Result indicating success or failure
+     */
     suspend fun initialize(): Result<Unit> {
         val res = jsEngine.initialize(this@GameRepository).map { }
         Log.d("GameRepository", "JS engine initialized successfully")
         return res
     }
 
-    // Game Initialization
+    /**
+     * Initializes and starts a new game from the library by game ID.
+     * @param gameId ID of the game to start
+     * @throws GameRepositoryException if the game is not found in the library
+     * @return Unit
+     */
     suspend fun initializeGameFromLibrary(gameId: String) = withContext(Dispatchers.IO) {
         val game = storageRepository.getGameById(gameId)
         startGame(game ?: throw GameRepositoryException("Game with ID $gameId not found in library"))
     }
 
+    /**
+     * Loads the saved in-progress game from storage and starts it.
+     * As the game can be only one at a time, we don't pass gameId
+     * @throws GameRepositoryException if no saved game is found
+     * @return Unit
+     */
     suspend fun loadSavedGame() = withContext(Dispatchers.IO) {
         val savedGamePackage = storageRepository.getSavedGamePackage()
         startGame(savedGamePackage ?: throw GameRepositoryException("No saved game found"))
     }
 
+    /**
+     * Preloads bundled games into the library if they don't already exist.
+     * This is typically called on first app launch to populate the library.
+     */
     suspend fun preloadGames() = withContext(Dispatchers.IO) {
         val games = loadBundledGames(context)
 
@@ -70,6 +93,14 @@ class GameRepository(
         }
     }
 
+    /**
+     * Starts a game with the provided GamePackage.
+     * Initializes the JS engine, restores state if available, and sets the current task.
+     *
+     * @param gamePackage GamePackage object containing game data
+     * @throws GameRepositoryException if the JS engine is not initialized
+     * @return Unit
+     */
     suspend fun startGame(gamePackage: GamePackage) {
         if(jsEngine.isInitialized.not()) {
             throw GameRepositoryException("JS Engine not initialized")
@@ -93,6 +124,9 @@ class GameRepository(
         startLocationMonitoring()
     }
 
+    /**
+     * Starts monitoring location areas relevant to the current game.
+     */
     suspend fun startLocationMonitoring() {
         val gamePackage = _currentGamePackage.value ?: return
         if (gamePackage.state == GameState.ARCHIVED) return
@@ -105,6 +139,11 @@ class GameRepository(
         }
     }
 
+    /**
+     * Generates a list of areas to monitor based on the tasks defined in the game package.
+     * @param gamePackage GamePackage object containing game data
+     * @return List of Area objects to monitor
+     */
     suspend fun generateAreasForMonitoring(gamePackage: GamePackage): List<Area> {
         val areasToMonitor = ArrayList<Area>()
 
@@ -116,20 +155,39 @@ class GameRepository(
         return areasToMonitor
     }
 
-    // Game state management
+    // ========== GAME STATE MANAGEMENT ==========
+
+    /** Sets the current game package.
+     * @param gamePackage GamePackage object to set as current
+     */
     fun setCurrentGamePackage(gamePackage: GamePackage) {
         _currentGamePackage.value = gamePackage
     }
 
+    /**
+     * Refreshes the current task from the JS engine.
+     * This redraws the UI for the current task.
+     */
     suspend fun refresh() {
         val currentTask = jsEngine.getJsValue("_currentTask").getOrNull() ?: ""
         setCurrentTask(currentTask)
     }
 
+    /**
+     * Evaluates arbitrary JS code in the game engine.
+     * @param code JavaScript code string to evaluate
+     */
      fun evaluateJs(code: String) = CoroutineScope(Dispatchers.IO).launch {
         jsEngine.evaluateJs(code)
     }
 
+    /**
+     * Sets the current task by its element ID.
+     * Updates the JavaScript engine, sets a new game package and redraws the UI.
+     * Uses a mutex to prevent concurrent updates.
+     *
+     * @param elementId ID of the task element to set as current
+     */
     suspend fun setCurrentTask(elementId: String) {
         if(! canSetElement.get()) return
         canSetElement.set(false)
@@ -142,11 +200,20 @@ class GameRepository(
         canSetElement.set(true)
     }
 
-    // UI Management
+    // ========== UI MANAGEMENT ==========
+
+    /**
+     * Adds a UI element (Composable function) to be displayed in the GameTaskScreen
+     * @param element Composable function representing the UI element
+     */
     fun addUIElement(element: @Composable () -> Unit) {
         gameUIRepository.addUIElement(element)
     }
 
+    /**
+     * Removes the last added UI element
+     * This is typically used for the pop-up UI element
+     */
     fun removeLastUIElement() {
         gameUIRepository.removeLastUIElement()
     }
@@ -203,5 +270,3 @@ class GameRepository(
         }
     }
 }
-
-class GameRepositoryException(message: String) : Exception(message)

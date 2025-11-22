@@ -22,10 +22,11 @@ import com.rejnek.oog.engine.commands.direct.simple.Save
 
 /**
  * Repository responsible for managing game item factories
+ * If you add a new command, register it here
  */
 class CommandRepository {
 
-    val gameItems = arrayListOf<GenericCommandFactory>(
+    private val gameItems = arrayListOf<GenericCommandFactory>(
         DebugPrint(),
         QuestionFactory(),
         MultiChoiceFactory(),
@@ -45,6 +46,9 @@ class CommandRepository {
         Save()
     )
 
+    /**
+     * Returns a list of all registered game item factories
+     */
     fun getGameItemFactories(): List<GenericCommandFactory> {
         return gameItems
     }
