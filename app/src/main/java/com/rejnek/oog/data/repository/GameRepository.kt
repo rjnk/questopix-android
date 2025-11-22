@@ -210,15 +210,12 @@ class GameRepository(
         gameUIRepository.addUIElement(element)
     }
 
-    /**
-     * Removes the last added UI element
-     * This is typically used for the pop-up UI element
-     */
-    fun removeLastUIElement() {
-        gameUIRepository.removeLastUIElement()
-    }
+    // ======== GAME LIFECYCLE MANAGEMENT ==========
 
-    // Game Lifecycle
+    /**
+     * Marks the current game first as finished, then archived.
+     * Saves the final game state to storage and cleans up resources.
+     */
     fun finishGame() {
         _currentGamePackage.value?.let { currentPackage ->
             _currentGamePackage.value = currentPackage.copy(state = GameState.FINISHED)
@@ -232,6 +229,10 @@ class GameRepository(
         }
     }
 
+    /**
+     * Pauses the current game by saving its state to storage.
+     * Cleans up resources without altering the game state.
+     */
     fun pauseCurrentGame() {
         CoroutineScope(Dispatchers.IO).launch {
             storageRepository.saveGame(_currentGamePackage.value ?: throw IllegalStateException("No current game package"))
@@ -239,7 +240,11 @@ class GameRepository(
         }
     }
 
-    fun quitCurrentGame() {
+    /**
+     * Resets and quits the current game.
+     * Clears saved state and all associated images from storage.
+     */
+    fun resetCurrentGame() {
         val gamePackage = _currentGamePackage.value ?: return
 
         // Save the game state with reseted values
@@ -258,6 +263,11 @@ class GameRepository(
         cleanup()
     }
 
+    /**
+     * Cleans up resources after game ends, pauses, or resets.
+     * Clears current game package, UI elements, stops location monitoring,
+     * and re-initializes the JS engine for the next game.
+     */
     fun cleanup() {
         CoroutineScope(Dispatchers.Main).launch {
             _currentGamePackage.value = null

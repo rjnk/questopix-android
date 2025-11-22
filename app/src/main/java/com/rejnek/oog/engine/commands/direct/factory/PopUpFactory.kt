@@ -50,7 +50,7 @@ class PopUpFactory : GenericDirectFactory() {
     fun textPopUP(text: String) {
         val popup = PopUp(
             text = text,
-            onContinue = { gameRepository?.removeLastUIElement() }
+            onContinue = { gameRepository?.gameUIRepository?.removeLastUIElement() }
         )
         gameRepository?.addUIElement {
             popup.Show()

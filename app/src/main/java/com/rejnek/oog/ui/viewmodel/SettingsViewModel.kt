@@ -59,7 +59,7 @@ class SettingsViewModel(
     /** Quits the current game and discards progress. */
     fun quitGame() {
         viewModelScope.launch {
-            gameRepository.quitCurrentGame()
+            gameRepository.resetCurrentGame()
         }
     }
 
