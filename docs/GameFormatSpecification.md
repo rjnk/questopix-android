@@ -1,8 +1,8 @@
-# Open Outdoor Games - Game Format Documentation
+# Questopix - Game Format Documentation
 
 ## Overview
 
-Open Outdoor Games uses a simple zip-based format for distributing GPS-based outdoor games. Each game consists of JavaScript code that defines interactive tasks, locations, and game logic, along with metadata and supporting assets.
+Questopix uses a simple zip-based format for distributing GPS-based outdoor games. Each game consists of JavaScript code that defines interactive tasks, locations, and game logic, along with metadata and supporting assets.
 
 ## Game Package Structure
 
