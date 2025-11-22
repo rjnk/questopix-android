@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
@@ -9,6 +12,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel for the game library screen.
+ *
+ * Manages game list display, selection mode for batch operations,
+ * game import from ZIP files, and duplicate game handling.
+ *
+ * @param gameRepository Repository for game storage operations
+ */
 class LibraryViewModel(
     private val gameRepository: GameRepository
 ) : ViewModel() {
@@ -46,7 +57,7 @@ class LibraryViewModel(
         }
     }
 
-    // Importing games
+    /** Imports a game package, checking for duplicates first. */
     fun onAddGameFromFile(
         gamePackage: GamePackage,
         onOpenGameInfo: (String) -> Unit
@@ -67,6 +78,7 @@ class LibraryViewModel(
         }
     }
 
+    /** Confirms replacing an existing game with the imported one. */
     fun onConfirmDuplicateReplace(
         onOpenGameInfo: (String) -> Unit
     ) {
@@ -80,11 +92,12 @@ class LibraryViewModel(
         }
     }
 
+    /** Cancels the duplicate import operation. */
     fun onCancelDuplicateReplace() {
         _showDuplicateDialog.value = false
     }
 
-    // Selection mode and deleting
+    /** Toggles selection mode on/off, clearing selection when exiting. */
     fun toggleSelectionMode() {
         _isSelectionMode.value = !_isSelectionMode.value
         if (!_isSelectionMode.value) {
@@ -92,6 +105,7 @@ class LibraryViewModel(
         }
     }
 
+    /** Toggles selection state of a specific game. */
     fun toggleGameSelection(gameId: String) {
         val currentSelected = _selectedGameIds.value.toMutableSet()
         if (currentSelected.contains(gameId)) {
@@ -102,6 +116,7 @@ class LibraryViewModel(
         _selectedGameIds.value = currentSelected
     }
 
+    /** Deletes all selected games and exits selection mode. */
     fun deleteSelectedGames() {
         viewModelScope.launch {
             _selectedGameIds.value.forEach { gameId ->
@@ -113,6 +128,7 @@ class LibraryViewModel(
         }
     }
 
+    /** Selects all games in the library. */
     fun selectAllGames() {
         _selectedGameIds.value = gamePackages.value.map { it.getId() }.toSet()
     }

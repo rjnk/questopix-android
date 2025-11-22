@@ -11,6 +11,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+private const val START_LOCATION_PROXIMITY_METERS = 75.0
+
+/**
+ * ViewModel for the game info screen.
+ *
+ * Loads and displays game package details. Handles game start logic
+ * including location proximity checks for location-based games.
+ *
+ * @param gameRepository Repository for game data and location services
+ */
 class GameInfoViewModel(
     private val gameRepository: GameRepository
 ) : ViewModel() {
@@ -27,6 +37,7 @@ class GameInfoViewModel(
     private val _showFarAwayToast = MutableStateFlow(false)
     val showFarAwayToast = _showFarAwayToast.asStateFlow()
 
+    /** Loads game info or resumes an in-progress game directly. */
     fun loadGameInfo(gameId: String, onGameStarted: () -> Unit) {
         viewModelScope.launch {
             val games = gameRepository.storageRepository.getLibraryGames()
@@ -49,6 +60,7 @@ class GameInfoViewModel(
         }
     }
 
+    /** Initializes and starts a game from the library. */
     fun openGame(onGameStarted: () -> Unit, gameId: String) {
         viewModelScope.launch {
             gameRepository.initializeGameFromLibrary(gameId)
@@ -56,6 +68,7 @@ class GameInfoViewModel(
         }
     }
 
+    /** Starts game after validating location proximity if required. */
     fun startGameByPressingButton(onGameStarted: () -> Unit){
         val gameId = gamePackage.value?.getId() ?: return
         val startLocation = gamePackage.value?.getStartLocation()
@@ -76,13 +89,14 @@ class GameInfoViewModel(
         // the game requires location, we check if we are close enough to the start location
         val distance = LocationRepository.calculateDistance(currentLocation, startLocation)
         Log.d("GameInfoViewModel", "Distance to start location: $distance meters")
-        if(distance <= 60.0) {
+        if(distance <= START_LOCATION_PROXIMITY_METERS) {
             openGame(onGameStarted, gameId)
         } else {
             _showFarAwayToast.value = true
         }
     }
 
+    /** Restarts location service after permission changes. */
     fun refreshLocationPermission() {
         gameRepository.locationRepository.startLocationService()
     }

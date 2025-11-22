@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.components.permissions
 
 import android.Manifest
@@ -12,8 +15,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 
 /**
- * Reusable camera permission requester.
- * Exposes current permission status, a request() function, and a flag when the permission is permanently denied.
+ * Creates a reusable camera permission requester.
+ *
+ * Exposes current permission status, a request() function, and a flag
+ * when the permission is permanently denied.
+ *
+ * @param onPermissionGranted Callback when permission is granted
+ * @param onPermanentlyDenied Callback when permission is permanently denied
  */
 @Composable
 fun rememberCameraPermissionRequester(
@@ -55,6 +63,7 @@ fun rememberCameraPermissionRequester(
     }
 }
 
+/** State holder for camera permission status and request functionality. */
 class CameraPermissionRequester internal constructor(
     private val hasPermissionProvider: () -> Boolean,
     private val requestPermission: () -> Unit,

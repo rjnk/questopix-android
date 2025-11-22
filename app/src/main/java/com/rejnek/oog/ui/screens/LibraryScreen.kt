@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.screens
 
 import androidx.compose.foundation.layout.Row
@@ -35,6 +38,18 @@ import com.rejnek.oog.ui.viewmodel.SharedEventsViewModel
 import org.koin.androidx.compose.koinViewModel
 import androidx.compose.runtime.LaunchedEffect
 
+/**
+ * Game library screen for managing installed game packages.
+ *
+ * Displays all games as a list with support for selection mode, batch deletion
+ * Supports adding a new game ZIP via file picker
+ *
+ * @param onNavigateToHome Callback to navigate to home screen
+ * @param onNavigateToSettings Callback to navigate to settings
+ * @param onNavigateToGameInfo Callback to view game details, receives game ID
+ * @param sharedEvents Shared ViewModel for cross-screen events (e.g., import trigger)
+ * @param viewModel ViewModel managing library state and operations
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryScreen(

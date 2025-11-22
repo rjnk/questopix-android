@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.screens
 
 import LocationPermissionRequest
@@ -27,6 +30,17 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.koin.androidx.compose.koinViewModel
 import android.widget.Toast
 
+/**
+ * Screen displaying detailed information about a game package.
+ *
+ * Shows game description, start/finish locations, cover image, and attributes.
+ * Handles location permission requests and game start logic.
+ *
+ * @param gameId Unique identifier of the game to display
+ * @param onNavigateBack Callback for back navigation
+ * @param onGameStarted Callback invoked when the game starts successfully
+ * @param viewModel ViewModel managing game info state
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun GameInfoScreen(
@@ -124,6 +138,12 @@ fun GameInfoScreen(
     }
 }
 
+/**
+ * Scrollable content layout for game information.
+ *
+ * @param gamePackage The game package data to display
+ * @param modifier Modifier for the content container
+ */
 @Composable
 fun GameInfoContent(
     gamePackage: GamePackage,

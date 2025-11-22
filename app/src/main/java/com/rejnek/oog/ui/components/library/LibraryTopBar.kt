@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.components.library
 
 import androidx.compose.material.icons.Icons
@@ -17,6 +20,12 @@ import androidx.compose.ui.res.stringResource
 import com.rejnek.oog.R
 import androidx.compose.ui.text.font.FontWeight
 
+/**
+ * Top app bar for the library screen with selection mode support.
+ *
+ * Shows different actions based on selection mode: select all, delete in
+ * selection mode; enter selection mode, settings in normal mode.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LibraryTopBar(

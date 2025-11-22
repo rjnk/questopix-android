@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.components.gameInfo
 
 import androidx.compose.foundation.layout.*
@@ -6,6 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 
+/**
+ * Displays a key-value pair for game attributes (e.g., difficulty, duration).
+ */
 @Composable
 fun AttributeItem(
     label: String,

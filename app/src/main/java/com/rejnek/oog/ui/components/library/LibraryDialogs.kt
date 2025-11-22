@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.components.library
 
 import androidx.compose.material3.AlertDialog
@@ -9,6 +12,9 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.rejnek.oog.R
 
+/**
+ * Confirmation dialog shown when importing a game that already exists.
+ */
 @Composable
 fun DuplicateGameDialog(
     show: Boolean,
@@ -31,6 +37,9 @@ fun DuplicateGameDialog(
     )
 }
 
+/**
+ * Confirmation dialog for batch deletion of selected games.
+ */
 @Composable
 fun DeleteGamesDialog(
     show: Boolean,

@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.components.library
 
 import android.util.Log
@@ -17,6 +20,12 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 
+/**
+ * Creates a file picker launcher for importing game ZIP files.
+ *
+ * @param onGameFileSelected Callback with parsed GamePackage when file is selected
+ * @return Function to launch the file picker
+ */
 @Composable
 fun rememberGameFilePicker(
     onGameFileSelected: (GamePackage) -> Unit

@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.components.gameInfo
 
 import androidx.compose.foundation.layout.*
@@ -7,6 +10,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
+/**
+ * Reusable card section with a title header for game info content.
+ *
+ * @param title Section heading text
+ * @param content Composable content displayed below the title
+ */
 @Composable
 fun InfoSection(
     title: String,

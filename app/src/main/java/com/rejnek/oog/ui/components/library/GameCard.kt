@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.components.library
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -19,6 +22,12 @@ import androidx.compose.ui.unit.dp
 import com.rejnek.oog.data.model.GamePackage
 import com.rejnek.oog.data.model.GameState
 
+/**
+ * Card component displaying a single game in the library.
+ *
+ * Supports selection mode with visual feedback. Card color changes based on
+ * game state (in-progress, archived, not started) and selection status.
+ */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 fun GameCard(

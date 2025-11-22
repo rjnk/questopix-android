@@ -33,6 +33,17 @@ import com.rejnek.oog.ui.navigation.Routes
 import com.rejnek.oog.ui.viewmodel.HomeViewModel
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * Home screen serving as the app's main entry point.
+ *
+ * Shows app logo and primary actions: continue saved game or start new game.
+ * Provides quick access to library and game import functionality.
+ *
+ * @param onLoadGameClick Callback when user continues a saved game
+ * @param onNavigateToLibrary Callback to open game library
+ * @param onLoadGameFromFileViaLibrary Callback to import game via library screen
+ * @param viewModel ViewModel managing saved game state
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -69,6 +80,15 @@ fun HomeScreen(
     }
 }
 
+/**
+ * Content layout for home screen with logo and action buttons.
+ *
+ * @param onLoadSavedClicked Callback to continue saved game
+ * @param onNavigateToLibrary Callback to open library
+ * @param onImportGameViaLibrary Callback to import a game file
+ * @param showSavedGame Whether a saved game exists (changes button display)
+ * @param modifier Modifier for the content container
+ */
 @Composable
 fun HomeScreenContent(
     onLoadSavedClicked: () -> Unit,

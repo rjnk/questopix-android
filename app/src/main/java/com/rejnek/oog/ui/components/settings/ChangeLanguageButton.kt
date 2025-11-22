@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.components.settings
 
 import android.content.Context
@@ -16,6 +19,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.R
 
+/**
+ * Button to open system language settings for the app (Android 13+).
+ *
+ * Falls back to app details settings if per-app locale settings unavailable.
+ */
 @Composable
 fun ChangeLanguageButton(
     context: Context

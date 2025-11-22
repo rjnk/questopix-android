@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.components.gameInfo
 
 import androidx.compose.foundation.Image
@@ -16,6 +19,12 @@ import com.rejnek.oog.R
 import android.graphics.BitmapFactory
 import java.io.File
 
+/**
+ * Displays the game's cover image from local storage.
+ *
+ * @param gameId Game identifier for locating the image directory
+ * @param filename Image filename within the game's image folder
+ */
 @Composable
 fun GameCoverImage(
     gameId: String,

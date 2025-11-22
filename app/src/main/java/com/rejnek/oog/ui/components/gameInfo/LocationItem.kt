@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.components.gameInfo
 
 import androidx.compose.foundation.layout.*
@@ -19,6 +22,13 @@ import com.rejnek.oog.data.model.Coordinates
 import androidx.compose.ui.res.stringResource
 import com.rejnek.oog.R
 
+/**
+ * Displays a location with label, text, and copy-to-clipboard button.
+ *
+ * @param title Label for the location (e.g., "Start Location")
+ * @param locationText Human-readable location description
+ * @param gpsCoordinates GPS coordinates for clipboard copy
+ */
 @Composable
 fun LocationItem(
     title: String,

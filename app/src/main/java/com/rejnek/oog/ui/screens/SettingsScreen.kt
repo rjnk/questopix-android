@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.screens
 
 import androidx.compose.foundation.layout.Arrangement
@@ -35,6 +38,16 @@ import com.rejnek.oog.ui.components.settings.ChangeLanguageButton
 import com.rejnek.oog.ui.viewmodel.SettingsViewModel
 import org.koin.androidx.compose.koinViewModel
 
+/**
+ * Settings screen with app info and in-game controls.
+ *
+ * When accessed during gameplay, displays game info with pause/quit options.
+ * Always shows app information, language settings, and external links.
+ *
+ * @param onNavigateBack Callback for back navigation
+ * @param onGoToMenu Callback to navigate to main menu (after pause/quit)
+ * @param viewModel ViewModel managing settings and game state
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(

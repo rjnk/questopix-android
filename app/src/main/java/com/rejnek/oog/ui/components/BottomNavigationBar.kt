@@ -10,6 +10,12 @@ import androidx.compose.ui.res.stringResource
 import com.rejnek.oog.R
 import com.rejnek.oog.ui.navigation.Routes
 
+/**
+ * Bottom navigation bar for switching between Home and Library screens.
+ *
+ * @param currentRoute Currently active route for highlighting
+ * @param onNavigate Callback when navigation item is selected
+ */
 @Composable
 fun BottomNavigationBar(
     currentRoute: Routes,
@@ -46,6 +52,7 @@ fun BottomNavigationBar(
     }
 }
 
+/** Data class representing a bottom navigation item. */
 data class BottomNavItem(
     val labelRes: Int,
     val icon: ImageVector,

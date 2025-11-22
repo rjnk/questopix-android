@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 import android.Manifest
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -13,6 +16,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.rejnek.oog.R
 
+/**
+ * Requests fine location permission and shows denial dialog if refused.
+ *
+ * @param locationPermissionGranted Current permission status
+ * @param onGoToLibrary Callback when user acknowledges denial
+ * @param onRefreshLocationPermission Callback to refresh permission state
+ */
 @Composable
 fun LocationPermissionRequest(
     locationPermissionGranted: Boolean,

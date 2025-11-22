@@ -21,7 +21,7 @@ You can create your own game by following this step-by-step guide. As for now, t
 
 **Using Generative AI (ChatGPT)**
 
-Generative AI tools are really helpful for creating and validating games! Just upload the full specification: [GameFormatSpecification.md](https://gitlab.fel.cvut.cz/rejneluk/oog/-/blob/master/docs/GameFormatSpecification.md) and describe your game.
+Generative AI tools are really helpful for creating and validating games! Just upload the full specification: [GameFormatSpecification.md](GameFormatSpecification.md) and describe your game.
 The AI will then generate you the `info.json` and `game.js` files.
 
 You can use any AI tools - ChatGPT, Copilot, Gemini, etc.
@@ -31,17 +31,17 @@ You can use any AI tools - ChatGPT, Copilot, Gemini, etc.
 ## Creating the game
 
 ### Step 1: Download the template
-The best starting point for creating your own game is to download the game template from the [Questopix GitHub repository](https://gitlab.fel.cvut.cz/rejneluk/questopix-releases/-/raw/master/template-game.zip?ref_type=heads). After downloading, unzip the file to a folder on your computer. It will contain the `info.json`, `game.js`, and some images.
+The best starting point for creating your own game is to download the game template from the [Questopix GitHub repository releases](https://github.com/rjnk/questopix-android/releases). After downloading, unzip the file to a folder on your computer. It will contain the `info.json`, `game.js`, and some images.
 
 ## Step 2: Edit game informations in the info.json
-Read the [GameFormatSpecification.md, Info.json section](https://gitlab.fel.cvut.cz/rejneluk/oog/-/blob/master/docs/GameFormatSpecification.md#infojson-game-metadata) to understand the file structure. After that, open the `info.json` file in your text editor and modify the fields inside to your liking.
+Read the [GameFormatSpecification.md, Info.json section](GameFormatSpecification.md#infojson-game-metadata) to understand the file structure. After that, open the `info.json` file in your text editor and modify the fields inside to your liking.
 
 ### Step 3: Create a game tasks in the game.js
-Creating your own game tasks is more tricky that editing the info.json file. First read the [GameFormatSpecification.md, Game.js section](https://gitlab.fel.cvut.cz/rejneluk/oog/-/blob/master/docs/GameFormatSpecification.md#gamejs-game-logic) to understand how to use the individual actions. After you are ready, open the `game.js` file in your text editor and edit it to your liking. It contains some basic structure of a game with few example tasks that you can modify or delete.
+Creating your own game tasks is more tricky that editing the info.json file. First read the [GameFormatSpecification.md, Game.js section](GameFormatSpecification.md#gamejs-game-logic) to understand how to use the individual actions. After you are ready, open the `game.js` file in your text editor and edit it to your liking. It contains some basic structure of a game with few example tasks that you can modify or delete.
 
 It's practical to start with a game that is **not tied** to a specific locations, so you can test it indoors. You can later add location-based tasks once you are familiar with the platform.
 
-If you are unsure, you can look at the example games in the [Questopix GitHub repository](https://gitlab.fel.cvut.cz/rejneluk/oog/-/tree/master/app/src/main/assets/bundled_games) to see how they are implemented or ask the Generative AI for help (while providing the game specification file as a reference).
+If you are unsure, you can look at the example games in the [Questopix GitHub repository](https://github.com/rjnk/questopix-android/tree/master/app/src/main/assets/bundled_games) to see how they are implemented or ask the Generative AI for help (while providing the game specification file as a reference).
 
 ### Step 4: Validate your game files using Generative AI
 Currently, the Questopix platform doesn't have a built-in game validator. However, you can use Generative AI tools to help validate your game files. Simply provide the AI with the `GameFormatSpecification.md` file and your modified `info.json` and `game.js` files, and ask it to check for any errors or inconsistencies.
@@ -55,7 +55,7 @@ Once you have finished editing the `info.json` and `game.js` files, you need to 
 ### Step 6: Installing the Questopix app
 The Questopix app is avaliable for Android 10+ only, no iOS support. The app needs to be installed from apk file as it's not yet avaliable in Google Play Store.
 
-1. Download the latest Questopix apk file from the [releases section of the GitHub repository](https://gitlab.fel.cvut.cz/rejneluk/oog/-/releases).
+1. Download the latest Questopix apk file from the [releases section of the GitHub repository](https://github.com/rjnk/questopix-android/releases).
 2. Install the apk file on your Android device, following the standard installation procedure for apk files (guide: [https://www.browserstack.com/guide/download-and-install-apk-on-android](https://www.browserstack.com/guide/download-and-install-apk-on-android))
 
 ### Step 7: Import and test the game in Questopix app

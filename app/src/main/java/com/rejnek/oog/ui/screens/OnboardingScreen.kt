@@ -1,3 +1,6 @@
+/*
+ * Created with Claude Code
+ */
 package com.rejnek.oog.ui.screens
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -24,12 +27,28 @@ import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 import com.rejnek.oog.R
 
+/**
+ * Represents a single page in the onboarding flow.
+ *
+ * @property titleRes String resource ID for the page title
+ * @property descriptionRes String resource ID for the page description
+ * @property imageRes Drawable resource ID for the page illustration
+ */
 data class OnboardingPage(
     val titleRes: Int,
     val descriptionRes: Int,
     val imageRes: Int
 )
 
+/**
+ * First-time user onboarding screen with horizontal pager.
+ *
+ * Displays a series of informational slides introducing the app features.
+ * Users can swipe through pages or skip directly to the app.
+ *
+ * @param onFinish Callback invoked when onboarding is complete or skipped
+ * @param viewModel ViewModel managing onboarding state and completion
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OnboardingScreen(
@@ -136,6 +155,11 @@ fun OnboardingScreen(
     }
 }
 
+/**
+ * Renders a single onboarding page with image, title, and description.
+ *
+ * @param page The onboarding page data to display
+ */
 @Composable
 private fun OnboardingPageContent(page: OnboardingPage) {
     Column(

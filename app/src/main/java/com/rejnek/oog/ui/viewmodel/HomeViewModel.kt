@@ -7,6 +7,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel for the home screen.
+ *
+ * Checks for saved game state and initializes the game repository.
+ * Handles loading previously saved games.
+ *
+ * @param gameRepository Repository for game state and initialization
+ */
 class HomeViewModel(
     private val gameRepository: GameRepository
 ) : ViewModel() {
@@ -20,6 +28,7 @@ class HomeViewModel(
         }
     }
 
+    /** Loads a previously saved game from storage. */
     fun onLoadSavedClicked() {
         viewModelScope.launch {
             gameRepository.loadSavedGame()

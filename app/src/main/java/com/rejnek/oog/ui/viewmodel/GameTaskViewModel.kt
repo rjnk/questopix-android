@@ -9,6 +9,14 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.asSharedFlow
 
+/**
+ * ViewModel for the game task screen during active gameplay.
+ *
+ * Manages game execution state, UI element rendering from the JS engine,
+ * and location monitoring for location-based tasks.
+ *
+ * @param gameRepository Repository coordinating game engine and location
+ */
 class GameTaskViewModel(
     private val gameRepository: GameRepository
 ) : ViewModel() {
@@ -26,6 +34,7 @@ class GameTaskViewModel(
     val uiElements = gameRepository.gameUIRepository.uiElements
 
 
+    /** Restarts location monitoring after permission changes. */
     fun refreshLocationPermission() {
         viewModelScope.launch {
             gameRepository.startLocationMonitoring()

@@ -11,6 +11,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.R
 
+/**
+ * App logo displayed on the home screen.
+ *
+ * @param modifier Modifier for customizing the logo layout
+ */
 @Composable
 fun OOGLogo(
     modifier: Modifier = Modifier,

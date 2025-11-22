@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.ui.components.library
 
 import androidx.compose.foundation.layout.*
@@ -19,6 +22,12 @@ import com.rejnek.oog.data.model.GameState
 import androidx.compose.ui.res.stringResource
 import com.rejnek.oog.R
 
+/**
+ * Main content area of the library screen.
+ *
+ * Displays games grouped by state: in-progress, not started, and archived.
+ * Shows empty state when no games are available.
+ */
 @Composable
 fun LibraryScreenContent(
     games: List<GamePackage>,
