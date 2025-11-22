@@ -25,15 +25,17 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
 /**
+ * QuestionFactory creates a question UI element that triggers a callback with the user's answer.
+ *
  * Usage:
- * question("Jak se jmenovala první zastávka po Hradčasnké 😜?", (answer) => {
+ * question("What was the name of the first stop after Hradčanská 😜?", (answer) => {
  *             if (answer === "Ronalda Reagana") {
- *                 debugPrint("Správně!");
+ *                 debugPrint("Correct!");
  *                 _score += 20;
  *                 showTask("internacional");
  *             }
  *             else {
- *                 debugPrint("Špatně.");
+ *                 debugPrint("Wrong.");
  *                 showTask("internacional");
  *             }
  *         });

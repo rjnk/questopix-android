@@ -15,6 +15,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
+ * MultiChoiceFactory creates a multiple-choice question UI element that triggers a callback with the selected answer index.
+ * It uses zero-based indexing for the answer choices.
+ *
  * Usage:
  * multichoice("How many floors does the Kaufland have?", (answerNumber) => {
  *     if(answerNumber === 1) { // second choice, we use 0-based indexing. Kaufland has 2 floors.

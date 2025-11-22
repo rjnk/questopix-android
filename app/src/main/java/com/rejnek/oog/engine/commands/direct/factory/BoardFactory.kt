@@ -1,3 +1,6 @@
+/*
+ * Co-created with Github Copilot
+ */
 package com.rejnek.oog.engine.commands.direct.factory
 
 import androidx.compose.foundation.layout.*
@@ -9,7 +12,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.rejnek.oog.engine.commands.GenericDirectFactory
 
-// usage: board("Výsledky", "Scóre", _score, "Čas", elapsedMinutes + "min.")
+/**
+ * Factory to create a board UI element with a title and multiple label-value pairs.
+ * Usage: board("Title", "Label1", "Value1", "Label2", "Value2", ...)
+ */
 class BoardFactory : GenericDirectFactory() {
     override val id = "board"
 

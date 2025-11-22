@@ -1,5 +1,5 @@
 /*
- * Created with Github Copilot
+ * Co-created with Github Copilot
  */
 package com.rejnek.oog.engine
 
@@ -22,7 +22,6 @@ import kotlin.text.toBoolean
 class JsGameEngine(
     private val context: Context
 ) {
-    // My variables
     private var repository: GameRepository? = null
     private val gameItems = arrayListOf<GenericCommandFactory>()
 
@@ -129,9 +128,14 @@ class JsGameEngine(
             }
 
             Log.d("JsGameEngine", "JavaScript $code executed. Evaluation result: $result")
-            Result.success(cleanJsResult(result))
+            Result.success(unquoteJsResult(result))
         }
 
+    /**
+     * Executes the onStart and onStartFirst functions for a given JavaScript element ID.
+     * Ensures onStartFirst is only called once per element.
+     * @param elementId The ID of the JavaScript element to execute functions on
+     */
     suspend fun executeOnStart(elementId: String) {
         jsInterface.deleteAllFallbacks()
 
@@ -146,6 +150,10 @@ class JsGameEngine(
         evaluateJs("save()")
     }
 
+    /**
+     * Restores the game state in the JavaScript context from a JsonObject.
+     * @param gameState JsonObject containing the saved game state
+     */
     suspend fun restoreState(gameState: JsonObject) {
         evaluateJs("""
                 const savedState = $gameState;
@@ -157,71 +165,7 @@ class JsGameEngine(
             """.trimIndent())
     }
 
-    private fun htmlTemplate(gameItems: List<GenericCommandFactory>) = """
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <meta charset="UTF-8">
-            <script type="text/javascript">
-                // Global function to send results back to Kotlin
-                function sendResult(result) {
-                    return result;
-                }
-                
-                // Error handler
-                window.onerror = function(message, source, lineno, colno, error) {
-                    debugPrint("JS Error: " + message + " at " + source + ":" + lineno + ":" + colno + (error ? " Stack: " + error.stack : ""));
-                    return true;
-                };
-                
-                // Initialize callback resolvers storage
-                window.callbackResolvers = {};
-                
-                // mandatory game variables
-                var _onStartActivated = [];
-                var _onEnterActivated = [];
-                var _disabled = [];
-
-                var _currentTask = "start";
-                
-                // Additional custom functions
-                function showTask(newTask) {
-                    disable(_currentTask);
-                    _currentTask = newTask;
-                    refresh();
-                    save();
-                }
-                
-                function enable(elementId) {
-                    const index = _disabled.indexOf(elementId);
-                    if (index !== -1) {
-                        _disabled.splice(index, 1);
-                    }
-                    save();
-                }
-                
-                function disable(elementId) {
-                    if (!_disabled.includes(elementId)) {
-                        _disabled.push(elementId);
-                    }
-                    save();
-                }
-                
-                function isEnabled(elementId) {
-                    return !_disabled.includes(elementId);
-                }
-                
-                // Functions that interact with Android
-                ${gameItems.joinToString("\n\n") { action -> action.js }}
-            </script>
-        </head>
-        <body>
-            <div id="output"></div>
-        </body>
-        </html>
-    """.trimIndent()
-
-    private fun cleanJsResult(result: String): String {
+    private fun unquoteJsResult(result: String): String {
         return if (result.startsWith("\"") && result.endsWith("\"") && result.length >= 2) {
             result.substring(1, result.length - 1)
         } else {
@@ -229,6 +173,9 @@ class JsGameEngine(
         }
     }
 
+    /**
+     * Cleans up resources used by the JavaScript engine and WebView.
+     */
     fun cleanup() {
         Log.d("JsGameEngine", "Cleaning up WebView JavaScript engine resources")
 
@@ -251,6 +198,11 @@ class JsGameEngine(
         gameItems.clear()
     }
 
+    /**
+     * Retrieves an Area object from the JavaScript context based on the given element ID.
+     * @param elementId The ID of the JavaScript element containing area data
+     * @return Area object if successful, null otherwise
+     */
     suspend fun getArea(elementId: String): Area? {
         val length = getJsValue("$elementId.loc.length").getOrNull()?.toInt() ?: return null
 

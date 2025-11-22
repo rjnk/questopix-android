@@ -17,6 +17,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.random.Random
 
+/**
+ * Factory to create a button UI element that triggers a callback when clicked.
+ * Usage: button("Button Text", "CallbackId")
+ */
 class ButtonFactory() : GenericCallbackFactory() {
     override val id: String = "button"
 

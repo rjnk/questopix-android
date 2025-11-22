@@ -1,3 +1,6 @@
+/*
+ * Co-created with Github Copilot
+ */
 package com.rejnek.oog.engine
 
 import android.util.Log

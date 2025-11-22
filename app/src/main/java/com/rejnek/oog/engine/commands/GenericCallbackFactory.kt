@@ -1,5 +1,9 @@
 package com.rejnek.oog.engine.commands
 
+/**
+ * Abstract class representing a generic callback factory.
+ * The commands inheriting from this class expect a response from the app side via a callback.
+ */
 abstract class GenericCallbackFactory : GenericCommandFactory() {
     override val js: String
         get() = """

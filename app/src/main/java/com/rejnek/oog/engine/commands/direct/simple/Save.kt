@@ -5,6 +5,10 @@ import com.rejnek.oog.data.model.GameState
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.jsonObject
 
+/**
+ * The command saves the current game state by capturing all global variables
+ * starting with an underscore (_) and sending them to the Android side for storage.
+ */
 class Save : GenericDirectFactory() {
     override val id = "save"
 

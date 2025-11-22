@@ -1,5 +1,9 @@
 package com.rejnek.oog.engine.commands
 
+/**
+ * Abstract class representing a direct command factory.
+ * The commands inheriting from this class are fire and forget - they do not expect any response from the app side.
+ */
 abstract class GenericDirectFactory : GenericCommandFactory() {
     override val js: String
         get() =
@@ -15,5 +19,3 @@ abstract class GenericDirectFactory : GenericCommandFactory() {
         create(args.joinToString("\n"))
     }
 }
-
-

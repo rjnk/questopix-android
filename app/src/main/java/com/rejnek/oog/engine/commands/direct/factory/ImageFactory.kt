@@ -1,3 +1,6 @@
+/*
+ * Co-created with Github Copilot
+ */
 package com.rejnek.oog.engine.commands.direct.factory
 
 import androidx.compose.foundation.Image
@@ -14,7 +17,10 @@ import androidx.compose.foundation.layout.padding
 import com.rejnek.oog.engine.commands.GenericDirectFactory
 import java.io.File
 
-// usage: image("example.png");
+/**
+ * Factory to create an image UI element from a specified filename.
+ * Usage: image("filename.png")
+ */
 class ImageFactory : GenericDirectFactory() {
     override val id = "image"
 

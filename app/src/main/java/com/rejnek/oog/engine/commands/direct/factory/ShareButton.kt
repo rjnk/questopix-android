@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.engine.commands.direct.factory
 
 import androidx.compose.material.icons.Icons
@@ -48,8 +51,12 @@ import com.rejnek.oog.data.repository.LocalCaptureMode
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.core.graphics.createBitmap
 
-// Note: this was heavily created by copilot the code is verbose but it works well enough for now
-// Note: we are generating the share image in a Main thread so this can slow down the app when there is a lot of images to render
+/**
+ * Factory to create a share button UI element that captures the current UI and shares it as an image.
+ * Usage: shareButton()
+ * Note: this was heavily created by copilot the code is verbose but it works well enough for now
+ * Note: we are generating the share image in a Main thread so this can slow down the app when there is a lot of images to render
+ */
 class ShareButtonFactory() : GenericDirectFactory() {
     override val id: String = "shareButton"
 

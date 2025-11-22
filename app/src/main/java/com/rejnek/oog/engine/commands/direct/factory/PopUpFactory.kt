@@ -1,3 +1,6 @@
+/*
+ * Co-created with Github Copilot
+ */
 package com.rejnek.oog.engine.commands.direct.factory
 
 import android.util.Log
@@ -21,6 +24,11 @@ import androidx.compose.ui.window.DialogProperties
 import com.rejnek.oog.R
 import com.rejnek.oog.engine.commands.GenericDirectFactory
 
+/**
+ * Factory to create a pop-up UI element that shows a message
+ * If a task ID is provided, it will show that new task upon continuation.
+ * Usage: popUp("Message", "OptionalTaskId")
+ */
 class PopUpFactory : GenericDirectFactory() {
     override val id = "popUp"
 

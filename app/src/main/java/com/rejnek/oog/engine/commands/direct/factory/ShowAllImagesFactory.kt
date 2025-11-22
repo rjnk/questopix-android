@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.engine.commands.direct.factory
 
 import android.graphics.BitmapFactory
@@ -26,6 +29,10 @@ import com.rejnek.oog.engine.commands.GenericDirectFactory
 import com.rejnek.oog.data.repository.LocalCaptureMode
 import java.io.File
 
+/**
+ * Factory to create a UI element that shows all user-taken images in a gallery format.
+ * Usage: showAllImages("Optional Heading")
+ */
 class ShowAllImagesFactory : GenericDirectFactory() {
     override val id = "showAllImages"
 

@@ -16,6 +16,11 @@ import com.rejnek.oog.data.model.Coordinates
 import com.rejnek.oog.data.repository.LocationRepository
 import kotlin.math.*
 
+/**
+ * Factory to create a distance UI element that shows the distance
+ * from the current location to a target location.
+ * Usage: distance(latitude, longitude)
+ */
 class DistanceFactory : GenericDirectFactory() {
     override val id = "distance"
 

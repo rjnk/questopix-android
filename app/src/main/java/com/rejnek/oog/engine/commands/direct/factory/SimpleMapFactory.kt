@@ -1,3 +1,6 @@
+/*
+ * Co-created with Github Copilot
+ */
 package com.rejnek.oog.engine.commands.direct.factory
 
 import androidx.compose.animation.core.*
@@ -33,7 +36,11 @@ data class SimpleMapData(
     val bottomRightLng: Double
 )
 
-// usage: simpleMap("map2.png", 50.114903, 14.390008, 50.108091, 14.397186);
+/**
+ * Factory to create a simple map UI element with a background image and user location overlay.
+ * usage: simpleMap("background.png", topLeftLat, topLeftLng, bottomRightLat, bottomRightLng)
+ * e.g: simpleMap("map2.png", 50.114903, 14.390008, 50.108091, 14.397186);
+ */
 class SimpleMapFactory : GenericDirectFactory() {
     override val id = "simpleMap"
 

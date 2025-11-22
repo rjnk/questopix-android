@@ -1,3 +1,6 @@
+/*
+ * Created with Github Copilot
+ */
 package com.rejnek.oog.engine.commands.direct.factory
 
 import android.graphics.BitmapFactory
@@ -31,6 +34,10 @@ import com.rejnek.oog.ui.components.permissions.rememberCameraPermissionRequeste
 import java.io.File
 import androidx.core.graphics.scale
 
+/**
+ * Factory to create a take picture UI element that allows the user to capture a photo using the device camera.
+ * Usage: takePicture("Prompt message for the user")
+ */
 class TakePictureFactory : GenericDirectFactory() {
     override val id = "takePicture"
 
