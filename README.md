@@ -2,9 +2,11 @@
 
 An Android app for playing GPS-based outdoor games like treasure hunts and scavenger hunts. Create your own games in JavaScript, package them as ZIP files, and play them anywhere.
 
-![Screenshot 1](docs/images/home-screen.png)
-![Screenshot 2](docs/images/game-info-screen.png)
-![Screenshot 3](docs/images/game-task-screen.png)
+<p align="center">
+  <img src="docs/images/home-screen.png" width="30%" />
+  <img src="docs/images/game-info-screen.png" width="30%" />
+  <img src="docs/images/game-task-screen.png" width="30%" />
+</p>
 
 ## Features
 
