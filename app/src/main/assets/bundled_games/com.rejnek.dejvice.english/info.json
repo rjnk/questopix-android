@@ -1,0 +1,27 @@
+{
+    "id": "com.rejnek.dejvice.english",
+    "name": "Dejvice Game",
+    "description": "The game will guide you through interesting places in Dejvice and its surroundings.",
+    "coverPhoto": "cover.jpeg",
+    "startLocation": {
+        "text": "Hradcanska tram stop, Prague 6",
+        "coordinates": {
+            "lat": 50.0971869,
+            "lng": 14.4038831,
+            "radius": 50.0
+        }
+    },
+    "finishLocation": {
+        "text": "U Mateje 140, Prague 6",
+        "coordinates": {
+            "lat": 50.0,
+            "lng": 14.0,
+            "radius": 50.0
+        }
+    },
+    "attributes": {
+        "Expected duration": "1 hour",
+        "Mental difficulty": "2/5",
+        "Physical difficulty": "2/5"
+    }
+}
