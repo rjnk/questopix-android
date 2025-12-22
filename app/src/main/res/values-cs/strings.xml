@@ -48,8 +48,8 @@
     <string name="load_game">Načíst hru</string>
 
     <string name="settings">Nastavení</string>
-    <string name="about_oog_title">Open Outdoor Games</string>
-    <string name="about_oog_description">Open Outdoor Games je mobilní platforma pro hraní venkovních her. Je open‑source a vyvíjena v rámci bakalářské práce na ČVUT v Praze.</string>
+    <string name="about_oog_title">Questopix</string>
+    <string name="about_oog_description">Questopix je mobilní platforma pro hraní venkovních her. Je open source a vyvíjena v rámci bakalářské práce na ČVUT v Praze.</string>
     <string name="project_website">Web projektu</string>
     <string name="privacy_policy">Privacy policy</string>
 

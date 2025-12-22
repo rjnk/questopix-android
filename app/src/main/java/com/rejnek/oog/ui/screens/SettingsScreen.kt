@@ -152,14 +152,14 @@ fun SettingsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Button(
-                    onClick = { viewModel.openUrl(context, "https://gitlab.fel.cvut.cz/rejneluk/oog") },
+                    onClick = { viewModel.openUrl(context, "https://github.com/rjnk/questopix-android") },
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(R.string.project_website))
                 }
                 Button(
                     // make the color slightly dimmer to indicate it's not the main website
-                    onClick = { viewModel.openUrl(context, "https://gitlab.fel.cvut.cz/rejneluk/oog") },
+                    onClick = { viewModel.openUrl(context, "https://github.com/rjnk/questopix-android") },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.surfaceVariant,
                         contentColor = MaterialTheme.colorScheme.onSurfaceVariant

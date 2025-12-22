@@ -54,8 +54,8 @@
 
     <!-- Settings and about -->
     <string name="settings">Settings</string>
-    <string name="about_oog_title">About Open Outdoor Games</string>
-    <string name="about_oog_description">Open Outdoor Games is a mobile platform for playing outdoor games. It is open-source and developed as a part of a bachelor thesis at Czech Technical University in Prague.</string>
+    <string name="about_oog_title">About Questopix</string>
+    <string name="about_oog_description">Questopix is a mobile platform for playing outdoor games. It is open source and developed as a part of a bachelor thesis at Czech Technical University in Prague.</string>
     <string name="project_website">Project Website</string>
     <string name="privacy_policy">Privacy Policy</string>
 
