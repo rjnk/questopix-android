@@ -16,9 +16,18 @@ import com.rejnek.oog.data.model.Coordinates
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
+/**
+ * Manages GPS location tracking using FusedLocationProviderClient.
+ *
+ * Provides high-accuracy location updates at 1.5 second intervals with 1 meter minimum
+ * displacement. Exposes current location via [currentLocation] StateFlow.
+ * Requires ACCESS_FINE_LOCATION permission.
+ */
 class LocationService(private val context: Context) {
     private val fusedLocationClient: FusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context)
     private val _currentLocation: MutableStateFlow<Coordinates?> = MutableStateFlow(null)
+
+    /** Current GPS coordinates, null if location is unavailable or updates haven't started. */
     val currentLocation: StateFlow<Coordinates?> = _currentLocation
 
     private val locationCallback = object : LocationCallback() {
@@ -30,6 +39,10 @@ class LocationService(private val context: Context) {
         }
     }
 
+    /**
+     * Starts continuous location updates. Requires ACCESS_FINE_LOCATION permission.
+     * Silently fails if permission is not granted.
+     */
     fun startLocationUpdates() {
         // Simple permission check – if neither fine nor coarse permission is granted, abort.
         val fineGranted = ContextCompat.checkSelfPermission(
@@ -59,6 +72,7 @@ class LocationService(private val context: Context) {
         )
     }
 
+    /** Stops location updates and releases location resources. */
     fun stopLocationUpdates() {
         Log.d("LocationService", "Stopping location updates")
         fusedLocationClient.removeLocationUpdates(locationCallback)

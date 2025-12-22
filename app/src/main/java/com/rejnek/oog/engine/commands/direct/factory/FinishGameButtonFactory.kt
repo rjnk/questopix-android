@@ -11,6 +11,11 @@ import androidx.compose.ui.unit.sp
 import com.rejnek.oog.engine.commands.GenericDirectFactory
 import com.rejnek.oog.data.repository.UiCaptureExclusions
 
+/**
+ * Factory to create a button UI element that triggers a game finish.
+ * The user is navigated to the library after clicking on the button and the game is marked as ARCHIVED
+ * Usage: finishGameButton("Finish")
+ */
 class FinishGameButtonFactory : GenericDirectFactory() {
     override val id = "finishGameButton"
 

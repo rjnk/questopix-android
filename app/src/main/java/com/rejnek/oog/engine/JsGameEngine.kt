@@ -19,6 +19,11 @@ import kotlinx.serialization.json.JsonObject
 import kotlin.coroutines.resume
 import kotlin.text.toBoolean
 
+/**
+ * JavaScript engine is responsible creating the WebView and executing JavaScript code inside it.
+ *
+ * @param context The application context
+ */
 class JsGameEngine(
     private val context: Context
 ) {

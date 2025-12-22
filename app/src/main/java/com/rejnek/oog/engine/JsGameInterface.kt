@@ -15,6 +15,9 @@ import kotlinx.coroutines.launch
 
 /**
  * JavaScript interface class that serves as a bridge between JS and Kotlin
+ *
+ * @param gameItems The list of available commands to be executed
+ * @param webView The WebView instance to use for JavaScript evaluation
  */
 class JsGameInterface(
     private val gameItems: ArrayList<GenericCommandFactory>,

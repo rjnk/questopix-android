@@ -16,6 +16,12 @@ import com.rejnek.oog.ui.viewmodel.SharedEventsViewModel
 import org.koin.androidx.compose.koinViewModel
 import androidx.activity.compose.LocalActivity
 
+/**
+ * Main navigation router for the app using Jetpack Navigation Compose.
+ *
+ * Manages navigation between all app screens (Onboarding, Home, Library, GameInfo,
+ * Settings, GameTask) and handles back button behavior and state preservation.
+ */
 @Composable
 fun AppRouter() {
     val navController: NavHostController = rememberNavController()
