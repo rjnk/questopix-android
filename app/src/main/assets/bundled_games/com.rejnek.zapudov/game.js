@@ -2,6 +2,7 @@
 var _score = 0;
 var _timerStart = Date.now();
 var _timeElapsed = 0;
+var _disabled = ["studna"];
 
 // Úvodní úkol
 const start = {
@@ -47,21 +48,25 @@ const pristreske = {
         button("💪 Maximální nasazení", () => {
             _score += 20;
             popUp("Skvělá práce! ⭐ +20 bodů", "cestaKValecovu");
+            disable("pristreske");
         });
 
         button("👍 Pomáhal jsem", () => {
             _score += 10;
             popUp("Dobrá práce! ✅ +10 bodů", "cestaKValecovu");
+            disable("pristreske");
         });
 
         button("🤏 Malá pomoc", () => {
             _score += 5;
             popUp("Alespoň něco! +5 bodů", "cestaKValecovu");
+            disable("pristreske");
         });
 
         button("😬 Nic jsem nedělal", () => {
             _score -= 5;
             popUp("Škoda... 😔 -5 bodů", "cestaKValecovu");
+            disable("pristreske");
         });
     }
 }
@@ -95,6 +100,7 @@ const valecov = {
             } else {
                 popUp("Špatně! ❌ Správná odpověď: Skaláci", "valecovOtazka2");
             }
+            disable("valecov");
         }, "Skaláci", "Horníci", "Poustevníci", "Valečáci");
     }
 }
@@ -182,6 +188,7 @@ const skalka = {
             } else {
                 popUp("Příště určitě! 😊 +0 bodů", "cestaKKameni");
             }
+            disable("skalka");
         }, "🥇 Byl jsem nejvýš ze všech!", "🥈 Vylezl jsem, ale ne nejvýš", "😅 Nevylezl jsem na strom");
     }
 }
@@ -212,6 +219,7 @@ const obetniKamen = {
         button("✅ Máme to!", () => {
             _score += 10;
             popUp("Děsivě dobré! 😈 +10 bodů", "cestaKBrane");
+            disable("obetniKamen");
         });
     }
 }
@@ -246,6 +254,7 @@ const smrkovec = {
         text("Teď pokračuj ke Skalní bráně. 🧭");
         image("skalni-brana-polo-mapa.png");
         text("PS: tvoje aktuální skóre: " + _score + " bodů 🏆");
+        disable("smrkovec");
     }
 }
 
@@ -272,6 +281,7 @@ const skalniGate = {
             } else {
                 popUp("Příště se zapoj víc! 😊 +0 bodů", "cestaKKapli");
             }
+            disable("skalniGate");
         }, "🔥 Zapálil jsem ho", "🪵 Nosil jsem dřevo", "👀 Jen jsem koukal");
     }
 }
@@ -302,16 +312,22 @@ const kaple = {
         button("✅ Hotovo", () => {
             _score += 10;
             popUp("Krásné! 💝 +10 bodů", "cestaKeStudne");
+            disable("kaple");
         });
 
         button("⏭️ Přeskočit", () => {
             showTask("cestaKeStudne");
+            disable("kaple");
         });
     }
 }
 
 // Navigace ke studně
 const cestaKeStudne = {
+    onStartFirst: () => {
+        enable("studna");
+    },
+
     onStart: () => {
         heading("🏠 Cesta domů", "center");
         text("Teď se vydejte zpátky domů. 🚶");
@@ -338,10 +354,12 @@ const studna = {
         button("🪣 Jdu do toho! 💦", () => {
             _score += 50;
             popUp("Hrdina! 🦸 +50 bodů", "finish");
+            disable("studna");
         });
 
         button("😅 Raději ne (Pass)", () => {
             popUp("Škoda... Pokračujeme... 🏃", "finish");
+            disable("studna");
         });
     }
 }
