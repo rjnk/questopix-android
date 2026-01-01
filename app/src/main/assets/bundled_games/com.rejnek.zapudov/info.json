@@ -1,0 +1,17 @@
+{
+    "id": "com.rejnek.zapudov",
+    "name": "Zápudovská hra",
+    "description": "Zimní hra v okolí Zápudova v Českém ráji. Je doporučeno hrát, když je zrovna sníh. Hru hraje každý sám za sebe a počítá se skóre.",
+    "coverPhoto": "cover.jpeg",
+    "startLocation": {
+        "text": "Zápudov, Český ráj"
+    },
+    "finishLocation": {
+        "text": "Zápudov, Český ráj"
+    },
+    "attributes": {
+        "Očekávaná délka": "3 hodiny",
+        "Mentální náročnost": "2/5",
+        "Fyzická náročnost": "3/5"
+    }
+}
