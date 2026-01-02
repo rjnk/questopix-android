@@ -152,6 +152,7 @@ class JsGameEngine(
         }
 
         evaluateJs("$elementId.onStart()")
+        evaluateJs("disable(\"$elementId\")")
         evaluateJs("save()")
     }
 
